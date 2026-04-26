@@ -94,6 +94,11 @@ app.post('/admin/desativar', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+app.post('/admin/excluir', async (req, res) => {
+  const { email } = req.body;
+  await pool.query('DELETE FROM usuarios WHERE email = $1', [email]);
+  res.json({ sucesso: true, mensagem: `${email} excluído!` });
+});
 app.listen(PORT, async () => {
   await initDB();
   console.log(`Servidor rodando na porta ${PORT}`);
