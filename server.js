@@ -99,6 +99,28 @@ app.post('/admin/excluir', async (req, res) => {
   await pool.query('DELETE FROM usuarios WHERE email = $1', [email]);
   res.json({ sucesso: true, mensagem: `${email} excluído!` });
 });
+
+// Rota que chama o OpenRouter com a chave protegida
+app.post('/analisar', verificarAcesso, async (req, res) => {
+  const { prompt } = req.body;
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'google/gemma-3-4b-it:free',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (e) {
+    res.json({ error: 'Erro ao chamar API' });
+  }
+});
 app.listen(PORT, async () => {
   await initDB();
   console.log(`Servidor rodando na porta ${PORT}`);

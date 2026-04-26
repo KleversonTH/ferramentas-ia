@@ -218,11 +218,11 @@ Responda APENAS em JSON válido, sem texto antes ou depois, neste formato exato:
 Valores válidos para tendencia: "Crescendo", "Estável", "Caindo"`;
 
     try {
-        const response = await fetch('https://ferramentas-ia-production.up.railway.app/ferramenta', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${API_KEY}` },
-        body: JSON.stringify({ model: 'google/gemma-3-4b-it:free', messages: [{ role: 'user', content: prompt }] })
-      });
+        const response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'authorization': token },
+          body: JSON.stringify({ prompt })
+        });
 
       const data = await response.json();
       if (!data.choices) { mostrarErro('Erro na API. Verifique sua chave.'); return; }
