@@ -1,3 +1,4 @@
+const fetch = require('node-fetch');
 const express = require('express');
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
