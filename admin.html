@@ -107,8 +107,8 @@
 
   function atualizarStats(lista) {
     document.getElementById('total').textContent = lista.length;
-    document.getElementById('ativos').textContent = lista.filter(u => u.ativo === 1).length;
-    document.getElementById('inativos').textContent = lista.filter(u => u.ativo === 0).length;
+    document.getElementById('ativos').textContent = lista.filter(u => u.ativo == 1).length;
+    document.getElementById('inativos').textContent = lista.filter(u => u.ativo == 0).length;
   }
 
   function filtrar() {
@@ -131,13 +131,13 @@
         <td>${u.nome}</td>
         <td style="color:#888899;">${u.email}</td>
         <td>
-          ${u.ativo === 1
+          ${u.ativo == 1
             ? '<span class="status-ativo">Ativo</span>'
             : '<span class="status-inativo">Inativo</span>'
           }
         </td>
         <td>
-          ${u.ativo === 0
+          ${u.ativo == 0
             ? `<button class="btn-ativar" onclick="ativar('${u.email}')">Ativar</button>`
             : `<button class="btn-desativar" onclick="desativar('${u.email}')">Desativar</button>`
           }
