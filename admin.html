@@ -96,7 +96,7 @@
 
   async function carregar() {
     try {
-      const response = await fetch('http://localhost:3000/admin/usuarios');
+      const response = await fetch('https://ferramentas-ia-production.up.railway.app');
       usuarios = await response.json();
       renderizar(usuarios);
       atualizarStats(usuarios);
@@ -147,7 +147,7 @@
   }
 
   async function ativar(email) {
-    await fetch('http://localhost:3000/admin/ativar', {
+    await fetch('https://ferramentas-ia-production.up.railway.app', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
@@ -157,7 +157,7 @@
   }
 
   async function desativar(email) {
-    await fetch('http://localhost:3000/admin/desativar', {
+    await fetch('https://ferramentas-ia-production.up.railway.app', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })

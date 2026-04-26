@@ -51,6 +51,7 @@
 </div>
 
 <script>
+  const BASE_URL = 'https://ferramentas-ia-production.up.railway.app';
   let modo = 'login';
 
   function alternarModo() {
@@ -73,7 +74,7 @@
     if (!email || !senha) { mostrarErro('Preencha todos os campos.'); return; }
     if (modo === 'cadastro' && !nome) { mostrarErro('Digite seu nome.'); return; }
 
-    const url = modo === 'login' ? 'http://localhost:3000/login' : 'http://localhost:3000/cadastro';
+    const url = modo === 'login' ? `${BASE_URL}/login` : `${BASE_URL}/cadastro`;
     const body = modo === 'login' ? { email, senha } : { nome, email, senha };
 
     try {
