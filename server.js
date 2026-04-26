@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 const express = require('express');
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
@@ -102,25 +101,39 @@ app.post('/admin/excluir', async (req, res) => {
 });
 
 // Rota que chama o OpenRouter com a chave protegida
+const https = require('https');
+
 app.post('/analisar', verificarAcesso, async (req, res) => {
   const { prompt } = req.body;
-  try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'google/gemma-3-4b-it:free',
-        messages: [{ role: 'user', content: prompt }]
-      })
+  const body = JSON.stringify({
+    model: 'google/gemma-3-4b-it:free',
+    messages: [{ role: 'user', content: prompt }]
+  });
+
+  const options = {
+    hostname: 'openrouter.ai',
+    path: '/api/v1/chat/completions',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'Content-Length': Buffer.byteLength(body)
+    }
+  };
+
+  const request = https.request(options, (response) => {
+    let data = '';
+    response.on('data', chunk => data += chunk);
+    response.on('end', () => {
+      try {
+        res.json(JSON.parse(data));
+      } catch (e) {
+        res.json({ error: 'Erro ao parsear resposta' });
+      }
     });
-    const data = await response.json();
-    console.log('Resposta OpenRouter:', JSON.stringify(data));
-    res.json(data);
-  } catch (e) {
-    console.log('Erro:', e.message);
-    res.json({ error: 'Erro ao chamar API' });
-  }
+  });
+
+  request.on('error', (e) => res.json({ error: e.message }));
+  request.write(body);
+  request.end();
 });
