@@ -116,12 +116,10 @@ app.post('/analisar', verificarAcesso, async (req, res) => {
       })
     });
     const data = await response.json();
+    console.log('Resposta OpenRouter:', JSON.stringify(data));
     res.json(data);
   } catch (e) {
+    console.log('Erro:', e.message);
     res.json({ error: 'Erro ao chamar API' });
   }
-});
-app.listen(PORT, async () => {
-  await initDB();
-  console.log(`Servidor rodando na porta ${PORT}`);
 });
