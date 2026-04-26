@@ -147,7 +147,7 @@
   }
 
   async function ativar(email) {
-    await fetch('https://ferramentas-ia-production.up.railway.app', {
+    await fetch('https://ferramentas-ia-production.up.railway.app/admin/ativar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
@@ -157,7 +157,7 @@
   }
 
   async function desativar(email) {
-    await fetch('https://ferramentas-ia-production.up.railway.app', {
+    await fetch('https://ferramentas-ia-production.up.railway.app/admin/desativar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
