@@ -155,16 +155,6 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
     });
-    async function excluir(email) {
-      if (!confirm(`Excluir ${email}?`)) return;
-      await fetch('https://ferramentas-ia-production.up.railway.app/admin/excluir', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      mostrarToast(`🗑️ ${email} excluído!`);
-      carregar();
-}
     mostrarToast(`✅ ${email} ativado!`);
     carregar();
   }
@@ -179,6 +169,17 @@
     carregar();
   }
 
+  async function excluir(email) {
+    if (!confirm(`Excluir ${email}?`)) return;
+    await fetch('https://ferramentas-ia-production.up.railway.app/admin/excluir', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    mostrarToast(`🗑️ ${email} excluído!`);
+    carregar();
+  }
+
   function mostrarToast(msg) {
     const toast = document.getElementById('toast');
     toast.textContent = msg;
@@ -188,5 +189,3 @@
 
   carregar();
 </script>
-</body>
-</html>
