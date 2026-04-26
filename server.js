@@ -1,3 +1,4 @@
+const https = require('https');
 const express = require('express');
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
@@ -101,7 +102,6 @@ app.post('/admin/excluir', async (req, res) => {
 });
 
 // Rota que chama o OpenRouter com a chave protegida
-const https = require('https');
 
 app.post('/analisar', verificarAcesso, async (req, res) => {
   const { prompt } = req.body;
@@ -136,4 +136,9 @@ app.post('/analisar', verificarAcesso, async (req, res) => {
   request.on('error', (e) => res.json({ error: e.message }));
   request.write(body);
   request.end();
+});
+
+app.listen(PORT, async () => {
+  await initDB();
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
