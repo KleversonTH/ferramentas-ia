@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Painel Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0f; min-height: 100vh; padding: 2rem 1rem; color: #e8e8f0; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    h1 { font-size: 22px; font-weight: 600; color: #fff; }
+    h1 span { background: linear-gradient(135deg, #facc15, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .badge-admin { font-size: 11px; font-family: 'JetBrains Mono', monospace; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; padding: 3px 10px; border-radius: 100px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 2rem; }
+    .stat-card { background: #13131a; border: 1px solid #1e1e2e; border-radius: 12px; padding: 1.25rem; }
+    .stat-label { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #555570; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .stat-valor { font-size: 28px; font-weight: 600; color: #facc15; }
+    .card { background: #13131a; border: 1px solid #1e1e2e; border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .card-titulo { font-size: 13px; font-family: 'JetBrains Mono', monospace; color: #555570; text-transform: uppercase; letter-spacing: 0.08em; }
+    .busca { width: 100%; padding: 10px 14px; font-size: 13px; border: 1px solid #1e1e2e; border-radius: 8px; background: #0d0d14; color: #c8c8e0; font-family: 'Space Grotesk', sans-serif; margin-bottom: 1rem; }
+    .busca:focus { outline: none; border-color: #facc15; }
+    .busca::placeholder { color: #333350; }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #555570; text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 12px; text-align: left; border-bottom: 1px solid #1e1e2e; }
+    td { padding: 12px; font-size: 13px; color: #c8c8e0; border-bottom: 1px solid #0d0d14; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .status-ativo { display: inline-flex; align-items: center; gap: 4px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); color: #86efac; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 100px; }
+    .status-inativo { display: inline-flex; align-items: center; gap: 4px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 100px; }
+    .status-ativo::before { content: '●'; font-size: 8px; }
+    .status-inativo::before { content: '●'; font-size: 8px; }
+    .btn-ativar { font-size: 12px; padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); color: #86efac; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: border-color 0.2s; }
+    .btn-ativar:hover { border-color: #86efac; }
+    .btn-desativar { font-size: 12px; padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); color: #fca5a5; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: border-color 0.2s; }
+    .btn-desativar:hover { border-color: #fca5a5; }
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: #13131a; border: 1px solid #1e1e2e; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #86efac; display: none; z-index: 999; }
+    .vazio { text-align: center; padding: 2rem; font-size: 13px; color: #555570; }
+    .refresh { font-size: 12px; padding: 6px 12px; border-radius: 8px; border: 1px solid #1e1e2e; background: transparent; color: #666680; cursor: pointer; font-family: 'Space Grotesk', sans-serif; }
+    .refresh:hover { border-color: #facc15; color: #facc15; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>Painel <span>Admin</span></h1>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <span class="badge-admin">admin</span>
+      <button class="refresh" onclick="carregar()">↻ Atualizar</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-label">Total usuários</div>
+      <div class="stat-valor" id="total">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Ativos</div>
+      <div class="stat-valor" id="ativos" style="color:#86efac;">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Inativos</div>
+      <div class="stat-valor" id="inativos" style="color:#fca5a5;">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <span class="card-titulo">Usuários cadastrados</span>
+    </div>
+    <input class="busca" type="text" id="busca" placeholder="Buscar por nome ou email..." oninput="filtrar()" />
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody id="tabela"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let usuarios = [];
+
+  async function carregar() {
+    try {
+      const response = await fetch('http://localhost:3000/admin/usuarios');
+      usuarios = await response.json();
+      renderizar(usuarios);
+      atualizarStats(usuarios);
+    } catch (e) {
+      console.error('Erro ao carregar usuários');
+    }
+  }
+
+  function atualizarStats(lista) {
+    document.getElementById('total').textContent = lista.length;
+    document.getElementById('ativos').textContent = lista.filter(u => u.ativo === 1).length;
+    document.getElementById('inativos').textContent = lista.filter(u => u.ativo === 0).length;
+  }
+
+  function filtrar() {
+    const busca = document.getElementById('busca').value.toLowerCase();
+    const filtrados = usuarios.filter(u =>
+      u.nome.toLowerCase().includes(busca) || u.email.toLowerCase().includes(busca)
+    );
+    renderizar(filtrados);
+  }
+
+  function renderizar(lista) {
+    const tabela = document.getElementById('tabela');
+    if (lista.length === 0) {
+      tabela.innerHTML = '<tr><td colspan="5" class="vazio">Nenhum usuário encontrado</td></tr>';
+      return;
+    }
+    tabela.innerHTML = lista.map(u => `
+      <tr>
+        <td style="color:#555570; font-family: monospace;">${u.id}</td>
+        <td>${u.nome}</td>
+        <td style="color:#888899;">${u.email}</td>
+        <td>
+          ${u.ativo === 1
+            ? '<span class="status-ativo">Ativo</span>'
+            : '<span class="status-inativo">Inativo</span>'
+          }
+        </td>
+        <td>
+          ${u.ativo === 0
+            ? `<button class="btn-ativar" onclick="ativar('${u.email}')">Ativar</button>`
+            : `<button class="btn-desativar" onclick="desativar('${u.email}')">Desativar</button>`
+          }
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  async function ativar(email) {
+    await fetch('http://localhost:3000/admin/ativar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    mostrarToast(`✅ ${email} ativado!`);
+    carregar();
+  }
+
+  async function desativar(email) {
+    await fetch('http://localhost:3000/admin/desativar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    mostrarToast(`❌ ${email} desativado!`);
+    carregar();
+  }
+
+  function mostrarToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.display = 'block';
+    setTimeout(() => toast.style.display = 'none', 3000);
+  }
+
+  carregar();
+</script>
+</body>
+</html>

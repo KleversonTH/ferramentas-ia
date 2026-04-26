@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ferramentas IA — Analisador de Produtos ML</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0f; color: #e8e8f0; }
+
+    /* NAVBAR */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,15,0.9); border-bottom: 1px solid #1e1e2e; padding: 14px 2rem; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
+    .nav-logo { font-size: 16px; font-weight: 600; color: #fff; }
+    .nav-logo span { background: linear-gradient(135deg, #facc15, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-links a { font-size: 13px; padding: 7px 16px; border-radius: 8px; text-decoration: none; transition: all 0.2s; }
+    .nav-login { color: #888899; border: 1px solid #1e1e2e; }
+    .nav-login:hover { border-color: #555570; color: #c8c8e0; }
+    .nav-cta { background: linear-gradient(135deg, #facc15, #f97316); color: #0a0a0f !important; font-weight: 600; }
+    .nav-cta:hover { opacity: 0.9; }
+
+    /* HERO */
+    .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 6rem 1rem 4rem; position: relative; overflow: hidden; }
+    .hero-glow { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 800px; height: 500px; background: radial-gradient(ellipse, rgba(250,204,21,0.08) 0%, transparent 70%); pointer-events: none; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.2); border-radius: 100px; padding: 6px 16px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: #fde68a; margin-bottom: 1.5rem; letter-spacing: 0.04em; }
+    .hero-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #facc15; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .hero h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 700; color: #fff; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 1.25rem; max-width: 800px; }
+    .hero h1 span { background: linear-gradient(135deg, #facc15, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero p { font-size: 18px; color: #666680; line-height: 1.7; max-width: 540px; margin-bottom: 2.5rem; }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .btn-hero { padding: 14px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; text-decoration: none; transition: all 0.2s; font-family: 'Space Grotesk', sans-serif; cursor: pointer; border: none; }
+    .btn-hero-primary { background: linear-gradient(135deg, #facc15, #f97316); color: #0a0a0f; }
+    .btn-hero-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-hero-secondary { background: transparent; color: #c8c8e0; border: 1px solid #1e1e2e; }
+    .btn-hero-secondary:hover { border-color: #555570; }
+
+    /* FEATURES */
+    .section { padding: 5rem 1rem; max-width: 1000px; margin: 0 auto; }
+    .section-label { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: #facc15; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; text-align: center; }
+    .section-title { font-size: clamp(24px, 4vw, 36px); font-weight: 600; color: #fff; text-align: center; margin-bottom: 1rem; letter-spacing: -0.02em; }
+    .section-sub { font-size: 15px; color: #666680; text-align: center; margin-bottom: 3rem; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+    .feature-card { background: #13131a; border: 1px solid #1e1e2e; border-radius: 16px; padding: 1.5rem; transition: border-color 0.2s; }
+    .feature-card:hover { border-color: rgba(250,204,21,0.2); }
+    .feature-icon { font-size: 28px; margin-bottom: 12px; }
+    .feature-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+    .feature-desc { font-size: 13px; color: #666680; line-height: 1.6; }
+
+    /* PREÇOS */
+    .precos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; max-width: 800px; margin: 0 auto; }
+    .preco-card { background: #13131a; border: 1px solid #1e1e2e; border-radius: 16px; padding: 2rem; position: relative; }
+    .preco-card.destaque { border-color: rgba(250,204,21,0.4); background: linear-gradient(135deg, rgba(250,204,21,0.05), rgba(249,115,22,0.05)); }
+    .preco-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #facc15, #f97316); color: #0a0a0f; font-size: 11px; font-weight: 600; padding: 4px 14px; border-radius: 100px; white-space: nowrap; font-family: 'JetBrains Mono', monospace; }
+    .preco-nome { font-size: 13px; font-family: 'JetBrains Mono', monospace; color: #555570; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .preco-valor { font-size: 42px; font-weight: 700; color: #fff; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .preco-valor span { font-size: 16px; font-weight: 400; color: #666680; }
+    .preco-desc { font-size: 13px; color: #666680; margin-bottom: 1.5rem; }
+    .preco-lista { list-style: none; margin-bottom: 1.5rem; }
+    .preco-lista li { font-size: 13px; color: #888899; padding: 6px 0; border-bottom: 1px solid #0d0d14; display: flex; align-items: center; gap: 8px; }
+    .preco-lista li::before { content: '✓'; color: #facc15; font-weight: 600; }
+    .btn-preco { width: 100%; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; text-decoration: none; text-align: center; display: block; font-family: 'Space Grotesk', sans-serif; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn-preco-primary { background: linear-gradient(135deg, #facc15, #f97316); color: #0a0a0f; }
+    .btn-preco-primary:hover { opacity: 0.9; }
+    .btn-preco-secondary { background: transparent; color: #c8c8e0; border: 1px solid #1e1e2e; }
+    .btn-preco-secondary:hover { border-color: #555570; }
+
+    /* FAQ */
+    .faq-lista { max-width: 640px; margin: 0 auto; }
+    .faq-item { border-bottom: 1px solid #1e1e2e; padding: 1.25rem 0; cursor: pointer; }
+    .faq-pergunta { font-size: 15px; font-weight: 500; color: #c8c8e0; display: flex; justify-content: space-between; align-items: center; }
+    .faq-pergunta span { color: #facc15; font-size: 18px; transition: transform 0.2s; }
+    .faq-resposta { font-size: 14px; color: #666680; line-height: 1.7; margin-top: 10px; display: none; }
+    .faq-item.aberto .faq-resposta { display: block; }
+    .faq-item.aberto .faq-pergunta span { transform: rotate(45deg); }
+
+    /* CTA FINAL */
+    .cta-final { text-align: center; padding: 5rem 1rem; background: linear-gradient(135deg, rgba(250,204,21,0.05), rgba(249,115,22,0.03)); border-top: 1px solid #1e1e2e; border-bottom: 1px solid #1e1e2e; }
+    .cta-final h2 { font-size: clamp(24px, 4vw, 36px); font-weight: 600; color: #fff; margin-bottom: 12px; letter-spacing: -0.02em; }
+    .cta-final p { font-size: 15px; color: #666680; margin-bottom: 2rem; }
+
+    /* FOOTER */
+    footer { text-align: center; padding: 2rem 1rem; font-size: 12px; color: #2a2a40; font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="nav-logo">Ferramentas <span>IA</span></div>
+  <div class="nav-links">
+    <a href="login.html" class="nav-login">Entrar</a>
+    <a href="login.html" class="btn-hero nav-cta">Começar grátis</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge">IA ativa — resultados em segundos</div>
+  <h1>Descubra produtos para vender no <span>Mercado Livre</span> com IA</h1>
+  <p>Analise nichos, encontre produtos com alta demanda e margem de lucro, e acesse fornecedores — tudo em segundos com Inteligência Artificial.</p>
+  <div class="hero-btns">
+    <a href="login.html" class="btn-hero btn-hero-primary">Começar agora →</a>
+    <a href="#precos" class="btn-hero btn-hero-secondary">Ver planos</a>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<div class="section">
+  <p class="section-label">Funcionalidades</p>
+  <h2 class="section-title">Tudo que você precisa para vender mais</h2>
+  <p class="section-sub">Nossa IA analisa o mercado e te dá insights práticos para tomar decisões melhores</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Análise de demanda</div>
+      <div class="feature-desc">Veja quais produtos têm alta demanda e baixa concorrência no Mercado Livre agora.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">↑</div>
+      <div class="feature-title">Tendência do produto</div>
+      <div class="feature-desc">Saiba se o produto está crescendo, estável ou caindo para evitar investir errado.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🏭</div>
+      <div class="feature-title">Links de fornecedores</div>
+      <div class="feature-desc">Acesse AliExpress, Shopee, Alibaba e Mercado Livre com um clique para pesquisar preços reais.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⭐</div>
+      <div class="feature-title">Salvar favoritos</div>
+      <div class="feature-desc">Favorite os produtos que mais gostou e compare antes de tomar sua decisão.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-title">Dicas práticas</div>
+      <div class="feature-desc">Receba dicas personalizadas de como se destacar na venda de cada produto.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Resultado em segundos</div>
+      <div class="feature-desc">Sem espera — nossa IA analisa e retorna os melhores produtos em menos de 10 segundos.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PREÇOS -->
+<div class="section" id="precos">
+  <p class="section-label">Planos</p>
+  <h2 class="section-title">Simples e sem surpresas</h2>
+  <p class="section-sub">Comece grátis e faça upgrade quando quiser</p>
+  <div class="precos-grid">
+    <div class="preco-card">
+      <div class="preco-nome">Gratuito</div>
+      <div class="preco-valor">R$ 0<span>/mês</span></div>
+      <div class="preco-desc">Para quem quer experimentar</div>
+      <ul class="preco-lista">
+        <li>3 análises por dia</li>
+        <li>4 produtos por análise</li>
+        <li>Links de fornecedores</li>
+        <li>Favoritar produtos</li>
+      </ul>
+      <a href="login.html" class="btn-preco btn-preco-secondary">Criar conta grátis</a>
+    </div>
+    <div class="preco-card destaque">
+      <div class="preco-badge">Mais popular</div>
+      <div class="preco-nome">Pro</div>
+      <div class="preco-valor">R$ 29<span>/mês</span></div>
+      <div class="preco-desc">Para vendedores sérios</div>
+      <ul class="preco-lista">
+        <li>Análises ilimitadas</li>
+        <li>4 produtos por análise</li>
+        <li>Links de fornecedores</li>
+        <li>Favoritar produtos</li>
+        <li>Suporte por WhatsApp</li>
+        <li>Atualizações gratuitas</li>
+      </ul>
+      <a href="login.html" class="btn-preco btn-preco-primary">Assinar agora →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="section">
+  <p class="section-label">Dúvidas</p>
+  <h2 class="section-title">Perguntas frequentes</h2>
+  <p class="section-sub" style="margin-bottom:2rem;">Não encontrou sua dúvida? Entre em contato pelo WhatsApp</p>
+  <div class="faq-lista">
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-pergunta">Como funciona o pagamento? <span>+</span></div>
+      <div class="faq-resposta">Após o cadastro, você entra em contato pelo WhatsApp e realiza o pagamento via Pix. A ativação é feita em até 1 hora.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-pergunta">Os dados são em tempo real? <span>+</span></div>
+      <div class="faq-resposta">A análise é feita por IA com base em tendências de mercado. Sempre recomendamos pesquisar os preços reais nos links de fornecedores antes de investir.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-pergunta">Posso cancelar quando quiser? <span>+</span></div>
+      <div class="faq-resposta">Sim! Não há fidelidade. Você pode cancelar a qualquer momento pelo WhatsApp e não será cobrado no mês seguinte.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-pergunta">Funciona para qualquer categoria? <span>+</span></div>
+      <div class="faq-resposta">Sim! Você pode analisar qualquer categoria — eletrônicos, beleza, casa, fitness, pet, infantil e muito mais.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-pergunta">Preciso ter experiência para usar? <span>+</span></div>
+      <div class="faq-resposta">Não! A ferramenta foi criada para ser simples. Qualquer pessoa consegue usar sem conhecimento técnico.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA FINAL -->
+<div class="cta-final">
+  <h2>Pronto para vender mais no Mercado Livre?</h2>
+  <p>Comece gratuitamente hoje e descubra produtos lucrativos em segundos.</p>
+  <a href="login.html" class="btn-hero btn-hero-primary">Criar minha conta grátis →</a>
+</div>
+
+<footer>
+  Ferramentas IA — feito com python + node.js + openrouter
+</footer>
+
+<script>
+  function toggleFaq(el) {
+    el.classList.toggle('aberto');
+  }
+</script>
+</body>
+</html>
