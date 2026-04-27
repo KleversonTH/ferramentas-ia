@@ -94,8 +94,22 @@
         return;
 }
         localStorage.setItem('token', data.token);
-        mostrarSucesso('Login realizado! Redirecionando...');
-        setTimeout(() => window.location.href = 'ferramenta.html', 1500);
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('plano') === 'pro') {
+          mostrarSucesso('Login realizado! Redirecionando para pagamento...');
+          const resp = await fetch('https://ferramentas-ia-production.up.railway.app/criar-pagamento', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          const pagamento = await resp.json();
+          if (pagamento.sucesso) {
+            setTimeout(() => window.location.href = pagamento.url, 1500);
+          }
+        } else {
+          mostrarSucesso('Login realizado! Redirecionando...');
+          setTimeout(() => window.location.href = 'ferramenta.html', 1500);
+        }
       } else {
         mostrarSucesso('Cadastro realizado! Aguarde a ativação da sua conta.');
       }
