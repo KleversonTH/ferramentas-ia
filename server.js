@@ -154,6 +154,8 @@ app.post('/criar-pagamento', async (req, res) => {
           currency_id: 'BRL'
         }],
         payer: { email },
+        metadata: { email },
+        external_reference: email,
         back_urls: {
           success: 'https://ferramentas-ia-production.up.railway.app/login.html',
           failure: 'https://ferramentas-ia-production.up.railway.app/login.html',
@@ -173,9 +175,19 @@ app.post('/criar-pagamento', async (req, res) => {
 // Webhook — Mercado Pago avisa quando alguém paga
 app.post('/webhook', async (req, res) => {
   const { type, data } = req.body;
-  if (type === 'payment') {
-    // aqui vamos ativar o usuário automaticamente
-    console.log('Pagamento recebido:', data.id);
+  if (type === 'payment' && data?.id) {
+    try {
+      const { Payment } = require('mercadopago');
+      const payment = new Payment(mp);
+      const resultado = await payment.get({ id: data.id });
+      if (resultado.status === 'approved') {
+        const email = resultado.external_reference;
+        await pool.query('UPDATE usuarios SET ativo = 1 WHERE email = $1', [email]);
+        console.log(`Usuário ${email} ativado após pagamento!`);
+      }
+    } catch (e) {
+      console.log('Erro no webhook:', e.message);
+    }
   }
   res.sendStatus(200);
 });
