@@ -191,6 +191,13 @@ app.post('/webhook', async (req, res) => {
   }
   res.sendStatus(200);
 });
+app.get('/debug-db', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT table_name FROM information_schema.tables 
+    WHERE table_schema = 'public'
+  `);
+  res.json(rows);
+});
 
 app.listen(PORT, async () => {
   await initDB();
