@@ -23,7 +23,10 @@ async function initDB() {
       nome TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       senha TEXT NOT NULL,
-      ativo INTEGER DEFAULT 0
+      ativo INTEGER DEFAULT 0,
+      plano VARCHAR(20) DEFAULT 'gratuito',
+      analises_hoje INTEGER DEFAULT 0,
+      ultima_analise DATE
     )
   `);
 }
@@ -66,9 +69,73 @@ function verificarAcesso(req, res, next) {
   }
 }
 
+// Middleware: verifica limite de análises
+async function verificarLimite(req, res, next) {
+  const userId = req.usuario.id;
+
+  const { rows } = await pool.query(
+    'SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1',
+    [userId]
+  );
+
+  const usuario = rows[0];
+  const hoje = new Date().toISOString().split('T')[0];
+  const ultimaData = usuario.ultima_analise
+    ? usuario.ultima_analise.toISOString().split('T')[0]
+    : null;
+
+  // Reseta contador se for um novo dia
+  if (ultimaData !== hoje) {
+    await pool.query(
+      'UPDATE usuarios SET analises_hoje = 0, ultima_analise = $1 WHERE id = $2',
+      [hoje, userId]
+    );
+    usuario.analises_hoje = 0;
+  }
+
+  // Bloqueia gratuito com 3 ou mais análises no dia
+  if (usuario.plano === 'gratuito' && usuario.analises_hoje >= 3) {
+    return res.status(403).json({
+      erro: 'Limite diário atingido. Faça upgrade para o plano Pro.',
+      limite: true
+    });
+  }
+
+  // Incrementa contador
+  await pool.query(
+    'UPDATE usuarios SET analises_hoje = analises_hoje + 1, ultima_analise = $1 WHERE id = $2',
+    [hoje, userId]
+  );
+
+  next();
+}
+
 // Ferramenta protegida
 app.get('/ferramenta', verificarAcesso, (req, res) => {
   res.json({ sucesso: true, mensagem: `Olá ${req.usuario.nome}! Você tem acesso à ferramenta.` });
+});
+
+// Rota plano do usuário
+app.get('/meu-plano', verificarAcesso, async (req, res) => {
+  const { rows } = await pool.query(
+    'SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1',
+    [req.usuario.id]
+  );
+
+  const usuario = rows[0];
+  const hoje = new Date().toISOString().split('T')[0];
+  const ultimaData = usuario.ultima_analise
+    ? usuario.ultima_analise.toISOString().split('T')[0]
+    : null;
+
+  const analisesHoje = ultimaData === hoje ? usuario.analises_hoje : 0;
+  const restantes = usuario.plano === 'pro' ? 'ilimitado' : Math.max(0, 3 - analisesHoje);
+
+  res.json({
+    plano: usuario.plano,
+    analisesHoje,
+    restantes
+  });
 });
 
 // Ativar usuário
@@ -80,7 +147,7 @@ app.post('/ativar', async (req, res) => {
 
 // Admin
 app.get('/admin/usuarios', async (req, res) => {
-  const result = await pool.query('SELECT id, nome, email, ativo FROM usuarios');
+  const result = await pool.query('SELECT id, nome, email, ativo, plano FROM usuarios');
   res.json(result.rows);
 });
 
@@ -104,8 +171,7 @@ app.post('/admin/excluir', async (req, res) => {
 });
 
 // Rota que chama o OpenRouter com a chave protegida
-
-app.post('/analisar', verificarAcesso, async (req, res) => {
+app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
   const { prompt } = req.body;
   const body = JSON.stringify({
     model: 'google/gemma-3-4b-it:free',
@@ -182,8 +248,8 @@ app.post('/webhook', async (req, res) => {
       const resultado = await payment.get({ id: data.id });
       if (resultado.status === 'approved') {
         const email = resultado.external_reference;
-        await pool.query('UPDATE usuarios SET ativo = 1 WHERE email = $1', [email]);
-        console.log(`Usuário ${email} ativado após pagamento!`);
+        await pool.query('UPDATE usuarios SET ativo = 1, plano = $1 WHERE email = $2', ['pro', email]);
+        console.log(`Usuário ${email} ativado com plano Pro após pagamento!`);
       }
     } catch (e) {
       console.log('Erro no webhook:', e.message);
@@ -198,6 +264,24 @@ app.get('/debug-db', async (req, res) => {
   `);
   res.json(rows);
 });
+app.get('/debug-colunas', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT column_name, data_type, column_default 
+    FROM information_schema.columns 
+    WHERE table_name = 'usuarios'
+  `);
+  res.json(rows);
+});
+
+// Rotas de debug — remover após confirmar funcionamento
+app.get('/debug-db', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT table_name FROM information_schema.tables 
+    WHERE table_schema = 'public'
+  `);
+  res.json(rows);
+});
+
 app.get('/debug-colunas', async (req, res) => {
   const { rows } = await pool.query(`
     SELECT column_name, data_type, column_default 
