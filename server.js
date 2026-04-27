@@ -1,3 +1,4 @@
+const { MercadoPagoConfig, Preference } = require('mercadopago');
 const https = require('https');
 const express = require('express');
 const { Pool } = require('pg');
@@ -8,6 +9,7 @@ app.use(express.json());
 app.use(express.static('.'));
 
 const SEGREDO = 'minha-chave-secreta-123';
+const { MercadoPagoConfig, Preference } = require('mercadopago');
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -136,6 +138,46 @@ app.post('/analisar', verificarAcesso, async (req, res) => {
   request.on('error', (e) => res.json({ error: e.message }));
   request.write(body);
   request.end();
+});
+
+// Criar pagamento
+app.post('/criar-pagamento', async (req, res) => {
+  const { email } = req.body;
+  try {
+    const preference = new Preference(mp);
+    const result = await preference.create({
+      body: {
+        items: [{
+          title: 'Ferramentas IA — Plano Pro',
+          quantity: 1,
+          unit_price: 29.90,
+          currency_id: 'BRL'
+        }],
+        payer: { email },
+        back_urls: {
+          success: 'https://ferramentas-ia-production.up.railway.app/login.html',
+          failure: 'https://ferramentas-ia-production.up.railway.app/login.html',
+          pending: 'https://ferramentas-ia-production.up.railway.app/login.html'
+        },
+        auto_return: 'approved',
+        notification_url: 'https://ferramentas-ia-production.up.railway.app/webhook'
+      }
+    });
+    res.json({ sucesso: true, url: result.init_point });
+  } catch (e) {
+    console.log('Erro MP:', e);
+    res.json({ sucesso: false, mensagem: 'Erro ao criar pagamento' });
+  }
+});
+
+// Webhook — Mercado Pago avisa quando alguém paga
+app.post('/webhook', async (req, res) => {
+  const { type, data } = req.body;
+  if (type === 'payment') {
+    // aqui vamos ativar o usuário automaticamente
+    console.log('Pagamento recebido:', data.id);
+  }
+  res.sendStatus(200);
 });
 
 app.listen(PORT, async () => {
