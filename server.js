@@ -198,6 +198,14 @@ app.get('/debug-db', async (req, res) => {
   `);
   res.json(rows);
 });
+app.get('/debug-colunas', async (req, res) => {
+  const { rows } = await pool.query(`
+    SELECT column_name, data_type, column_default 
+    FROM information_schema.columns 
+    WHERE table_name = 'usuarios'
+  `);
+  res.json(rows);
+});
 
 app.listen(PORT, async () => {
   await initDB();
