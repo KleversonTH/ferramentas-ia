@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.static('.'));
 
 const SEGREDO = 'minha-chave-secreta-123';
-const { MercadoPagoConfig, Preference } = require('mercadopago');
+const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
