@@ -294,6 +294,24 @@ app.get('/callback', (req, res) => {
   const code = req.query.code;
   res.send(`<h2>Seu code:</h2><p style="font-size:20px; word-break:break-all;">${code}</p>`);
 });
+app.get('/teste-ml', async (req, res) => {
+  const https = require('https');
+  const options = {
+    hostname: 'api.mercadolibre.com',
+    path: '/sites/MLB/search?q=suporte+celular+carro&limit=3',
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${process.env.ML_ACCESS_TOKEN}`
+    }
+  };
+  const request = https.request(options, (response) => {
+    let data = '';
+    response.on('data', chunk => data += chunk);
+    response.on('end', () => res.json(JSON.parse(data)));
+  });
+  request.on('error', (e) => res.json({ error: e.message }));
+  request.end();
+});
 
 app.listen(PORT, async () => {
   await initDB();
