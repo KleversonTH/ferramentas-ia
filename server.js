@@ -290,6 +290,10 @@ app.get('/debug-colunas', async (req, res) => {
   `);
   res.json(rows);
 });
+app.get('/callback', (req, res) => {
+  const code = req.query.code;
+  res.send(`<h2>Seu code:</h2><p style="font-size:20px; word-break:break-all;">${code}</p>`);
+});
 
 app.listen(PORT, async () => {
   await initDB();
