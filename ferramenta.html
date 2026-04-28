@@ -206,6 +206,7 @@
 
 <script>
   let favoritos = [];
+  let planoAtual = 'gratuito';
 
   function mudarTab(tab, btn) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('ativo'));
@@ -216,12 +217,21 @@
 
   function gerarLinks(nomeProduto) {
     const busca = encodeURIComponent(nomeProduto);
-    return [
+    const links = [
       { nome: 'AliExpress', url: 'https://pt.aliexpress.com/wholesale?SearchText=' + busca, desc: 'Importado direto da China — preço mais baixo', icon: '🛒' },
       { nome: 'Shopee', url: 'https://shopee.com.br/search?keyword=' + busca, desc: 'Fornecedores nacionais e importados', icon: '🛍️' },
       { nome: 'Alibaba', url: 'https://www.alibaba.com/trade/search?SearchText=' + busca, desc: 'Atacado direto de fábricas chinesas', icon: '🏭' },
       { nome: 'Mercado Livre', url: 'https://lista.mercadolivre.com.br/' + busca, desc: 'Compare preços e veja demanda real', icon: '🟡' }
     ];
+    if (planoAtual === 'pro') {
+      links.push(
+        { nome: '1688', url: 'https://s.1688.com/selloffer/offer_search.htm?keywords=' + busca, desc: '⭐ PRO — Atacado chinês direto, preço de fábrica', icon: '🇨🇳' },
+        { nome: 'Shopee Atacado', url: 'https://shopee.com.br/search?keyword=' + busca + '+atacado', desc: '⭐ PRO — Atacado nacional na Shopee', icon: '📦' },
+        { nome: 'Brás Online', url: 'https://www.brasonline.com.br/busca?q=' + busca, desc: '⭐ PRO — Atacado do Brás direto online', icon: '🏪' },
+        { nome: 'OLX Atacado', url: 'https://www.olx.com.br/brasil?q=' + busca + '+atacado', desc: '⭐ PRO — Fornecedores locais no atacado', icon: '🔍' }
+      );
+    }
+    return links;
   }
 
   async function analisar() {
@@ -475,7 +485,7 @@
       const res = await fetch('https://ferramentas-ia-production.up.railway.app/meu-plano', {
         headers: { 'authorization': token }
       });
-      const dados = await res.json();
+      planoAtual = dados.plano;
       const badge = document.getElementById('badge-plano');
       const contador = document.getElementById('contador-analises');
       const btnAnalisar = document.getElementById('btn-analisar');
