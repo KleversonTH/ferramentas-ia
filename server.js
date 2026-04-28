@@ -298,7 +298,7 @@ app.get('/teste-ml', async (req, res) => {
   const https = require('https');
   const options = {
     hostname: 'api.mercadolibre.com',
-    path: '/sites/MLB/search?q=suporte+celular+carro&limit=3',
+    path: '/users/me',
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${process.env.ML_ACCESS_TOKEN}`
