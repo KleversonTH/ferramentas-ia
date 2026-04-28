@@ -10,7 +10,7 @@
     body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0f; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 3rem 1rem; color: #e8e8f0; }
     .bg-glow { position: fixed; top: -200px; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse, rgba(250,204,21,0.08) 0%, transparent 70%); pointer-events: none; z-index: 0; }
     .container { position: relative; z-index: 1; width: 100%; max-width: 760px; }
-    .header { text-align: center; margin-bottom: 2.5rem; }
+    .header { text-align: center; margin-bottom: 2rem; }
     .badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.2); border-radius: 100px; padding: 4px 14px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: #fde68a; margin-bottom: 1rem; letter-spacing: 0.04em; }
     .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #facc15; animation: pulse 2s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
@@ -59,6 +59,8 @@
     .btn-fav:hover { border-color: #facc15; }
     .btn-fav.ativo { border-color: #facc15; color: #facc15; }
     .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 1rem; }
+    .stats-grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 1rem; }
+    @media (min-width: 500px) { .stats-grid-4 { grid-template-columns: repeat(4, 1fr); } }
     .stat { background: #0d0d14; border: 1px solid #1e1e2e; border-radius: 8px; padding: 10px; text-align: center; }
     .stat-label { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #555570; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
     .stat-valor { font-size: 14px; font-weight: 600; color: #facc15; }
@@ -66,7 +68,6 @@
     .secao { background: #0d0d14; border: 1px solid #1e1e2e; border-radius: 10px; padding: 12px; }
     .secao-titulo { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #555570; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
     .secao-conteudo { font-size: 13px; line-height: 1.7; color: #888899; }
-    .secao-conteudo strong { color: #c8c8e0; }
     .fornecedor-links { display: flex; flex-direction: column; gap: 8px; }
     .fornecedor-link { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #13131a; border: 1px solid #1e1e2e; border-radius: 8px; text-decoration: none; transition: border-color 0.2s; }
     .fornecedor-link:hover { border-color: #facc15; }
@@ -76,8 +77,6 @@
     .fornecedor-desc { font-size: 11px; color: #555570; }
     .fornecedor-arrow { font-size: 12px; color: #facc15; }
     .aviso { background: rgba(250,204,21,0.05); border: 1px solid rgba(250,204,21,0.1); border-radius: 10px; padding: 12px 16px; font-size: 12px; color: #666640; margin-top: 1rem; font-family: 'JetBrains Mono', monospace; line-height: 1.6; }
-
-    /* NAVBAR */
     .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,15,0.95); border-bottom: 1px solid #1e1e2e; padding: 12px 2rem; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
     .navbar-logo { font-size: 15px; font-weight: 600; color: #fff; }
     .navbar-logo span { background: linear-gradient(135deg, #facc15, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
@@ -85,17 +84,24 @@
     .navbar-user { font-size: 13px; color: #666680; }
     .navbar-sair { font-size: 13px; padding: 6px 14px; border-radius: 8px; border: 1px solid #1e1e2e; background: transparent; color: #ff6b6b; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: border-color 0.2s; }
     .navbar-sair:hover { border-color: #ff6b6b; }
-
-    /* BADGE PLANO */
     .badge-plano { font-size: 11px; font-family: 'JetBrains Mono', monospace; font-weight: 600; padding: 4px 10px; border-radius: 100px; letter-spacing: 0.04em; }
     .badge-plano.pro { background: linear-gradient(135deg, rgba(250,204,21,0.2), rgba(249,115,22,0.2)); border: 1px solid rgba(250,204,21,0.4); color: #facc15; }
     .badge-plano.gratuito { background: rgba(255,255,255,0.05); border: 1px solid #2a2a3e; color: #555570; }
     .contador-analises { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #444460; }
-
-    /* BANNER LIMITE */
     .banner-limite { display: none; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: 14px 18px; margin-bottom: 1rem; font-size: 13px; color: #fca5a5; text-align: center; line-height: 1.6; }
     .banner-limite a { color: #facc15; text-decoration: underline; cursor: pointer; }
-
+    .tabs { display: flex; gap: 4px; background: #13131a; border: 1px solid #1e1e2e; border-radius: 12px; padding: 4px; margin-bottom: 1.5rem; }
+    .tab { flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; border: none; background: transparent; color: #555570; font-family: 'Space Grotesk', sans-serif; transition: all 0.2s; }
+    .tab.ativo { background: linear-gradient(135deg, #facc15, #f97316); color: #0a0a0f; }
+    .tab-content { display: none; }
+    .tab-content.ativo { display: block; }
+    .veredito-sim { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 14px; }
+    .veredito-nao { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 14px; }
+    .veredito-emoji { font-size: 32px; }
+    .veredito-titulo { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+    .veredito-sim .veredito-titulo { color: #86efac; }
+    .veredito-nao .veredito-titulo { color: #fca5a5; }
+    .veredito-desc { font-size: 13px; color: #888899; line-height: 1.5; }
     body { padding-top: 5rem !important; }
     .footer { text-align: center; margin-top: 2rem; font-size: 12px; color: #2a2a40; font-family: 'JetBrains Mono', monospace; }
   </style>
@@ -121,75 +127,100 @@
   </div>
 
   <div class="banner-limite" id="banner-limite">
-    ⚠️ Você atingiu o limite de <strong>3 análises diárias</strong> do plano gratuito.<br>
+    Você atingiu o limite de 3 análises diárias do plano gratuito.
     <a href="index.html#planos">Faça upgrade para o plano Pro</a> e analise sem limites!
   </div>
 
-  <div class="card">
-    <label>Categoria de interesse</label>
-    <input type="text" id="categoria" placeholder="Ex: eletrônicos, beleza, casa, fitness, pet, infantil..." />
-    <div class="grid-3">
-      <div>
-        <label>Capital disponível</label>
-        <select id="capital">
-          <option value="até R$ 500">Até R$ 500</option>
-          <option value="R$ 500 a R$ 2.000">R$ 500 a R$ 2.000</option>
-          <option value="R$ 2.000 a R$ 5.000">R$ 2.000 a R$ 5.000</option>
-          <option value="acima de R$ 5.000">Acima de R$ 5.000</option>
-        </select>
-      </div>
-      <div>
-        <label>Modelo de venda</label>
-        <select id="modelo">
-          <option value="estoque próprio">Estoque próprio</option>
-          <option value="dropshipping">Dropshipping</option>
-          <option value="qualquer um">Qualquer um</option>
-        </select>
-      </div>
-      <div>
-        <label>Vendas por mês (meta)</label>
-        <select id="meta">
-          <option value="10 a 30">10 a 30 vendas</option>
-          <option value="30 a 100">30 a 100 vendas</option>
-          <option value="100 a 300">100 a 300 vendas</option>
-          <option value="300+">300+ vendas</option>
-        </select>
-      </div>
-    </div>
-    <button class="primary" id="btn-analisar" onclick="analisar()">Analisar produtos →</button>
+  <div class="tabs">
+    <button class="tab ativo" id="tab-btn-nichos" onclick="mudarTab('nichos', this)">Buscar Nichos</button>
+    <button class="tab" id="tab-btn-especifico" onclick="mudarTab('especifico', this)">Analisar Produto Específico</button>
   </div>
 
-  <div class="loading" id="loading">
-    <div class="loading-dots"><span></span><span></span><span></span></div>
-    <p>Analisando mercado com IA...</p>
-  </div>
-
-  <div class="erro" id="erro"></div>
-
-  <div class="favoritos-section" id="favoritos-section" style="display:none;">
+  <div class="tab-content ativo" id="tab-nichos">
     <div class="card">
-      <div class="favoritos-header">
-        <span>⭐ Produtos favoritados</span>
-        <span id="fav-count" style="color:#facc15; font-size:12px;"></span>
+      <label>Categoria de interesse</label>
+      <input type="text" id="categoria" placeholder="Ex: eletrônicos, beleza, casa, fitness, pet, infantil..." />
+      <div class="grid-3">
+        <div>
+          <label>Capital disponível</label>
+          <select id="capital">
+            <option value="até R$ 500">Até R$ 500</option>
+            <option value="R$ 500 a R$ 2.000">R$ 500 a R$ 2.000</option>
+            <option value="R$ 2.000 a R$ 5.000">R$ 2.000 a R$ 5.000</option>
+            <option value="acima de R$ 5.000">Acima de R$ 5.000</option>
+          </select>
+        </div>
+        <div>
+          <label>Modelo de venda</label>
+          <select id="modelo">
+            <option value="estoque próprio">Estoque próprio</option>
+            <option value="dropshipping">Dropshipping</option>
+            <option value="qualquer um">Qualquer um</option>
+          </select>
+        </div>
+        <div>
+          <label>Vendas por mês (meta)</label>
+          <select id="meta">
+            <option value="10 a 30">10 a 30 vendas</option>
+            <option value="30 a 100">30 a 100 vendas</option>
+            <option value="100 a 300">100 a 300 vendas</option>
+            <option value="300+">300+ vendas</option>
+          </select>
+        </div>
       </div>
-      <div class="favoritos-lista" id="favoritos-lista"></div>
+      <button class="primary" id="btn-analisar" onclick="analisar()">Analisar produtos →</button>
     </div>
+    <div class="loading" id="loading">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p>Analisando mercado com IA...</p>
+    </div>
+    <div class="erro" id="erro"></div>
+    <div class="favoritos-section" id="favoritos-section" style="display:none;">
+      <div class="card">
+        <div class="favoritos-header">
+          <span>Produtos favoritados</span>
+          <span id="fav-count" style="color:#facc15; font-size:12px;"></span>
+        </div>
+        <div class="favoritos-lista" id="favoritos-lista"></div>
+      </div>
+    </div>
+    <div class="resultado-container" id="resultado-container"></div>
   </div>
 
-  <div class="resultado-container" id="resultado-container"></div>
+  <div class="tab-content" id="tab-especifico">
+    <div class="card">
+      <label>Nome do produto</label>
+      <input type="text" id="produto-especifico" placeholder="Ex: Suporte de celular para carro, Fone bluetooth..." />
+      <button class="primary" id="btn-analisar-especifico" onclick="analisarEspecifico()">Analisar produto →</button>
+    </div>
+    <div class="loading" id="loading-especifico">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p>Analisando produto com IA...</p>
+    </div>
+    <div class="erro" id="erro-especifico"></div>
+    <div id="resultado-especifico" style="display:none;"></div>
+  </div>
+
   <div class="footer">análise baseada em IA — pesquise os preços reais nos links abaixo</div>
 </div>
 
 <script>
   let favoritos = [];
 
+  function mudarTab(tab, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('ativo'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('ativo'));
+    document.getElementById('tab-' + tab).classList.add('ativo');
+    btn.classList.add('ativo');
+  }
+
   function gerarLinks(nomeProduto) {
     const busca = encodeURIComponent(nomeProduto);
     return [
-      { nome: 'AliExpress', url: `https://pt.aliexpress.com/wholesale?SearchText=${busca}`, desc: 'Importado direto da China — preço mais baixo', icon: '🛒' },
-      { nome: 'Shopee', url: `https://shopee.com.br/search?keyword=${busca}`, desc: 'Fornecedores nacionais e importados', icon: '🛍️' },
-      { nome: 'Alibaba', url: `https://www.alibaba.com/trade/search?SearchText=${busca}`, desc: 'Atacado direto de fábricas chinesas', icon: '🏭' },
-      { nome: 'Mercado Livre', url: `https://lista.mercadolivre.com.br/${busca}`, desc: 'Compare preços e veja demanda real', icon: '🟡' }
+      { nome: 'AliExpress', url: 'https://pt.aliexpress.com/wholesale?SearchText=' + busca, desc: 'Importado direto da China — preço mais baixo', icon: '🛒' },
+      { nome: 'Shopee', url: 'https://shopee.com.br/search?keyword=' + busca, desc: 'Fornecedores nacionais e importados', icon: '🛍️' },
+      { nome: 'Alibaba', url: 'https://www.alibaba.com/trade/search?SearchText=' + busca, desc: 'Atacado direto de fábricas chinesas', icon: '🏭' },
+      { nome: 'Mercado Livre', url: 'https://lista.mercadolivre.com.br/' + busca, desc: 'Compare preços e veja demanda real', icon: '🟡' }
     ];
   }
 
@@ -198,9 +229,7 @@
     const capital = document.getElementById('capital').value;
     const modelo = document.getElementById('modelo').value;
     const meta = document.getElementById('meta').value;
-
-    if (!categoria) { mostrarErro('Digite uma categoria de produto.'); return; }
-
+    if (!categoria) { mostrarErro('erro', 'Digite uma categoria de produto.'); return; }
     document.getElementById('loading').style.display = 'block';
     document.getElementById('resultado-container').style.display = 'none';
     document.getElementById('favoritos-section').style.display = 'none';
@@ -208,32 +237,7 @@
     document.getElementById('banner-limite').style.display = 'none';
     document.getElementById('btn-analisar').disabled = true;
 
-    const prompt = `Você é um especialista em e-commerce brasileiro e Mercado Livre.
-
-Analise a categoria "${categoria}" e sugira 4 produtos com alta demanda e boa margem de lucro para revender no Mercado Livre.
-
-Considere:
-- Capital disponível: ${capital}
-- Modelo: ${modelo}
-- Meta de vendas por mês: ${meta}
-
-Responda APENAS em JSON válido, sem texto antes ou depois, neste formato exato:
-{
-  "produtos": [
-    {
-      "nome": "Nome do produto",
-      "demanda": "Alta",
-      "concorrencia": "Média",
-      "tendencia": "Crescendo",
-      "margem": "30-50%",
-      "descricao": "Por que esse produto é uma boa oportunidade em 2 frases.",
-      "dica": "Dica prática para se destacar na venda desse produto.",
-      "onde_pesquisar": "Dica rápida de como pesquisar o melhor preço nos fornecedores."
-    }
-  ]
-}
-
-Valores válidos para tendencia: "Crescendo", "Estável", "Caindo"`;
+    const prompt = 'Você é um especialista em e-commerce brasileiro e Mercado Livre.\n\nAnalise a categoria "' + categoria + '" e sugira 4 produtos com alta demanda e boa margem de lucro para revender no Mercado Livre.\n\nConsidere:\n- Capital disponível: ' + capital + '\n- Modelo: ' + modelo + '\n- Meta de vendas por mês: ' + meta + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois, neste formato exato:\n{\n  "produtos": [\n    {\n      "nome": "Nome do produto",\n      "demanda": "Alta",\n      "concorrencia": "Média",\n      "tendencia": "Crescendo",\n      "margem": "30-50%",\n      "descricao": "Por que esse produto é uma boa oportunidade em 2 frases.",\n      "dica": "Dica prática para se destacar na venda desse produto.",\n      "onde_pesquisar": "Dica rápida de como pesquisar o melhor preço nos fornecedores."\n    }\n  ]\n}\n\nValores válidos para tendencia: "Crescendo", "Estável", "Caindo"';
 
     try {
       const response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
@@ -241,8 +245,6 @@ Valores válidos para tendencia: "Crescendo", "Estável", "Caindo"`;
         headers: { 'Content-Type': 'application/json', 'authorization': token },
         body: JSON.stringify({ prompt })
       });
-
-      // Trata erro de limite
       if (response.status === 403) {
         const erro = await response.json();
         if (erro.limite) {
@@ -252,26 +254,103 @@ Valores válidos para tendencia: "Crescendo", "Estável", "Caindo"`;
           return;
         }
       }
-
       const data = await response.json();
-      if (!data.choices) { mostrarErro('Erro na API. Tente novamente.'); return; }
-
+      if (!data.choices) { mostrarErro('erro', 'Erro na API. Tente novamente.'); return; }
       const texto = data.choices[0].message.content;
       const jsonMatch = texto.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) { mostrarErro('Erro ao processar resposta. Tente novamente.'); return; }
-
+      if (!jsonMatch) { mostrarErro('erro', 'Erro ao processar resposta. Tente novamente.'); return; }
       const resultado = JSON.parse(jsonMatch[0]);
       mostrarResultados(resultado.produtos);
-
-      // Atualiza contador após análise bem-sucedida
       carregarPlano();
-
     } catch (e) {
-      mostrarErro('Erro de conexão ou resposta inválida. Tente novamente.');
+      mostrarErro('erro', 'Erro de conexão ou resposta inválida. Tente novamente.');
     } finally {
       document.getElementById('loading').style.display = 'none';
       document.getElementById('btn-analisar').disabled = false;
     }
+  }
+
+  async function analisarEspecifico() {
+    const produto = document.getElementById('produto-especifico').value.trim();
+    if (!produto) { mostrarErro('erro-especifico', 'Digite o nome de um produto.'); return; }
+    document.getElementById('loading-especifico').style.display = 'block';
+    document.getElementById('resultado-especifico').style.display = 'none';
+    document.getElementById('erro-especifico').style.display = 'none';
+    document.getElementById('banner-limite').style.display = 'none';
+    document.getElementById('btn-analisar-especifico').disabled = true;
+
+    const prompt = 'Você é um especialista em e-commerce brasileiro e Mercado Livre.\n\nAnalise o produto específico "' + produto + '" para revenda no Mercado Livre Brasil.\n\nResponda APENAS em JSON válido, sem texto antes ou depois, neste formato exato:\n{\n  "nome": "Nome completo do produto",\n  "custo_fornecedor": "R$ XX a R$ XX",\n  "preco_ml": "R$ XX a R$ XX",\n  "margem": "XX% a XX%",\n  "lucro_unitario": "R$ XX a R$ XX",\n  "volume_vendas": "XXX a XXX unidades/mês no ML",\n  "concorrencia": "Alta",\n  "tendencia": "Crescendo",\n  "veredito": "sim",\n  "veredito_titulo": "Vale a pena vender!",\n  "veredito_motivo": "Explicação em 2 frases do por que vale ou não vale a pena.",\n  "ponto_forte": "Principal vantagem desse produto para revender.",\n  "ponto_fraco": "Principal risco ou desvantagem.",\n  "dica_destaque": "Como se destacar da concorrência vendendo esse produto."\n}\n\nValores válidos para veredito: "sim" ou "nao"\nValores válidos para concorrencia: "Baixa", "Média", "Alta"\nValores válidos para tendencia: "Crescendo", "Estável", "Caindo"';
+
+    try {
+      const response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'authorization': token },
+        body: JSON.stringify({ prompt })
+      });
+      if (response.status === 403) {
+        const erro = await response.json();
+        if (erro.limite) {
+          document.getElementById('banner-limite').style.display = 'block';
+          document.getElementById('btn-analisar-especifico').disabled = true;
+          document.getElementById('contador-analises').textContent = '0 restantes hoje';
+          return;
+        }
+      }
+      const data = await response.json();
+      if (!data.choices) { mostrarErro('erro-especifico', 'Erro na API. Tente novamente.'); return; }
+      const texto = data.choices[0].message.content;
+      const jsonMatch = texto.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) { mostrarErro('erro-especifico', 'Erro ao processar resposta. Tente novamente.'); return; }
+      const r = JSON.parse(jsonMatch[0]);
+      mostrarResultadoEspecifico(r);
+      carregarPlano();
+    } catch (e) {
+      mostrarErro('erro-especifico', 'Erro de conexão ou resposta inválida. Tente novamente.');
+    } finally {
+      document.getElementById('loading-especifico').style.display = 'none';
+      document.getElementById('btn-analisar-especifico').disabled = false;
+    }
+  }
+
+  function mostrarResultadoEspecifico(r) {
+    const container = document.getElementById('resultado-especifico');
+    const links = gerarLinks(r.nome);
+    const linksHtml = links.map(function(l) {
+      return '<a href="' + l.url + '" target="_blank" class="fornecedor-link"><div class="fornecedor-icon">' + l.icon + '</div><div class="fornecedor-info"><div class="fornecedor-nome">' + l.nome + '</div><div class="fornecedor-desc">' + l.desc + '</div></div><div class="fornecedor-arrow">↗</div></a>';
+    }).join('');
+    const veredito = r.veredito === 'sim';
+    const tendEmoji = r.tendencia === 'Crescendo' ? '↑' : r.tendencia === 'Caindo' ? '↓' : '→';
+    const concClass = r.concorrencia === 'Baixa' ? 'badge-alta' : r.concorrencia === 'Alta' ? 'badge-baixa' : 'badge-media';
+    const tendClass = r.tendencia === 'Crescendo' ? 'badge-tendencia-up' : r.tendencia === 'Caindo' ? 'badge-tendencia-down' : 'badge-tendencia-estavel';
+
+    container.innerHTML =
+      '<div class="' + (veredito ? 'veredito-sim' : 'veredito-nao') + '">' +
+        '<div class="veredito-emoji">' + (veredito ? '✅' : '❌') + '</div>' +
+        '<div><div class="veredito-titulo">' + r.veredito_titulo + '</div><div class="veredito-desc">' + r.veredito_motivo + '</div></div>' +
+      '</div>' +
+      '<div class="produto-card">' +
+        '<div class="produto-nome" style="margin-bottom:12px;">' + r.nome + '</div>' +
+        '<div class="badges" style="margin-bottom:14px;">' +
+          '<span class="badge-tag ' + concClass + '">Concorrência: ' + r.concorrencia + '</span>' +
+          '<span class="badge-tag ' + tendClass + '">' + tendEmoji + ' ' + r.tendencia + '</span>' +
+        '</div>' +
+        '<div class="stats-grid-4">' +
+          '<div class="stat"><div class="stat-label">💰 Custo</div><div class="stat-valor" style="font-size:12px;">' + r.custo_fornecedor + '</div></div>' +
+          '<div class="stat"><div class="stat-label">💵 Preço ML</div><div class="stat-valor" style="font-size:12px;">' + r.preco_ml + '</div></div>' +
+          '<div class="stat"><div class="stat-label">📊 Margem</div><div class="stat-valor">' + r.margem + '</div></div>' +
+          '<div class="stat"><div class="stat-label">💸 Lucro unit.</div><div class="stat-valor" style="font-size:12px;">' + r.lucro_unitario + '</div></div>' +
+        '</div>' +
+        '<div class="stat" style="margin-bottom:14px;"><div class="stat-label">📦 Volume de vendas estimado no ML</div><div class="stat-valor" style="font-size:13px;margin-top:4px;">' + r.volume_vendas + '</div></div>' +
+        '<div class="secoes">' +
+          '<div class="secao"><div class="secao-titulo">💪 Ponto forte</div><div class="secao-conteudo">' + r.ponto_forte + '</div></div>' +
+          '<div class="secao"><div class="secao-titulo">⚠️ Ponto fraco</div><div class="secao-conteudo">' + r.ponto_fraco + '</div></div>' +
+          '<div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🎯 Como se destacar</div><div class="secao-conteudo">' + r.dica_destaque + '</div></div>' +
+          '<div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🏭 Pesquise o preço real</div><div class="fornecedor-links">' + linksHtml + '</div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="aviso">⚠ Estimativas geradas por IA com base em tendências de mercado. Pesquise os preços reais nos links acima antes de investir.</div>';
+
+    container.style.display = 'block';
   }
 
   function getBadgeClass(tipo, valor) {
@@ -290,40 +369,30 @@ Valores válidos para tendencia: "Crescendo", "Estável", "Caindo"`;
   function getTendenciaClass(t) {
     if (!t) return 'badge-tendencia-estavel';
     const v = t.toLowerCase();
-    if (v.includes('crescendo') || v.includes('subindo')) return 'badge-tendencia-up';
-    if (v.includes('caindo') || v.includes('queda')) return 'badge-tendencia-down';
+    if (v.includes('crescendo')) return 'badge-tendencia-up';
+    if (v.includes('caindo')) return 'badge-tendencia-down';
     return 'badge-tendencia-estavel';
   }
 
   function getTendenciaEmoji(t) {
     if (!t) return '→';
     const v = t.toLowerCase();
-    if (v.includes('crescendo') || v.includes('subindo')) return '↑';
-    if (v.includes('caindo') || v.includes('queda')) return '↓';
+    if (v.includes('crescendo')) return '↑';
+    if (v.includes('caindo')) return '↓';
     return '→';
   }
 
   function toggleFavorito(nome, btnEl, cardEl) {
     const idx = favoritos.indexOf(nome);
-    if (idx === -1) {
-      favoritos.push(nome);
-      btnEl.classList.add('ativo');
-      cardEl.classList.add('favoritado');
-    } else {
-      favoritos.splice(idx, 1);
-      btnEl.classList.remove('ativo');
-      cardEl.classList.remove('favoritado');
-    }
+    if (idx === -1) { favoritos.push(nome); btnEl.classList.add('ativo'); cardEl.classList.add('favoritado'); }
+    else { favoritos.splice(idx, 1); btnEl.classList.remove('ativo'); cardEl.classList.remove('favoritado'); }
     atualizarFavoritos();
   }
 
   function removerFavorito(nome) {
-    favoritos = favoritos.filter(f => f !== nome);
-    document.querySelectorAll('.btn-fav').forEach(btn => {
-      if (btn.dataset.nome === nome) {
-        btn.classList.remove('ativo');
-        btn.closest('.produto-card').classList.remove('favoritado');
-      }
+    favoritos = favoritos.filter(function(f) { return f !== nome; });
+    document.querySelectorAll('.btn-fav').forEach(function(btn) {
+      if (btn.dataset.nome === nome) { btn.classList.remove('ativo'); btn.closest('.produto-card').classList.remove('favoritado'); }
     });
     atualizarFavoritos();
   }
@@ -334,84 +403,55 @@ Valores válidos para tendencia: "Crescendo", "Estável", "Caindo"`;
     const count = document.getElementById('fav-count');
     if (favoritos.length === 0) { section.style.display = 'none'; return; }
     section.style.display = 'block';
-    count.textContent = `${favoritos.length} produto(s)`;
-    lista.innerHTML = favoritos.map(nome =>
-      `<span class="fav-tag">${nome} <button onclick="removerFavorito('${nome}')" title="Remover">×</button></span>`
-    ).join('');
+    count.textContent = favoritos.length + ' produto(s)';
+    lista.innerHTML = favoritos.map(function(nome) {
+      return '<span class="fav-tag">' + nome + ' <button onclick="removerFavorito(\'' + nome + '\')" title="Remover">×</button></span>';
+    }).join('');
   }
 
   function mostrarResultados(produtos) {
     const container = document.getElementById('resultado-container');
     container.innerHTML = '';
-
-    produtos.forEach((p, i) => {
+    produtos.forEach(function(p, i) {
       const div = document.createElement('div');
       div.className = 'produto-card';
-      div.id = `produto-card-${i}`;
-
+      div.id = 'produto-card-' + i;
       const links = gerarLinks(p.nome);
-      const linksHtml = links.map(l => `
-        <a href="${l.url}" target="_blank" class="fornecedor-link">
-          <div class="fornecedor-icon">${l.icon}</div>
-          <div class="fornecedor-info">
-            <div class="fornecedor-nome">${l.nome}</div>
-            <div class="fornecedor-desc">${l.desc}</div>
-          </div>
-          <div class="fornecedor-arrow">↗</div>
-        </a>
-      `).join('');
-
-      div.innerHTML = `
-        <div class="produto-top">
-          <div>
-            <div class="produto-nome">${p.nome}</div>
-            <div class="badges" style="margin-top:6px;">
-              <span class="badge-tag ${getBadgeClass('demanda', p.demanda)}">Demanda: ${p.demanda}</span>
-              <span class="badge-tag ${getBadgeClass('concorrencia', p.concorrencia)}">Concorrência: ${p.concorrencia}</span>
-              <span class="badge-tag ${getTendenciaClass(p.tendencia)}">${getTendenciaEmoji(p.tendencia)} ${p.tendencia || 'Estável'}</span>
-            </div>
-          </div>
-          <button class="btn-fav" data-nome="${p.nome}" onclick="toggleFavorito('${p.nome}', this, document.getElementById('produto-card-${i}'))" title="Favoritar">⭐</button>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat"><div class="stat-label">Margem estimada</div><div class="stat-valor">${p.margem}</div></div>
-          <div class="stat"><div class="stat-label">Tendência</div><div class="stat-valor" style="font-size:13px;">${getTendenciaEmoji(p.tendencia)} ${p.tendencia || 'Estável'}</div></div>
-        </div>
-
-        <div class="secoes">
-          <div class="secao">
-            <div class="secao-titulo">💡 Por que vender?</div>
-            <div class="secao-conteudo">${p.descricao}</div>
-          </div>
-          <div class="secao">
-            <div class="secao-titulo">🎯 Dica para se destacar</div>
-            <div class="secao-conteudo">${p.dica}</div>
-          </div>
-          <div class="secao" style="grid-column: 1 / -1;">
-            <div class="secao-titulo">🏭 Pesquise o preço real — clique para abrir</div>
-            <div class="fornecedor-links">${linksHtml}</div>
-            <div style="margin-top:8px; font-size:12px; color:#555570;">💡 ${p.onde_pesquisar || ''}</div>
-          </div>
-        </div>
-      `;
+      const linksHtml = links.map(function(l) {
+        return '<a href="' + l.url + '" target="_blank" class="fornecedor-link"><div class="fornecedor-icon">' + l.icon + '</div><div class="fornecedor-info"><div class="fornecedor-nome">' + l.nome + '</div><div class="fornecedor-desc">' + l.desc + '</div></div><div class="fornecedor-arrow">↗</div></a>';
+      }).join('');
+      div.innerHTML =
+        '<div class="produto-top"><div><div class="produto-nome">' + p.nome + '</div>' +
+        '<div class="badges" style="margin-top:6px;">' +
+        '<span class="badge-tag ' + getBadgeClass('demanda', p.demanda) + '">Demanda: ' + p.demanda + '</span>' +
+        '<span class="badge-tag ' + getBadgeClass('concorrencia', p.concorrencia) + '">Concorrência: ' + p.concorrencia + '</span>' +
+        '<span class="badge-tag ' + getTendenciaClass(p.tendencia) + '">' + getTendenciaEmoji(p.tendencia) + ' ' + (p.tendencia || 'Estável') + '</span>' +
+        '</div></div>' +
+        '<button class="btn-fav" data-nome="' + p.nome + '" onclick="toggleFavorito(\'' + p.nome + '\', this, document.getElementById(\'produto-card-' + i + '\'))" title="Favoritar">⭐</button></div>' +
+        '<div class="stats-grid"><div class="stat"><div class="stat-label">Margem estimada</div><div class="stat-valor">' + p.margem + '</div></div>' +
+        '<div class="stat"><div class="stat-label">Tendência</div><div class="stat-valor" style="font-size:13px;">' + getTendenciaEmoji(p.tendencia) + ' ' + (p.tendencia || 'Estável') + '</div></div></div>' +
+        '<div class="secoes">' +
+        '<div class="secao"><div class="secao-titulo">💡 Por que vender?</div><div class="secao-conteudo">' + p.descricao + '</div></div>' +
+        '<div class="secao"><div class="secao-titulo">🎯 Dica para se destacar</div><div class="secao-conteudo">' + p.dica + '</div></div>' +
+        '<div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🏭 Pesquise o preço real</div><div class="fornecedor-links">' + linksHtml + '</div>' +
+        '<div style="margin-top:8px;font-size:12px;color:#555570;">💡 ' + (p.onde_pesquisar || '') + '</div></div></div>';
       container.appendChild(div);
     });
-
     const aviso = document.createElement('div');
     aviso.className = 'aviso';
     aviso.textContent = '⚠ Análise gerada por IA com base em tendências de mercado. Use os links acima para pesquisar os preços reais antes de investir.';
     container.appendChild(aviso);
-
     container.style.display = 'block';
   }
 
-  function mostrarErro(msg) {
-    const el = document.getElementById('erro');
+  function mostrarErro(id, msg) {
+    const el = document.getElementById(id);
     el.textContent = msg;
     el.style.display = 'block';
     document.getElementById('loading').style.display = 'none';
+    document.getElementById('loading-especifico').style.display = 'none';
     document.getElementById('btn-analisar').disabled = false;
+    document.getElementById('btn-analisar-especifico').disabled = false;
   }
 </script>
 
@@ -425,15 +465,9 @@ Valores válidos para tendencia: "Crescendo", "Estável", "Caindo"`;
         headers: { 'authorization': token }
       });
       const data = await response.json();
-      if (!data.sucesso) {
-        localStorage.removeItem('token');
-        window.location.href = 'login.html';
-        return;
-      }
+      if (!data.sucesso) { localStorage.removeItem('token'); window.location.href = 'login.html'; return; }
       document.getElementById('navbar-user').textContent = data.mensagem;
-    } catch (e) {
-      console.log('Erro ao verificar acesso');
-    }
+    } catch (e) { console.log('Erro ao verificar acesso'); }
   }
 
   async function carregarPlano() {
@@ -442,41 +476,37 @@ Valores válidos para tendencia: "Crescendo", "Estável", "Caindo"`;
         headers: { 'authorization': token }
       });
       const dados = await res.json();
-
       const badge = document.getElementById('badge-plano');
       const contador = document.getElementById('contador-analises');
       const btnAnalisar = document.getElementById('btn-analisar');
+      const btnAnalisarEsp = document.getElementById('btn-analisar-especifico');
       const bannerLimite = document.getElementById('banner-limite');
-
       if (dados.plano === 'pro') {
         badge.textContent = '⭐ Pro';
         badge.className = 'badge-plano pro';
         contador.textContent = '';
         btnAnalisar.disabled = false;
+        btnAnalisarEsp.disabled = false;
         bannerLimite.style.display = 'none';
       } else {
         badge.textContent = 'Gratuito';
         badge.className = 'badge-plano gratuito';
-
         if (dados.restantes === 0) {
           contador.textContent = '0 restantes hoje';
           btnAnalisar.disabled = true;
+          btnAnalisarEsp.disabled = true;
           bannerLimite.style.display = 'block';
         } else {
-          contador.textContent = `${dados.restantes} análise${dados.restantes === 1 ? '' : 's'} restante${dados.restantes === 1 ? '' : 's'} hoje`;
+          contador.textContent = dados.restantes + ' análise' + (dados.restantes === 1 ? '' : 's') + ' restante' + (dados.restantes === 1 ? '' : 's') + ' hoje';
           btnAnalisar.disabled = false;
+          btnAnalisarEsp.disabled = false;
           bannerLimite.style.display = 'none';
         }
       }
-    } catch (e) {
-      console.log('Erro ao carregar plano');
-    }
+    } catch (e) { console.log('Erro ao carregar plano'); }
   }
 
-  function sair() {
-    localStorage.removeItem('token');
-    window.location.href = 'login.html';
-  }
+  function sair() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
 
   verificarAcesso();
   carregarPlano();
