@@ -513,7 +513,7 @@
           bannerLimite.style.display = 'none';
         }
       }
-    } catch (e) { console.log('Erro ao carregar plano'); }
+    } catch (e) { console.log('Erro ao carregar plano', e.name, e.message, e.stack); }
   }
 
   function sair() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
