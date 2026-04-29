@@ -224,13 +224,13 @@
       { nome: 'Mercado Livre', url: 'https://lista.mercadolivre.com.br/' + busca, desc: 'Compare preços e veja demanda real', icon: '🟡' }
     ];
     if (planoAtual === 'pro') {
-      links.push(
-        { nome: '1688', url: 'https://s.1688.com/selloffer/offer_search.htm?keywords=' + busca, desc: '⭐ PRO — Atacado chinês direto, preço de fábrica', icon: '🇨🇳' },
-        { nome: 'Shopee Atacado', url: 'https://shopee.com.br/search?keyword=' + busca + '+atacado', desc: '⭐ PRO — Atacado nacional na Shopee', icon: '📦' },
-        { nome: 'Brás Online', url: 'https://www.brasonline.com.br/busca?q=' + busca, desc: '⭐ PRO — Atacado do Brás direto online', icon: '🏪' },
-        { nome: 'OLX Atacado', url: 'https://www.olx.com.br/brasil?q=' + busca + '+atacado', desc: '⭐ PRO — Fornecedores locais no atacado', icon: '🔍' }
-      );
-    }
+  links.push(
+    { nome: '1688', url: 'https://s.1688.com/selloffer/offer_search.htm?keywords=' + busca, desc: '⭐ PRO — Atacado chinês direto, preço de fábrica', icon: '🇨🇳' },
+    { nome: 'Shopee Atacado', url: 'https://shopee.com.br/search?keyword=' + busca + '%20atacado', desc: '⭐ PRO — Atacado nacional na Shopee', icon: '📦' },
+    { nome: 'Mercado Livre Atacado', url: 'https://lista.mercadolivre.com.br/' + busca + '-atacado', desc: '⭐ PRO — Atacado direto no ML', icon: '🟡' },
+    { nome: 'Magalu Atacado', url: 'https://www.magazineluiza.com.br/busca/' + busca + '/?filters=condition---new', desc: '⭐ PRO — Magazine Luiza para comparar preços', icon: '🛒' }
+  );
+}
     return links;
   }
 
