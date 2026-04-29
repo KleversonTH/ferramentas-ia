@@ -206,7 +206,7 @@
 
 <script>
   let favoritos = [];
-  let planoAtual = 'gratuito';
+  let planoAtual = localStorage.getItem('plano') || 'gratuito';
 
   function mudarTab(tab, btn) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('ativo'));
@@ -486,6 +486,8 @@
         headers: { 'authorization': token }
       });
       const dados = await res.json();
+      planoAtual = dados.plano;
+      localStorage.setItem('plano', dados.plano);
       const badge = document.getElementById('badge-plano');
       const contador = document.getElementById('contador-analises');
       const btnAnalisar = document.getElementById('btn-analisar');
