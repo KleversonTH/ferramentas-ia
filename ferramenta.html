@@ -519,7 +519,7 @@
   function sair() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
 
   verificarAcesso();
-  carregarPlano();
+  setTimeout(carregarPlano, 500);
 </script>
 
 </body>
