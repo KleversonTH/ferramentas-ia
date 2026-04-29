@@ -312,6 +312,11 @@ app.get('/teste-ml', async (req, res) => {
   request.on('error', (e) => res.json({ error: e.message }));
   request.end();
 });
+app.post('/admin/plano', async (req, res) => {
+  const { email, plano } = req.body;
+  await pool.query('UPDATE usuarios SET plano = $1 WHERE email = $2', [plano, email]);
+  res.json({ sucesso: true, mensagem: `${email} agora é ${plano}!` });
+});
 
 app.listen(PORT, async () => {
   await initDB();
