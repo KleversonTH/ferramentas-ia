@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Analisador de Produtos ML</title>
+  <title>Ferramentas IA — Mercado Livre</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0f; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 3rem 1rem; color: #e8e8f0; }
+    body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0f; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 3rem 1rem; color: #e8e8f0; padding-top: 5rem !important; }
     .bg-glow { position: fixed; top: -200px; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse, rgba(250,204,21,0.08) 0%, transparent 70%); pointer-events: none; z-index: 0; }
     .container { position: relative; z-index: 1; width: 100%; max-width: 760px; }
     .header { text-align: center; margin-bottom: 2rem; }
@@ -23,6 +23,7 @@
     input:focus, select:focus { outline: none; border-color: #facc15; }
     input::placeholder { color: #333350; }
     select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23555570' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; cursor: pointer; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
     button.primary { width: 100%; padding: 12px; font-size: 14px; font-weight: 600; border-radius: 10px; border: none; background: linear-gradient(135deg, #facc15, #f97316); color: #0a0a0f; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: opacity 0.2s, transform 0.1s; margin-top: 0.5rem; }
     button.primary:hover { opacity: 0.9; }
@@ -91,7 +92,7 @@
     .banner-limite { display: none; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: 14px 18px; margin-bottom: 1rem; font-size: 13px; color: #fca5a5; text-align: center; line-height: 1.6; }
     .banner-limite a { color: #facc15; text-decoration: underline; cursor: pointer; }
     .tabs { display: flex; gap: 4px; background: #13131a; border: 1px solid #1e1e2e; border-radius: 12px; padding: 4px; margin-bottom: 1.5rem; }
-    .tab { flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; border: none; background: transparent; color: #555570; font-family: 'Space Grotesk', sans-serif; transition: all 0.2s; }
+    .tab { flex: 1; padding: 9px 6px; text-align: center; font-size: 12px; font-weight: 600; border-radius: 8px; cursor: pointer; border: none; background: transparent; color: #555570; font-family: 'Space Grotesk', sans-serif; transition: all 0.2s; }
     .tab.ativo { background: linear-gradient(135deg, #facc15, #f97316); color: #0a0a0f; }
     .tab-content { display: none; }
     .tab-content.ativo { display: block; }
@@ -102,7 +103,30 @@
     .veredito-sim .veredito-titulo { color: #86efac; }
     .veredito-nao .veredito-titulo { color: #fca5a5; }
     .veredito-desc { font-size: 13px; color: #888899; line-height: 1.5; }
-    body { padding-top: 5rem !important; }
+    /* CALCULADORA */
+    .calc-resultado { display: none; margin-top: 1rem; }
+    .calc-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 1rem; }
+    @media (min-width: 500px) { .calc-stats { grid-template-columns: repeat(4, 1fr); } }
+    .calc-stat-positivo { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 10px; padding: 12px; text-align: center; }
+    .calc-stat-negativo { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; padding: 12px; text-align: center; }
+    .calc-stat-neutro { background: #0d0d14; border: 1px solid #1e1e2e; border-radius: 10px; padding: 12px; text-align: center; }
+    .calc-label { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #555570; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+    .calc-valor-verde { font-size: 18px; font-weight: 600; color: #86efac; }
+    .calc-valor-vermelho { font-size: 18px; font-weight: 600; color: #fca5a5; }
+    .calc-valor-amarelo { font-size: 18px; font-weight: 600; color: #facc15; }
+    .calc-breakdown { background: #0d0d14; border: 1px solid #1e1e2e; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+    .calc-linha { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #1e1e2e; font-size: 13px; }
+    .calc-linha:last-child { border-bottom: none; font-weight: 600; }
+    .calc-linha-label { color: #888899; }
+    .calc-linha-valor { font-family: 'JetBrains Mono', monospace; }
+    .calc-linha-valor.verde { color: #86efac; }
+    .calc-linha-valor.vermelho { color: #fca5a5; }
+    .calc-linha-valor.amarelo { color: #facc15; }
+    .range-wrapper { margin-bottom: 1rem; }
+    .range-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .range-value { font-size: 13px; font-weight: 600; color: #facc15; font-family: 'JetBrains Mono', monospace; }
+    input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #1e1e2e; outline: none; margin-bottom: 0; padding: 0; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #facc15; cursor: pointer; }
     .footer { text-align: center; margin-top: 2rem; font-size: 12px; color: #2a2a40; font-family: 'JetBrains Mono', monospace; }
   </style>
 </head>
@@ -122,8 +146,8 @@
 <div class="container">
   <div class="header">
     <div class="badge">IA ativa</div>
-    <h1>Analisador de Produtos <span>Mercado Livre</span></h1>
-    <p class="subtitle">Descubra produtos com alta demanda e boa margem para revender</p>
+    <h1>Ferramentas <span>Mercado Livre</span></h1>
+    <p class="subtitle">Analise produtos, calcule lucros e encontre os melhores nichos</p>
   </div>
 
   <div class="banner-limite" id="banner-limite">
@@ -132,10 +156,12 @@
   </div>
 
   <div class="tabs">
-    <button class="tab ativo" id="tab-btn-nichos" onclick="mudarTab('nichos', this)">Buscar Nichos</button>
-    <button class="tab" id="tab-btn-especifico" onclick="mudarTab('especifico', this)">Analisar Produto Específico</button>
+    <button class="tab ativo" id="tab-btn-nichos" onclick="mudarTab('nichos', this)">🔍 Nichos</button>
+    <button class="tab" id="tab-btn-especifico" onclick="mudarTab('especifico', this)">🎯 Produto</button>
+    <button class="tab" id="tab-btn-calculadora" onclick="mudarTab('calculadora', this)">💰 Lucro</button>
   </div>
 
+  <!-- ABA 1: BUSCAR NICHOS -->
   <div class="tab-content ativo" id="tab-nichos">
     <div class="card">
       <label>Categoria de interesse</label>
@@ -187,6 +213,7 @@
     <div class="resultado-container" id="resultado-container"></div>
   </div>
 
+  <!-- ABA 2: PRODUTO ESPECÍFICO -->
   <div class="tab-content" id="tab-especifico">
     <div class="card">
       <label>Nome do produto</label>
@@ -201,7 +228,100 @@
     <div id="resultado-especifico" style="display:none;"></div>
   </div>
 
-  <div class="footer">análise baseada em IA — pesquise os preços reais nos links abaixo</div>
+  <!-- ABA 3: CALCULADORA DE LUCRO -->
+  <div class="tab-content" id="tab-calculadora">
+    <div class="card">
+      <div class="grid-2">
+        <div>
+          <label>Preço de venda no ML (R$)</label>
+          <input type="number" id="calc-preco" placeholder="Ex: 89.90" min="0" step="0.01" oninput="calcular()" />
+        </div>
+        <div>
+          <label>Custo do produto (R$)</label>
+          <input type="number" id="calc-custo" placeholder="Ex: 25.00" min="0" step="0.01" oninput="calcular()" />
+        </div>
+        <div>
+          <label>Custo do frete de envio (R$)</label>
+          <input type="number" id="calc-frete" placeholder="Ex: 12.00" min="0" step="0.01" oninput="calcular()" />
+        </div>
+        <div>
+          <label>Custo de embalagem (R$)</label>
+          <input type="number" id="calc-embalagem" placeholder="Ex: 2.50" min="0" step="0.01" oninput="calcular()" />
+        </div>
+      </div>
+
+      <div class="range-wrapper">
+        <div class="range-header">
+          <label style="margin-bottom:0;">Taxa do Mercado Livre (%)</label>
+          <span class="range-value" id="taxa-valor">16%</span>
+        </div>
+        <input type="range" id="calc-taxa" min="10" max="20" value="16" step="0.5" oninput="atualizarTaxa(); calcular()" />
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:#333350; margin-top:4px;">
+          <span>10%</span><span>Clássico ~16%</span><span>Premium ~20%</span>
+        </div>
+      </div>
+
+      <div class="range-wrapper">
+        <div class="range-header">
+          <label style="margin-bottom:0;">Meta de vendas por mês</label>
+          <span class="range-value" id="meta-valor">30 vendas</span>
+        </div>
+        <input type="range" id="calc-meta" min="1" max="500" value="30" step="1" oninput="atualizarMeta(); calcular()" />
+      </div>
+    </div>
+
+    <div class="calc-resultado" id="calc-resultado">
+      <div class="calc-stats">
+        <div class="calc-stat-neutro">
+          <div class="calc-label">💸 Taxa ML</div>
+          <div class="calc-valor-amarelo" id="res-taxa-valor">R$ 0,00</div>
+        </div>
+        <div id="res-lucro-card" class="calc-stat-positivo">
+          <div class="calc-label">✅ Lucro líquido</div>
+          <div class="calc-valor-verde" id="res-lucro">R$ 0,00</div>
+        </div>
+        <div id="res-margem-card" class="calc-stat-neutro">
+          <div class="calc-label">📊 Margem</div>
+          <div id="res-margem" class="calc-valor-amarelo">0%</div>
+        </div>
+        <div class="calc-stat-neutro">
+          <div class="calc-label">📦 Lucro/mês</div>
+          <div class="calc-valor-amarelo" id="res-mensal">R$ 0,00</div>
+        </div>
+      </div>
+
+      <div class="calc-breakdown">
+        <div class="calc-linha">
+          <span class="calc-linha-label">Preço de venda</span>
+          <span class="calc-linha-valor verde" id="bd-preco">+ R$ 0,00</span>
+        </div>
+        <div class="calc-linha">
+          <span class="calc-linha-label">Custo do produto</span>
+          <span class="calc-linha-valor vermelho" id="bd-custo">- R$ 0,00</span>
+        </div>
+        <div class="calc-linha">
+          <span class="calc-linha-label">Taxa do ML</span>
+          <span class="calc-linha-valor vermelho" id="bd-taxa">- R$ 0,00</span>
+        </div>
+        <div class="calc-linha">
+          <span class="calc-linha-label">Frete de envio</span>
+          <span class="calc-linha-valor vermelho" id="bd-frete">- R$ 0,00</span>
+        </div>
+        <div class="calc-linha">
+          <span class="calc-linha-label">Embalagem</span>
+          <span class="calc-linha-valor vermelho" id="bd-embalagem">- R$ 0,00</span>
+        </div>
+        <div class="calc-linha" style="margin-top:4px; padding-top:10px; border-top: 1px solid #2a2a3e;">
+          <span class="calc-linha-label" style="color:#c8c8e0; font-weight:600;">Lucro líquido por venda</span>
+          <span class="calc-linha-valor amarelo" id="bd-lucro" style="font-size:15px;">R$ 0,00</span>
+        </div>
+      </div>
+
+      <div id="veredito-calc"></div>
+    </div>
+  </div>
+
+  <div class="footer">ferramentas baseadas em IA — verifique os dados reais antes de investir</div>
 </div>
 
 <script>
@@ -209,8 +329,8 @@
   let planoAtual = localStorage.getItem('plano') || 'gratuito';
 
   function mudarTab(tab, btn) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('ativo'));
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('ativo'));
+    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('ativo'); });
+    document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('ativo'); });
     document.getElementById('tab-' + tab).classList.add('ativo');
     btn.classList.add('ativo');
   }
@@ -224,16 +344,98 @@
       { nome: 'Mercado Livre', url: 'https://lista.mercadolivre.com.br/' + busca, desc: 'Compare preços e veja demanda real', icon: '🟡' }
     ];
     if (planoAtual === 'pro') {
-  links.push(
-    { nome: '1688', url: 'https://s.1688.com/selloffer/offer_search.htm?keywords=' + busca, desc: '⭐ PRO — Atacado chinês direto, preço de fábrica', icon: '🇨🇳' },
-    { nome: 'Shopee Atacado', url: 'https://shopee.com.br/search?keyword=' + busca + '%20atacado', desc: '⭐ PRO — Atacado nacional na Shopee', icon: '📦' },
-    { nome: 'Mercado Livre Atacado', url: 'https://lista.mercadolivre.com.br/' + busca + '-atacado', desc: '⭐ PRO — Atacado direto no ML', icon: '🟡' },
-    { nome: 'Magalu Atacado', url: 'https://www.magazineluiza.com.br/busca/' + busca + '/?filters=condition---new', desc: '⭐ PRO — Magazine Luiza para comparar preços', icon: '🛒' }
-  );
-}
+      links.push(
+        { nome: '1688', url: 'https://s.1688.com/selloffer/offer_search.htm?keywords=' + busca, desc: '⭐ PRO — Atacado chinês direto, preço de fábrica', icon: '🇨🇳' },
+        { nome: 'Shopee Atacado', url: 'https://shopee.com.br/search?keyword=' + busca + '%20atacado', desc: '⭐ PRO — Atacado nacional na Shopee', icon: '📦' },
+        { nome: 'ML Atacado', url: 'https://lista.mercadolivre.com.br/' + busca + '-atacado', desc: '⭐ PRO — Atacado direto no ML', icon: '🟡' },
+        { nome: 'Magalu', url: 'https://www.magazineluiza.com.br/busca/' + busca + '/', desc: '⭐ PRO — Magazine Luiza para comparar preços', icon: '🛒' }
+      );
+    }
     return links;
   }
 
+  // CALCULADORA
+  function fmt(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
+
+  function atualizarTaxa() {
+    document.getElementById('taxa-valor').textContent = document.getElementById('calc-taxa').value + '%';
+  }
+
+  function atualizarMeta() {
+    document.getElementById('meta-valor').textContent = document.getElementById('calc-meta').value + ' vendas';
+  }
+
+  function calcular() {
+    const preco = parseFloat(document.getElementById('calc-preco').value) || 0;
+    const custo = parseFloat(document.getElementById('calc-custo').value) || 0;
+    const frete = parseFloat(document.getElementById('calc-frete').value) || 0;
+    const embalagem = parseFloat(document.getElementById('calc-embalagem').value) || 0;
+    const taxa = parseFloat(document.getElementById('calc-taxa').value) || 16;
+    const meta = parseInt(document.getElementById('calc-meta').value) || 30;
+
+    if (preco === 0) return;
+
+    const taxaValor = preco * (taxa / 100);
+    const lucro = preco - custo - taxaValor - frete - embalagem;
+    const margem = preco > 0 ? (lucro / preco) * 100 : 0;
+    const mensal = lucro * meta;
+
+    document.getElementById('calc-resultado').style.display = 'block';
+    document.getElementById('res-taxa-valor').textContent = fmt(taxaValor);
+    document.getElementById('res-lucro').textContent = fmt(lucro);
+    document.getElementById('res-margem').textContent = margem.toFixed(1) + '%';
+    document.getElementById('res-mensal').textContent = fmt(mensal);
+
+    document.getElementById('bd-preco').textContent = '+ ' + fmt(preco);
+    document.getElementById('bd-custo').textContent = '- ' + fmt(custo);
+    document.getElementById('bd-taxa').textContent = '- ' + fmt(taxaValor);
+    document.getElementById('bd-frete').textContent = '- ' + fmt(frete);
+    document.getElementById('bd-embalagem').textContent = '- ' + fmt(embalagem);
+    document.getElementById('bd-lucro').textContent = fmt(lucro);
+
+    // Cores dinâmicas
+    const lucroEl = document.getElementById('res-lucro');
+    const lucroCard = document.getElementById('res-lucro-card');
+    const margemEl = document.getElementById('res-margem');
+    const margemCard = document.getElementById('res-margem-card');
+    const bdLucro = document.getElementById('bd-lucro');
+
+    if (lucro > 0) {
+      lucroEl.className = 'calc-valor-verde';
+      lucroCard.className = 'calc-stat-positivo';
+      bdLucro.className = 'calc-linha-valor verde';
+    } else {
+      lucroEl.className = 'calc-valor-vermelho';
+      lucroCard.className = 'calc-stat-negativo';
+      bdLucro.className = 'calc-linha-valor vermelho';
+    }
+
+    if (margem >= 20) {
+      margemEl.className = 'calc-valor-verde';
+      margemCard.className = 'calc-stat-positivo';
+    } else if (margem >= 10) {
+      margemEl.className = 'calc-valor-amarelo';
+      margemCard.className = 'calc-stat-neutro';
+    } else {
+      margemEl.className = 'calc-valor-vermelho';
+      margemCard.className = 'calc-stat-negativo';
+    }
+
+    // Veredito
+    let veredito = '';
+    if (lucro <= 0) {
+      veredito = '<div class="veredito-nao"><div class="veredito-emoji">❌</div><div><div class="veredito-titulo">Prejuízo!</div><div class="veredito-desc">Com esses números você está perdendo dinheiro por venda. Aumente o preço de venda ou reduza os custos.</div></div></div>';
+    } else if (margem < 10) {
+      veredito = '<div class="veredito-nao"><div class="veredito-emoji">⚠️</div><div><div class="veredito-titulo">Margem muito baixa</div><div class="veredito-desc">Margem abaixo de 10% é arriscada. Qualquer problema (devolução, taxa extra) pode virar prejuízo.</div></div></div>';
+    } else if (margem < 20) {
+      veredito = '<div class="veredito-sim" style="background:rgba(250,204,21,0.08);border-color:rgba(250,204,21,0.25);"><div class="veredito-emoji">🟡</div><div><div class="veredito-titulo" style="color:#facc15;">Margem aceitável</div><div class="veredito-desc">Dá para trabalhar, mas tente negociar melhor com o fornecedor para aumentar a margem.</div></div></div>';
+    } else {
+      veredito = '<div class="veredito-sim"><div class="veredito-emoji">✅</div><div><div class="veredito-titulo">Boa margem!</div><div class="veredito-desc">Margem acima de 20% é excelente para revenda no ML. Vale a pena investir nesse produto!</div></div></div>';
+    }
+    document.getElementById('veredito-calc').innerHTML = veredito;
+  }
+
+  // ABA 1
   async function analisar() {
     const categoria = document.getElementById('categoria').value.trim();
     const capital = document.getElementById('capital').value;
@@ -251,35 +453,24 @@
 
     try {
       const response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'authorization': token },
-        body: JSON.stringify({ prompt })
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }, body: JSON.stringify({ prompt })
       });
       if (response.status === 403) {
         const erro = await response.json();
-        if (erro.limite) {
-          document.getElementById('banner-limite').style.display = 'block';
-          document.getElementById('btn-analisar').disabled = true;
-          document.getElementById('contador-analises').textContent = '0 restantes hoje';
-          return;
-        }
+        if (erro.limite) { document.getElementById('banner-limite').style.display = 'block'; document.getElementById('btn-analisar').disabled = true; document.getElementById('contador-analises').textContent = '0 restantes hoje'; return; }
       }
       const data = await response.json();
       if (!data.choices) { mostrarErro('erro', 'Erro na API. Tente novamente.'); return; }
       const texto = data.choices[0].message.content;
       const jsonMatch = texto.match(/\{[\s\S]*\}/);
       if (!jsonMatch) { mostrarErro('erro', 'Erro ao processar resposta. Tente novamente.'); return; }
-      const resultado = JSON.parse(jsonMatch[0]);
-      mostrarResultados(resultado.produtos);
+      mostrarResultados(JSON.parse(jsonMatch[0]).produtos);
       carregarPlano();
-    } catch (e) {
-      mostrarErro('erro', 'Erro de conexão ou resposta inválida. Tente novamente.');
-    } finally {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('btn-analisar').disabled = false;
-    }
+    } catch (e) { mostrarErro('erro', 'Erro de conexão ou resposta inválida. Tente novamente.'); }
+    finally { document.getElementById('loading').style.display = 'none'; document.getElementById('btn-analisar').disabled = false; }
   }
 
+  // ABA 2
   async function analisarEspecifico() {
     const produto = document.getElementById('produto-especifico').value.trim();
     if (!produto) { mostrarErro('erro-especifico', 'Digite o nome de um produto.'); return; }
@@ -293,104 +484,45 @@
 
     try {
       const response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'authorization': token },
-        body: JSON.stringify({ prompt })
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }, body: JSON.stringify({ prompt })
       });
       if (response.status === 403) {
         const erro = await response.json();
-        if (erro.limite) {
-          document.getElementById('banner-limite').style.display = 'block';
-          document.getElementById('btn-analisar-especifico').disabled = true;
-          document.getElementById('contador-analises').textContent = '0 restantes hoje';
-          return;
-        }
+        if (erro.limite) { document.getElementById('banner-limite').style.display = 'block'; document.getElementById('btn-analisar-especifico').disabled = true; document.getElementById('contador-analises').textContent = '0 restantes hoje'; return; }
       }
       const data = await response.json();
       if (!data.choices) { mostrarErro('erro-especifico', 'Erro na API. Tente novamente.'); return; }
       const texto = data.choices[0].message.content;
       const jsonMatch = texto.match(/\{[\s\S]*\}/);
       if (!jsonMatch) { mostrarErro('erro-especifico', 'Erro ao processar resposta. Tente novamente.'); return; }
-      const r = JSON.parse(jsonMatch[0]);
-      mostrarResultadoEspecifico(r);
+      mostrarResultadoEspecifico(JSON.parse(jsonMatch[0]));
       carregarPlano();
-    } catch (e) {
-      mostrarErro('erro-especifico', 'Erro de conexão ou resposta inválida. Tente novamente.');
-    } finally {
-      document.getElementById('loading-especifico').style.display = 'none';
-      document.getElementById('btn-analisar-especifico').disabled = false;
-    }
+    } catch (e) { mostrarErro('erro-especifico', 'Erro de conexão ou resposta inválida. Tente novamente.'); }
+    finally { document.getElementById('loading-especifico').style.display = 'none'; document.getElementById('btn-analisar-especifico').disabled = false; }
   }
 
   function mostrarResultadoEspecifico(r) {
     const container = document.getElementById('resultado-especifico');
     const links = gerarLinks(r.nome);
-    const linksHtml = links.map(function(l) {
-      return '<a href="' + l.url + '" target="_blank" class="fornecedor-link"><div class="fornecedor-icon">' + l.icon + '</div><div class="fornecedor-info"><div class="fornecedor-nome">' + l.nome + '</div><div class="fornecedor-desc">' + l.desc + '</div></div><div class="fornecedor-arrow">↗</div></a>';
-    }).join('');
+    const linksHtml = links.map(function(l) { return '<a href="' + l.url + '" target="_blank" class="fornecedor-link"><div class="fornecedor-icon">' + l.icon + '</div><div class="fornecedor-info"><div class="fornecedor-nome">' + l.nome + '</div><div class="fornecedor-desc">' + l.desc + '</div></div><div class="fornecedor-arrow">↗</div></a>'; }).join('');
     const veredito = r.veredito === 'sim';
     const tendEmoji = r.tendencia === 'Crescendo' ? '↑' : r.tendencia === 'Caindo' ? '↓' : '→';
     const concClass = r.concorrencia === 'Baixa' ? 'badge-alta' : r.concorrencia === 'Alta' ? 'badge-baixa' : 'badge-media';
     const tendClass = r.tendencia === 'Crescendo' ? 'badge-tendencia-up' : r.tendencia === 'Caindo' ? 'badge-tendencia-down' : 'badge-tendencia-estavel';
-
-    container.innerHTML =
-      '<div class="' + (veredito ? 'veredito-sim' : 'veredito-nao') + '">' +
-        '<div class="veredito-emoji">' + (veredito ? '✅' : '❌') + '</div>' +
-        '<div><div class="veredito-titulo">' + r.veredito_titulo + '</div><div class="veredito-desc">' + r.veredito_motivo + '</div></div>' +
-      '</div>' +
-      '<div class="produto-card">' +
-        '<div class="produto-nome" style="margin-bottom:12px;">' + r.nome + '</div>' +
-        '<div class="badges" style="margin-bottom:14px;">' +
-          '<span class="badge-tag ' + concClass + '">Concorrência: ' + r.concorrencia + '</span>' +
-          '<span class="badge-tag ' + tendClass + '">' + tendEmoji + ' ' + r.tendencia + '</span>' +
-        '</div>' +
-        '<div class="stats-grid-4">' +
-          '<div class="stat"><div class="stat-label">💰 Custo</div><div class="stat-valor" style="font-size:12px;">' + r.custo_fornecedor + '</div></div>' +
-          '<div class="stat"><div class="stat-label">💵 Preço ML</div><div class="stat-valor" style="font-size:12px;">' + r.preco_ml + '</div></div>' +
-          '<div class="stat"><div class="stat-label">📊 Margem</div><div class="stat-valor">' + r.margem + '</div></div>' +
-          '<div class="stat"><div class="stat-label">💸 Lucro unit.</div><div class="stat-valor" style="font-size:12px;">' + r.lucro_unitario + '</div></div>' +
-        '</div>' +
-        '<div class="stat" style="margin-bottom:14px;"><div class="stat-label">📦 Volume de vendas estimado no ML</div><div class="stat-valor" style="font-size:13px;margin-top:4px;">' + r.volume_vendas + '</div></div>' +
-        '<div class="secoes">' +
-          '<div class="secao"><div class="secao-titulo">💪 Ponto forte</div><div class="secao-conteudo">' + r.ponto_forte + '</div></div>' +
-          '<div class="secao"><div class="secao-titulo">⚠️ Ponto fraco</div><div class="secao-conteudo">' + r.ponto_fraco + '</div></div>' +
-          '<div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🎯 Como se destacar</div><div class="secao-conteudo">' + r.dica_destaque + '</div></div>' +
-          '<div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🏭 Pesquise o preço real</div><div class="fornecedor-links">' + linksHtml + '</div></div>' +
-        '</div>' +
-      '</div>' +
-      '<div class="aviso">⚠ Estimativas geradas por IA com base em tendências de mercado. Pesquise os preços reais nos links acima antes de investir.</div>';
-
+    container.innerHTML = '<div class="' + (veredito ? 'veredito-sim' : 'veredito-nao') + '"><div class="veredito-emoji">' + (veredito ? '✅' : '❌') + '</div><div><div class="veredito-titulo">' + r.veredito_titulo + '</div><div class="veredito-desc">' + r.veredito_motivo + '</div></div></div><div class="produto-card"><div class="produto-nome" style="margin-bottom:12px;">' + r.nome + '</div><div class="badges" style="margin-bottom:14px;"><span class="badge-tag ' + concClass + '">Concorrência: ' + r.concorrencia + '</span><span class="badge-tag ' + tendClass + '">' + tendEmoji + ' ' + r.tendencia + '</span></div><div class="stats-grid-4"><div class="stat"><div class="stat-label">💰 Custo</div><div class="stat-valor" style="font-size:12px;">' + r.custo_fornecedor + '</div></div><div class="stat"><div class="stat-label">💵 Preço ML</div><div class="stat-valor" style="font-size:12px;">' + r.preco_ml + '</div></div><div class="stat"><div class="stat-label">📊 Margem</div><div class="stat-valor">' + r.margem + '</div></div><div class="stat"><div class="stat-label">💸 Lucro unit.</div><div class="stat-valor" style="font-size:12px;">' + r.lucro_unitario + '</div></div></div><div class="stat" style="margin-bottom:14px;"><div class="stat-label">📦 Volume de vendas estimado no ML</div><div class="stat-valor" style="font-size:13px;margin-top:4px;">' + r.volume_vendas + '</div></div><div class="secoes"><div class="secao"><div class="secao-titulo">💪 Ponto forte</div><div class="secao-conteudo">' + r.ponto_forte + '</div></div><div class="secao"><div class="secao-titulo">⚠️ Ponto fraco</div><div class="secao-conteudo">' + r.ponto_fraco + '</div></div><div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🎯 Como se destacar</div><div class="secao-conteudo">' + r.dica_destaque + '</div></div><div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🏭 Pesquise o preço real</div><div class="fornecedor-links">' + linksHtml + '</div></div></div></div><div class="aviso">⚠ Estimativas geradas por IA. Pesquise os preços reais nos links acima antes de investir.</div>';
     container.style.display = 'block';
   }
 
   function getBadgeClass(tipo, valor) {
     if (!valor) return 'badge-media';
     const v = valor.toLowerCase();
-    if (tipo === 'concorrencia') {
-      if (v.includes('baixa')) return 'badge-alta';
-      if (v.includes('alta')) return 'badge-baixa';
-      return 'badge-media';
-    }
+    if (tipo === 'concorrencia') { if (v.includes('baixa')) return 'badge-alta'; if (v.includes('alta')) return 'badge-baixa'; return 'badge-media'; }
     if (v.includes('alta') || v.includes('alto')) return 'badge-alta';
     if (v.includes('baixa') || v.includes('baixo')) return 'badge-baixa';
     return 'badge-media';
   }
-
-  function getTendenciaClass(t) {
-    if (!t) return 'badge-tendencia-estavel';
-    const v = t.toLowerCase();
-    if (v.includes('crescendo')) return 'badge-tendencia-up';
-    if (v.includes('caindo')) return 'badge-tendencia-down';
-    return 'badge-tendencia-estavel';
-  }
-
-  function getTendenciaEmoji(t) {
-    if (!t) return '→';
-    const v = t.toLowerCase();
-    if (v.includes('crescendo')) return '↑';
-    if (v.includes('caindo')) return '↓';
-    return '→';
-  }
+  function getTendenciaClass(t) { if (!t) return 'badge-tendencia-estavel'; const v = t.toLowerCase(); if (v.includes('crescendo')) return 'badge-tendencia-up'; if (v.includes('caindo')) return 'badge-tendencia-down'; return 'badge-tendencia-estavel'; }
+  function getTendenciaEmoji(t) { if (!t) return '→'; const v = t.toLowerCase(); if (v.includes('crescendo')) return '↑'; if (v.includes('caindo')) return '↓'; return '→'; }
 
   function toggleFavorito(nome, btnEl, cardEl) {
     const idx = favoritos.indexOf(nome);
@@ -398,15 +530,11 @@
     else { favoritos.splice(idx, 1); btnEl.classList.remove('ativo'); cardEl.classList.remove('favoritado'); }
     atualizarFavoritos();
   }
-
   function removerFavorito(nome) {
     favoritos = favoritos.filter(function(f) { return f !== nome; });
-    document.querySelectorAll('.btn-fav').forEach(function(btn) {
-      if (btn.dataset.nome === nome) { btn.classList.remove('ativo'); btn.closest('.produto-card').classList.remove('favoritado'); }
-    });
+    document.querySelectorAll('.btn-fav').forEach(function(btn) { if (btn.dataset.nome === nome) { btn.classList.remove('ativo'); btn.closest('.produto-card').classList.remove('favoritado'); } });
     atualizarFavoritos();
   }
-
   function atualizarFavoritos() {
     const section = document.getElementById('favoritos-section');
     const lista = document.getElementById('favoritos-lista');
@@ -414,54 +542,26 @@
     if (favoritos.length === 0) { section.style.display = 'none'; return; }
     section.style.display = 'block';
     count.textContent = favoritos.length + ' produto(s)';
-    lista.innerHTML = favoritos.map(function(nome) {
-      return '<span class="fav-tag">' + nome + ' <button onclick="removerFavorito(\'' + nome + '\')" title="Remover">×</button></span>';
-    }).join('');
+    lista.innerHTML = favoritos.map(function(nome) { return '<span class="fav-tag">' + nome + ' <button onclick="removerFavorito(\'' + nome + '\')" title="Remover">×</button></span>'; }).join('');
   }
-
   function mostrarResultados(produtos) {
     const container = document.getElementById('resultado-container');
     container.innerHTML = '';
     produtos.forEach(function(p, i) {
       const div = document.createElement('div');
-      div.className = 'produto-card';
-      div.id = 'produto-card-' + i;
+      div.className = 'produto-card'; div.id = 'produto-card-' + i;
       const links = gerarLinks(p.nome);
-      const linksHtml = links.map(function(l) {
-        return '<a href="' + l.url + '" target="_blank" class="fornecedor-link"><div class="fornecedor-icon">' + l.icon + '</div><div class="fornecedor-info"><div class="fornecedor-nome">' + l.nome + '</div><div class="fornecedor-desc">' + l.desc + '</div></div><div class="fornecedor-arrow">↗</div></a>';
-      }).join('');
-      div.innerHTML =
-        '<div class="produto-top"><div><div class="produto-nome">' + p.nome + '</div>' +
-        '<div class="badges" style="margin-top:6px;">' +
-        '<span class="badge-tag ' + getBadgeClass('demanda', p.demanda) + '">Demanda: ' + p.demanda + '</span>' +
-        '<span class="badge-tag ' + getBadgeClass('concorrencia', p.concorrencia) + '">Concorrência: ' + p.concorrencia + '</span>' +
-        '<span class="badge-tag ' + getTendenciaClass(p.tendencia) + '">' + getTendenciaEmoji(p.tendencia) + ' ' + (p.tendencia || 'Estável') + '</span>' +
-        '</div></div>' +
-        '<button class="btn-fav" data-nome="' + p.nome + '" onclick="toggleFavorito(\'' + p.nome + '\', this, document.getElementById(\'produto-card-' + i + '\'))" title="Favoritar">⭐</button></div>' +
-        '<div class="stats-grid"><div class="stat"><div class="stat-label">Margem estimada</div><div class="stat-valor">' + p.margem + '</div></div>' +
-        '<div class="stat"><div class="stat-label">Tendência</div><div class="stat-valor" style="font-size:13px;">' + getTendenciaEmoji(p.tendencia) + ' ' + (p.tendencia || 'Estável') + '</div></div></div>' +
-        '<div class="secoes">' +
-        '<div class="secao"><div class="secao-titulo">💡 Por que vender?</div><div class="secao-conteudo">' + p.descricao + '</div></div>' +
-        '<div class="secao"><div class="secao-titulo">🎯 Dica para se destacar</div><div class="secao-conteudo">' + p.dica + '</div></div>' +
-        '<div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🏭 Pesquise o preço real</div><div class="fornecedor-links">' + linksHtml + '</div>' +
-        '<div style="margin-top:8px;font-size:12px;color:#555570;">💡 ' + (p.onde_pesquisar || '') + '</div></div></div>';
+      const linksHtml = links.map(function(l) { return '<a href="' + l.url + '" target="_blank" class="fornecedor-link"><div class="fornecedor-icon">' + l.icon + '</div><div class="fornecedor-info"><div class="fornecedor-nome">' + l.nome + '</div><div class="fornecedor-desc">' + l.desc + '</div></div><div class="fornecedor-arrow">↗</div></a>'; }).join('');
+      div.innerHTML = '<div class="produto-top"><div><div class="produto-nome">' + p.nome + '</div><div class="badges" style="margin-top:6px;"><span class="badge-tag ' + getBadgeClass('demanda', p.demanda) + '">Demanda: ' + p.demanda + '</span><span class="badge-tag ' + getBadgeClass('concorrencia', p.concorrencia) + '">Concorrência: ' + p.concorrencia + '</span><span class="badge-tag ' + getTendenciaClass(p.tendencia) + '">' + getTendenciaEmoji(p.tendencia) + ' ' + (p.tendencia || 'Estável') + '</span></div></div><button class="btn-fav" data-nome="' + p.nome + '" onclick="toggleFavorito(\'' + p.nome + '\', this, document.getElementById(\'produto-card-' + i + '\'))" title="Favoritar">⭐</button></div><div class="stats-grid"><div class="stat"><div class="stat-label">Margem estimada</div><div class="stat-valor">' + p.margem + '</div></div><div class="stat"><div class="stat-label">Tendência</div><div class="stat-valor" style="font-size:13px;">' + getTendenciaEmoji(p.tendencia) + ' ' + (p.tendencia || 'Estável') + '</div></div></div><div class="secoes"><div class="secao"><div class="secao-titulo">💡 Por que vender?</div><div class="secao-conteudo">' + p.descricao + '</div></div><div class="secao"><div class="secao-titulo">🎯 Dica para se destacar</div><div class="secao-conteudo">' + p.dica + '</div></div><div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🏭 Pesquise o preço real</div><div class="fornecedor-links">' + linksHtml + '</div><div style="margin-top:8px;font-size:12px;color:#555570;">💡 ' + (p.onde_pesquisar || '') + '</div></div></div>';
       container.appendChild(div);
     });
-    const aviso = document.createElement('div');
-    aviso.className = 'aviso';
-    aviso.textContent = '⚠ Análise gerada por IA com base em tendências de mercado. Use os links acima para pesquisar os preços reais antes de investir.';
-    container.appendChild(aviso);
+    const aviso = document.createElement('div'); aviso.className = 'aviso'; aviso.textContent = '⚠ Análise gerada por IA. Use os links acima para pesquisar os preços reais antes de investir.'; container.appendChild(aviso);
     container.style.display = 'block';
   }
-
   function mostrarErro(id, msg) {
-    const el = document.getElementById(id);
-    el.textContent = msg;
-    el.style.display = 'block';
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('loading-especifico').style.display = 'none';
-    document.getElementById('btn-analisar').disabled = false;
-    document.getElementById('btn-analisar-especifico').disabled = false;
+    const el = document.getElementById(id); el.textContent = msg; el.style.display = 'block';
+    document.getElementById('loading').style.display = 'none'; document.getElementById('loading-especifico').style.display = 'none';
+    document.getElementById('btn-analisar').disabled = false; document.getElementById('btn-analisar-especifico').disabled = false;
   }
 </script>
 
@@ -471,9 +571,7 @@
 
   async function verificarAcesso() {
     try {
-      const response = await fetch('https://ferramentas-ia-production.up.railway.app/ferramenta', {
-        headers: { 'authorization': token }
-      });
+      const response = await fetch('https://ferramentas-ia-production.up.railway.app/ferramenta', { headers: { 'authorization': token } });
       const data = await response.json();
       if (!data.sucesso) { localStorage.removeItem('token'); window.location.href = 'login.html'; return; }
       document.getElementById('navbar-user').textContent = data.mensagem;
@@ -482,9 +580,7 @@
 
   async function carregarPlano() {
     try {
-      const res = await fetch('https://ferramentas-ia-production.up.railway.app/meu-plano', {
-        headers: { 'authorization': token }
-      });
+      const res = await fetch('https://ferramentas-ia-production.up.railway.app/meu-plano', { headers: { 'authorization': token } });
       const dados = await res.json();
       planoAtual = dados.plano;
       localStorage.setItem('plano', dados.plano);
@@ -494,31 +590,21 @@
       const btnAnalisarEsp = document.getElementById('btn-analisar-especifico');
       const bannerLimite = document.getElementById('banner-limite');
       if (dados.plano === 'pro') {
-        badge.textContent = '⭐ Pro';
-        badge.className = 'badge-plano pro';
-        contador.textContent = '';
-        btnAnalisar.disabled = false;
-        btnAnalisarEsp.disabled = false;
-        bannerLimite.style.display = 'none';
+        badge.textContent = '⭐ Pro'; badge.className = 'badge-plano pro';
+        contador.textContent = ''; btnAnalisar.disabled = false; btnAnalisarEsp.disabled = false; bannerLimite.style.display = 'none';
       } else {
-        badge.textContent = 'Gratuito';
-        badge.className = 'badge-plano gratuito';
+        badge.textContent = 'Gratuito'; badge.className = 'badge-plano gratuito';
         if (dados.restantes === 0) {
-          contador.textContent = '0 restantes hoje';
-          btnAnalisar.disabled = true;
-          btnAnalisarEsp.disabled = true;
-          bannerLimite.style.display = 'block';
+          contador.textContent = '0 restantes hoje'; btnAnalisar.disabled = true; btnAnalisarEsp.disabled = true; bannerLimite.style.display = 'block';
         } else {
           contador.textContent = dados.restantes + ' análise' + (dados.restantes === 1 ? '' : 's') + ' restante' + (dados.restantes === 1 ? '' : 's') + ' hoje';
-          btnAnalisar.disabled = false;
-          btnAnalisarEsp.disabled = false;
-          bannerLimite.style.display = 'none';
+          btnAnalisar.disabled = false; btnAnalisarEsp.disabled = false; bannerLimite.style.display = 'none';
         }
       }
     } catch (e) { console.log('Erro ao carregar plano', e.name, e.message); }
   }
 
-  function sair() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
+  function sair() { localStorage.removeItem('token'); localStorage.removeItem('plano'); window.location.href = 'login.html'; }
 
   verificarAcesso();
   setTimeout(carregarPlano, 500);
