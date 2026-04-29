@@ -485,7 +485,7 @@
       const res = await fetch('https://ferramentas-ia-production.up.railway.app/meu-plano', {
         headers: { 'authorization': token }
       });
-      planoAtual = dados.plano;
+      const dados = await res.json();
       const badge = document.getElementById('badge-plano');
       const contador = document.getElementById('contador-analises');
       const btnAnalisar = document.getElementById('btn-analisar');
@@ -513,7 +513,7 @@
           bannerLimite.style.display = 'none';
         }
       }
-    } catch (e) { console.log('Erro ao carregar plano', e.name, e.message, e.stack); }
+    } catch (e) { console.log('Erro ao carregar plano', e.name, e.message); }
   }
 
   function sair() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
