@@ -209,42 +209,34 @@ app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
 
 // Criar pagamento
 app.post('/criar-pagamento', async (req, res) => {
-  res.json({ sucesso: true, url: 'https://mpago.la/2D6c6S4' });
-});
-
-// Webhook — Mercado Pago avisa quando alguém paga
-app.post('/webhook', async (req, res) => {
-  const { type, data } = req.body;
-  if (type === 'payment' && data?.id) {
-    try {
-      const { Payment } = require('mercadopago');
-      const payment = new Payment(mp);
-      const resultado = await payment.get({ id: data.id });
-      if (resultado.status === 'approved') {
-        const email = resultado.external_reference;
-        await pool.query('UPDATE usuarios SET ativo = 1, plano = $1 WHERE email = $2', ['pro', email]);
-        console.log(`Usuário ${email} ativado com plano Pro após pagamento!`);
+  const { email } = req.body;
+  try {
+    const preference = new Preference(mp);
+    const result = await preference.create({
+      body: {
+        items: [{
+          title: 'Ferramentas IA — Plano Pro',
+          quantity: 1,
+          unit_price: 29.90,
+          currency_id: 'BRL'
+        }],
+        payer: { email },
+        metadata: { email },
+        external_reference: email,
+        back_urls: {
+          success: 'https://ferramentas-ia-production.up.railway.app/login.html',
+          failure: 'https://ferramentas-ia-production.up.railway.app/login.html',
+          pending: 'https://ferramentas-ia-production.up.railway.app/login.html'
+        },
+        auto_return: 'approved',
+        notification_url: 'https://ferramentas-ia-production.up.railway.app/webhook'
       }
-    } catch (e) {
-      console.log('Erro no webhook:', e.message);
-    }
+    });
+    res.json({ sucesso: true, url: result.init_point });
+  } catch (e) {
+    console.log('Erro MP:', JSON.stringify(e), e.message);
+    res.json({ sucesso: false, mensagem: 'Erro ao criar pagamento', erro: e.message });
   }
-  res.sendStatus(200);
-});
-app.get('/debug-db', async (req, res) => {
-  const { rows } = await pool.query(`
-    SELECT table_name FROM information_schema.tables 
-    WHERE table_schema = 'public'
-  `);
-  res.json(rows);
-});
-app.get('/debug-colunas', async (req, res) => {
-  const { rows } = await pool.query(`
-    SELECT column_name, data_type, column_default 
-    FROM information_schema.columns 
-    WHERE table_name = 'usuarios'
-  `);
-  res.json(rows);
 });
 
 // Rotas de debug — remover após confirmar funcionamento
