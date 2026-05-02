@@ -209,34 +209,7 @@ app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
 
 // Criar pagamento
 app.post('/criar-pagamento', async (req, res) => {
-  const { email } = req.body;
-  try {
-    const preference = new Preference(mp);
-    const result = await preference.create({
-      body: {
-        items: [{
-          title: 'Ferramentas IA — Plano Pro',
-          quantity: 1,
-          unit_price: 29.90,
-          currency_id: 'BRL'
-        }],
-        payer: { email },
-        metadata: { email },
-        external_reference: email,
-        back_urls: {
-          success: 'https://ferramentas-ia-production.up.railway.app/login.html',
-          failure: 'https://ferramentas-ia-production.up.railway.app/login.html',
-          pending: 'https://ferramentas-ia-production.up.railway.app/login.html'
-        },
-        auto_return: 'approved',
-        notification_url: 'https://ferramentas-ia-production.up.railway.app/webhook'
-      }
-    });
-    res.json({ sucesso: true, url: result.init_point });
-  } catch (e) {
-    console.log('Erro MP:', JSON.stringify(e), e.message);
-    res.json({ sucesso: false, mensagem: 'Erro ao criar pagamento', erro: e.message });
-  }
+  res.json({ sucesso: true, url: 'https://mpago.la/2D6c6S4' });
 });
 
 // Webhook — Mercado Pago avisa quando alguém paga
