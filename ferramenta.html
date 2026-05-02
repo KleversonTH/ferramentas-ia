@@ -125,7 +125,7 @@
     .range-wrapper { margin-bottom: 1rem; }
     .range-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
     .range-value { font-size: 13px; font-weight: 600; color: #facc15; font-family: 'JetBrains Mono', monospace; }
-    input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #1e1e2e; outline: none; margin-bottom: 0; padding: 0; }
+    input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #1e1e2e; outline: none; margin-bottom: 0; padding: 0; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #facc15; cursor: pointer; }
     .footer { text-align: center; margin-top: 2rem; font-size: 12px; color: #2a2a40; font-family: 'JetBrains Mono', monospace; }
   </style>
@@ -159,6 +159,7 @@
     <button class="tab ativo" id="tab-btn-nichos" onclick="mudarTab('nichos', this)">🔍 Nichos</button>
     <button class="tab" id="tab-btn-especifico" onclick="mudarTab('especifico', this)">🎯 Produto</button>
     <button class="tab" id="tab-btn-calculadora" onclick="mudarTab('calculadora', this)">💰 Lucro</button>
+<button class="tab" id="tab-btn-gerador" onclick="mudarTab('gerador', this)">✍️ Anúncio</button>
   </div>
 
   <!-- ABA 1: BUSCAR NICHOS -->
@@ -320,6 +321,24 @@
       <div id="veredito-calc"></div>
     </div>
   </div>
+  <!-- ABA 4: GERADOR DE TÍTULO + DESCRIÇÃO -->
+<div class="tab-content" id="tab-gerador">
+  <div class="card">
+    <label>Nome do produto</label>
+    <input type="text" id="gen-produto" placeholder="Ex: Fone de ouvido bluetooth sem fio" />
+    <label>Público-alvo</label>
+    <input type="text" id="gen-publico" placeholder="Ex: gamers, estudantes, mães, esportistas..." />
+    <label>Principais características</label>
+    <input type="text" id="gen-features" placeholder="Ex: resistente à água, bateria 20h, cancelamento de ruído..." />
+    <button class="primary" id="btn-gerar" onclick="gerarAnuncio()">Gerar anúncio →</button>
+  </div>
+  <div class="loading" id="loading-gerador">
+    <div class="loading-dots"><span></span><span></span><span></span></div>
+    <p>Gerando anúncio com IA...</p>
+  </div>
+  <div class="erro" id="erro-gerador"></div>
+  <div id="resultado-gerador" style="display:none;"></div>
+</div>
 
   <div class="footer">ferramentas baseadas em IA — verifique os dados reais antes de investir</div>
 </div>
@@ -558,6 +577,86 @@
     const aviso = document.createElement('div'); aviso.className = 'aviso'; aviso.textContent = '⚠ Análise gerada por IA. Use os links acima para pesquisar os preços reais antes de investir.'; container.appendChild(aviso);
     container.style.display = 'block';
   }
+  // ABA 4 — GERADOR DE ANÚNCIO
+async function gerarAnuncio() {
+  const produto = document.getElementById('gen-produto').value.trim();
+  const publico = document.getElementById('gen-publico').value.trim();
+  const features = document.getElementById('gen-features').value.trim();
+  if (!produto) { mostrarErro('erro-gerador', 'Digite o nome do produto.'); return; }
+
+  document.getElementById('loading-gerador').style.display = 'block';
+  document.getElementById('resultado-gerador').style.display = 'none';
+  document.getElementById('erro-gerador').style.display = 'none';
+  document.getElementById('banner-limite').style.display = 'none';
+  document.getElementById('btn-gerar').disabled = true;
+
+  const prompt = 'Você é um especialista em copywriting para Mercado Livre Brasil.\n\nCrie um anúncio completo para o produto: "' + produto + '"\nPúblico-alvo: ' + (publico || 'geral') + '\nCaracterísticas: ' + (features || 'não informadas') + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois:\n{\n  "titulo": "Título otimizado com até 60 caracteres com palavras-chave do ML",\n  "titulo_chars": 55,\n  "subtitulo": "Subtítulo complementar de até 60 caracteres",\n  "descricao": "Descrição completa do produto com 3 a 5 parágrafos. Use linguagem persuasiva, destaque benefícios, inclua especificações e finalize com chamada para ação.",\n  "palavras_chave": ["palavra1", "palavra2", "palavra3", "palavra4", "palavra5"],\n  "dica_titulo": "Dica de por que esse título vai ranquear bem no ML."\n}';
+
+  try {
+    const response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }, body: JSON.stringify({ prompt })
+    });
+    if (response.status === 403) {
+      const erro = await response.json();
+      if (erro.limite) { document.getElementById('banner-limite').style.display = 'block'; document.getElementById('btn-gerar').disabled = true; document.getElementById('contador-analises').textContent = '0 restantes hoje'; return; }
+    }
+    const data = await response.json();
+    if (!data.choices) { mostrarErro('erro-gerador', 'Erro na API. Tente novamente.'); return; }
+    const texto = data.choices[0].message.content;
+    const jsonMatch = texto.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) { mostrarErro('erro-gerador', 'Erro ao processar resposta. Tente novamente.'); return; }
+    mostrarResultadoGerador(JSON.parse(jsonMatch[0]));
+    carregarPlano();
+  } catch (e) { mostrarErro('erro-gerador', 'Erro de conexão. Tente novamente.'); }
+  finally { document.getElementById('loading-gerador').style.display = 'none'; document.getElementById('btn-gerar').disabled = false; }
+}
+
+function copiar(id, btn) {
+  const texto = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(texto).then(function() {
+    btn.textContent = '✅ Copiado!';
+    setTimeout(function() { btn.textContent = '📋 Copiar'; }, 2000);
+  });
+}
+
+function mostrarResultadoGerador(r) {
+  const container = document.getElementById('resultado-gerador');
+  const chars = r.titulo ? r.titulo.length : 0;
+  const charsColor = chars <= 60 ? '#86efac' : '#fca5a5';
+  const palavras = (r.palavras_chave || []).map(function(p) { return '<span class="fav-tag">' + p + '</span>'; }).join('');
+
+  container.innerHTML =
+    '<div class="produto-card">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
+        '<div class="secao-titulo">✍️ Título do anúncio</div>' +
+        '<button onclick="copiar(\'gen-titulo\', this)" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #1e1e2e;background:transparent;color:#facc15;cursor:pointer;font-family:Space Grotesk,sans-serif;">📋 Copiar</button>' +
+      '</div>' +
+      '<div id="gen-titulo" style="font-size:16px;font-weight:600;color:#fff;background:#0d0d14;border:1px solid #1e1e2e;border-radius:10px;padding:14px;margin-bottom:8px;line-height:1.4;">' + (r.titulo || '') + '</div>' +
+      '<div style="font-size:11px;font-family:JetBrains Mono,monospace;color:' + charsColor + ';margin-bottom:16px;">' + chars + '/60 caracteres</div>' +
+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
+        '<div class="secao-titulo">📝 Subtítulo</div>' +
+        '<button onclick="copiar(\'gen-subtitulo\', this)" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #1e1e2e;background:transparent;color:#facc15;cursor:pointer;font-family:Space Grotesk,sans-serif;">📋 Copiar</button>' +
+      '</div>' +
+      '<div id="gen-subtitulo" style="font-size:14px;color:#c8c8e0;background:#0d0d14;border:1px solid #1e1e2e;border-radius:10px;padding:14px;margin-bottom:16px;">' + (r.subtitulo || '') + '</div>' +
+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
+        '<div class="secao-titulo">📄 Descrição completa</div>' +
+        '<button onclick="copiar(\'gen-descricao\', this)" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #1e1e2e;background:transparent;color:#facc15;cursor:pointer;font-family:Space Grotesk,sans-serif;">📋 Copiar</button>' +
+      '</div>' +
+      '<div id="gen-descricao" style="font-size:13px;color:#c8c8e0;background:#0d0d14;border:1px solid #1e1e2e;border-radius:10px;padding:14px;margin-bottom:16px;line-height:1.8;white-space:pre-wrap;">' + (r.descricao || '') + '</div>' +
+
+      '<div class="secao-titulo" style="margin-bottom:10px;">🔑 Palavras-chave para usar nas tags</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">' + palavras + '</div>' +
+
+      '<div class="secao" style="background:#0d0d14;">' +
+        '<div class="secao-titulo">💡 Por que esse título vai ranquear</div>' +
+        '<div class="secao-conteudo">' + (r.dica_titulo || '') + '</div>' +
+      '</div>' +
+    '</div>';
+
+  container.style.display = 'block';
+}
   function mostrarErro(id, msg) {
     const el = document.getElementById(id); el.textContent = msg; el.style.display = 'block';
     document.getElementById('loading').style.display = 'none'; document.getElementById('loading-especifico').style.display = 'none';
