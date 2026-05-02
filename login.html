@@ -131,5 +131,16 @@
     document.getElementById('erro').style.display = 'none';
   }
 </script>
+<script>
+  // Redireciona para ferramenta se já estiver logado
+  const tokenExistente = localStorage.getItem('token');
+  if (tokenExistente) {
+    fetch('https://ferramentas-ia-production.up.railway.app/ferramenta', {
+      headers: { 'authorization': tokenExistente }
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data.sucesso) window.location.href = 'ferramenta.html';
+    }).catch(function() {});
+  }
+</script>
 </body>
 </html>
