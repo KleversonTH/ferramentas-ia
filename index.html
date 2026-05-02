@@ -241,5 +241,26 @@
     }).catch(function() {});
   }
 </script>
+<script>
+  const tokenLogado = localStorage.getItem('token');
+  if (tokenLogado) {
+    Promise.all([
+      fetch('https://ferramentas-ia-production.up.railway.app/ferramenta', { headers: { 'authorization': tokenLogado } }).then(function(r) { return r.json(); }),
+      fetch('https://ferramentas-ia-production.up.railway.app/meu-plano', { headers: { 'authorization': tokenLogado } }).then(function(r) { return r.json(); })
+    ]).then(function(resultados) {
+      const usuario = resultados[0];
+      const plano = resultados[1];
+      if (!usuario.sucesso) return;
+      const nome = usuario.mensagem.replace('Olá ', '').replace('! Você tem acesso à ferramenta.', '');
+      const planoTexto = plano.plano === 'pro' ? '⭐ Pro' : 'Gratuito';
+      const planoColor = plano.plano === 'pro' ? '#facc15' : '#555570';
+      const navLinks = document.querySelector('.nav-links');
+      navLinks.innerHTML =
+        '<span style="font-size:13px;color:#666680;padding:7px 8px;">👋 Olá, <strong style="color:#fff;">' + nome + '</strong></span>' +
+        '<span style="font-size:11px;font-family:JetBrains Mono,monospace;padding:4px 10px;border-radius:100px;border:1px solid ' + planoColor + ';color:' + planoColor + ';">' + planoTexto + '</span>' +
+        '<a href="ferramenta.html" class="btn-hero nav-cta" style="padding:7px 16px;font-size:13px;">Acessar →</a>';
+    }).catch(function() {});
+  }
+</script>
 </body>
 </html>
