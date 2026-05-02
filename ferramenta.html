@@ -425,24 +425,21 @@
 
   function mudarTab(tab, btn) {
     const abasPro = ['calculadora', 'gerador', 'reclamacao', 'palavras'];
-    if (abasPro.includes(tab) && planoAtual !== 'pro') {
-      document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('ativo'); });
-      document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('ativo'); });
-      btn.classList.add('ativo');
-      // Mostra aviso Pro em todas as abas bloqueadas
-      const ids = ['tab-calculadora', 'tab-gerador', 'tab-reclamacao', 'tab-palavras'];
-      ids.forEach(function(id) {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = '<div style="text-align:center;padding:3rem 1rem;background:#13131a;border:1px solid rgba(250,204,21,0.2);border-radius:16px;margin-top:1rem;"><div style="font-size:40px;margin-bottom:12px;">⭐</div><div style="font-size:18px;font-weight:600;color:#fff;margin-bottom:8px;">Recurso exclusivo Pro</div><div style="font-size:14px;color:#666680;margin-bottom:1.5rem;">Esta ferramenta está disponível apenas para assinantes do plano Pro.</div><a href="index.html#precos" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#facc15,#f97316);color:#0a0a0f;font-weight:600;border-radius:10px;text-decoration:none;font-size:14px;">Ver planos →</a></div>';
-        if (el) el.classList.add('ativo');
-      });
-      document.getElementById('tab-' + tab).classList.add('ativo');
-      return;
-    }
+    
     document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('ativo'); });
     document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('ativo'); });
-    document.getElementById('tab-' + tab).classList.add('ativo');
     btn.classList.add('ativo');
+    document.getElementById('tab-' + tab).classList.add('ativo');
+
+    if (abasPro.includes(tab) && planoAtual !== 'pro') {
+      document.getElementById('tab-' + tab).innerHTML =
+        '<div style="text-align:center;padding:3rem 1rem;background:#13131a;border:1px solid rgba(250,204,21,0.2);border-radius:16px;margin-top:1rem;">' +
+        '<div style="font-size:40px;margin-bottom:12px;">⭐</div>' +
+        '<div style="font-size:18px;font-weight:600;color:#fff;margin-bottom:8px;">Recurso exclusivo Pro</div>' +
+        '<div style="font-size:14px;color:#666680;margin-bottom:1.5rem;">Esta ferramenta está disponível apenas para assinantes do plano Pro.</div>' +
+        '<a href="https://ferramentas-ia-production.up.railway.app/index.html?bypass=1#precos" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#facc15,#f97316);color:#0a0a0f;font-weight:600;border-radius:10px;text-decoration:none;font-size:14px;">Ver planos →</a>' +
+        '</div>';
+    }
   }
 
   // CALCULADORA
