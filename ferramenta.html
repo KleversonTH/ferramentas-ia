@@ -421,7 +421,7 @@
 
 <script>
   let favoritos = [];
-  let planoAtual = localStorage.getItem('plano') || 'gratuito';
+  let planoAtual = 'gratuito';
 
   function mudarTab(tab, btn) {
     document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('ativo'); });
