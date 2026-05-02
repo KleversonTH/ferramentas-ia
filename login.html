@@ -134,13 +134,27 @@
 <script>
   // Redireciona para ferramenta se já estiver logado
   const tokenExistente = localStorage.getItem('token');
-  if (tokenExistente) {
-    fetch('https://ferramentas-ia-production.up.railway.app/ferramenta', {
-      headers: { 'authorization': tokenExistente }
-    }).then(function(r) { return r.json(); }).then(function(data) {
-      if (data.sucesso) window.location.href = 'ferramenta.html';
-    }).catch(function() {});
-  }
+if (tokenExistente) {
+  const paramsAtual = new URLSearchParams(window.location.search);
+  fetch('https://ferramentas-ia-production.up.railway.app/ferramenta', {
+    headers: { 'authorization': tokenExistente }
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (!data.sucesso) return;
+    if (paramsAtual.get('plano') === 'pro') {
+      // Já logado mas quer assinar Pro — vai direto para pagamento
+      const email = paramsAtual.get('email') || '';
+      fetch('https://ferramentas-ia-production.up.railway.app/criar-pagamento', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email || 'usuario@email.com' })
+      }).then(function(r) { return r.json(); }).then(function(pagamento) {
+        if (pagamento.sucesso) window.location.href = pagamento.url;
+      });
+    } else {
+      window.location.href = 'ferramenta.html';
+    }
+  }).catch(function() {});
+}
 </script>
 </body>
 </html>

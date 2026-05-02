@@ -111,8 +111,9 @@ async function verificarLimite(req, res, next) {
 }
 
 // Ferramenta protegida
-app.get('/ferramenta', verificarAcesso, (req, res) => {
-  res.json({ sucesso: true, mensagem: `Olá ${req.usuario.nome}! Você tem acesso à ferramenta.` });
+app.get('/ferramenta', verificarAcesso, async (req, res) => {
+  const { rows } = await pool.query('SELECT email FROM usuarios WHERE id = $1', [req.usuario.id]);
+  res.json({ sucesso: true, mensagem: `Olá ${req.usuario.nome}! Você tem acesso à ferramenta.`, email: rows[0].email });
 });
 
 // Rota plano do usuário

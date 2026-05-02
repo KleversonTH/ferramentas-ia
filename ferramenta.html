@@ -865,6 +865,7 @@ function mostrarResultadoPalavras(r) {
       const data = await response.json();
       if (!data.sucesso) { localStorage.removeItem('token'); window.location.href = 'login.html'; return; }
       document.getElementById('navbar-user').textContent = data.mensagem;
+      localStorage.setItem('userEmail', data.email || '');
     } catch (e) { console.log('Erro ao verificar acesso'); }
   }
 
