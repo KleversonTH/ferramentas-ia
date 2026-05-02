@@ -861,6 +861,8 @@ function mostrarResultadoPalavras(r) {
 </script>
 
 <script>
+  // Limpa plano do localStorage para forçar busca do servidor
+  localStorage.removeItem('plano');
   const token = localStorage.getItem('token');
   if (!token) window.location.href = 'login.html';
 
