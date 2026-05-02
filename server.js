@@ -234,8 +234,8 @@ app.post('/criar-pagamento', async (req, res) => {
     });
     res.json({ sucesso: true, url: result.init_point });
   } catch (e) {
-    console.log('Erro MP:', e);
-    res.json({ sucesso: false, mensagem: 'Erro ao criar pagamento' });
+    console.log('Erro MP:', JSON.stringify(e), e.message);
+    res.json({ sucesso: false, mensagem: 'Erro ao criar pagamento', erro: e.message });
   }
 });
 
