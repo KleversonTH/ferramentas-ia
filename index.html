@@ -231,8 +231,9 @@
 </script>
 <script>
   // Redireciona para ferramenta se já estiver logado
+  const params = new URLSearchParams(window.location.search);
   const token = localStorage.getItem('token');
-  if (token) {
+  if (token && !params.get('bypass')) {
     fetch('https://ferramentas-ia-production.up.railway.app/ferramenta', {
       headers: { 'authorization': token }
     }).then(function(r) { return r.json(); }).then(function(data) {
