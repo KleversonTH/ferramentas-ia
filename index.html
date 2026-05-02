@@ -187,11 +187,11 @@
 <div class="section">
   <p class="section-label">Dúvidas</p>
   <h2 class="section-title">Perguntas frequentes</h2>
-  <p class="section-sub" style="margin-bottom:2rem;">Não encontrou sua dúvida? Entre em contato pelo WhatsApp</p>
+  <p class="section-sub" style="margin-bottom:2rem;">Não encontrou sua dúvida? Entre em contato pelo email</p>
   <div class="faq-lista">
     <div class="faq-item" onclick="toggleFaq(this)">
       <div class="faq-pergunta">Como funciona o pagamento? <span>+</span></div>
-      <div class="faq-resposta">Após o cadastro, você entra em contato pelo WhatsApp e realiza o pagamento via Pix. A ativação é feita em até 1 hora.</div>
+      <div class="faq-resposta">O pagamento é feito online via cartão de crédito, boleto ou Pix pelo Mercado Pago. Após o pagamento aprovado, o acesso Pro é liberado automaticamente em segundos.</div>
     </div>
     <div class="faq-item" onclick="toggleFaq(this)">
       <div class="faq-pergunta">Os dados são em tempo real? <span>+</span></div>
@@ -199,7 +199,7 @@
     </div>
     <div class="faq-item" onclick="toggleFaq(this)">
       <div class="faq-pergunta">Posso cancelar quando quiser? <span>+</span></div>
-      <div class="faq-resposta">Sim! Não há fidelidade. Você pode cancelar a qualquer momento pelo WhatsApp e não será cobrado no mês seguinte.</div>
+      <div class="faq-resposta">Sim! Não há fidelidade. Você pode cancelar a qualquer momento e não será cobrado no mês seguinte.</div>
     </div>
     <div class="faq-item" onclick="toggleFaq(this)">
       <div class="faq-pergunta">Funciona para qualquer categoria? <span>+</span></div>
@@ -226,6 +226,17 @@
 <script>
   function toggleFaq(el) {
     el.classList.toggle('aberto');
+  }
+</script>
+<script>
+  // Redireciona para ferramenta se já estiver logado
+  const token = localStorage.getItem('token');
+  if (token) {
+    fetch('https://ferramentas-ia-production.up.railway.app/ferramenta', {
+      headers: { 'authorization': token }
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data.sucesso) window.location.href = 'ferramenta.html';
+    }).catch(function() {});
   }
 </script>
 </body>
