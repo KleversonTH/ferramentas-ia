@@ -151,6 +151,17 @@
     <p class="subtitle">Analise produtos, calcule lucros e encontre os melhores nichos</p>
   </div>
 
+  <!-- CARD DE BOAS-VINDAS -->
+<div id="card-boasvindas" style="display:none; background:#13131a; border:1px solid #1e1e2e; border-radius:12px; padding:14px 18px; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+  <div style="font-size:14px; color:#c8c8e0;">
+    👋 Olá, <strong id="bv-nome" style="color:#fff;"></strong>!
+    <span id="bv-plano-texto" style="margin-left:6px; font-size:13px; color:#666680;"></span>
+  </div>
+  <div id="bv-upgrade" style="display:none;">
+    <a href="index.html#precos" style="font-size:12px; padding:5px 12px; border-radius:6px; background:linear-gradient(135deg,rgba(250,204,21,0.15),rgba(249,115,22,0.15)); border:1px solid rgba(250,204,21,0.3); color:#facc15; text-decoration:none; font-family:JetBrains Mono,monospace;">⭐ Fazer upgrade Pro</a>
+  </div>
+</div>
+
   <div class="banner-limite" id="banner-limite">
     Você atingiu o limite de 3 análises diárias do plano gratuito.
     <a href="index.html#planos">Faça upgrade para o plano Pro</a> e analise sem limites!
@@ -858,6 +869,23 @@ function mostrarResultadoPalavras(r) {
       const res = await fetch('https://ferramentas-ia-production.up.railway.app/meu-plano', { headers: { 'authorization': token } });
       const dados = await res.json();
       planoAtual = dados.plano;
+      // Atualiza card de boas-vindas
+      const bvNome = document.getElementById('bv-nome');
+      const bvPlanoTexto = document.getElementById('bv-plano-texto');
+      const bvUpgrade = document.getElementById('bv-upgrade');
+      const cardBv = document.getElementById('card-boasvindas');
+      if (bvNome) {
+        const nomeUsuario = document.getElementById('navbar-user').textContent.replace('Olá ', '').replace('! Você tem acesso à ferramenta.', '');
+        bvNome.textContent = nomeUsuario;
+        if (dados.plano === 'pro') {
+        bvPlanoTexto.innerHTML = '— você está no plano <strong style="color:#facc15;">⭐ Pro</strong> — análises ilimitadas!';
+        bvUpgrade.style.display = 'none';
+      } else {
+        bvPlanoTexto.innerHTML = '— você está no plano <strong style="color:#555570;">Gratuito</strong> — ' + dados.restantes + ' análise' + (dados.restantes === 1 ? '' : 's') + ' restante' + (dados.restantes === 1 ? '' : 's') + ' hoje.';
+        bvUpgrade.style.display = 'block';
+      }
+      cardBv.style.display = 'flex';
+    }
       localStorage.setItem('plano', dados.plano);
       const badge = document.getElementById('badge-plano');
       const contador = document.getElementById('contador-analises');
