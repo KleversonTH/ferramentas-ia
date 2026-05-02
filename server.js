@@ -318,6 +318,9 @@ app.post('/admin/plano', async (req, res) => {
   await pool.query('UPDATE usuarios SET plano = $1 WHERE email = $2', [plano, email]);
   res.json({ sucesso: true, mensagem: `${email} agora é ${plano}!` });
 });
+app.get('/debug-mp', (req, res) => {
+  res.json({ token: process.env.MP_ACCESS_TOKEN ? process.env.MP_ACCESS_TOKEN.substring(0, 20) + '...' : 'NAO DEFINIDO' });
+});
 
 app.listen(PORT, async () => {
   await initDB();
