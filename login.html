@@ -94,6 +94,7 @@
         return;
 }
         localStorage.setItem('token', data.token);
+        localStorage.setItem('userEmail', email);
         const params = new URLSearchParams(window.location.search);
         if (params.get('plano') === 'pro') {
           mostrarSucesso('Login realizado! Redirecionando para pagamento...');
@@ -146,7 +147,7 @@ if (tokenExistente) {
       fetch('https://ferramentas-ia-production.up.railway.app/criar-pagamento', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email || 'usuario@email.com' })
+        body: JSON.stringify({ email: localStorage.getItem('userEmail') || '' })
       }).then(function(r) { return r.json(); }).then(function(pagamento) {
         console.log('pagamento:', JSON.stringify(pagamento));
         if (pagamento.sucesso) window.location.href = pagamento.url;
