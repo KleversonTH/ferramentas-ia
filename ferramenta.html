@@ -718,7 +718,7 @@ async function gerarResposta() {
       if (erro.limite) { document.getElementById('banner-limite').style.display = 'block'; document.getElementById('btn-responder').disabled = true; document.getElementById('contador-analises').textContent = '0 restantes hoje'; return; }
     }
     const data = await response.json();
-    if (!data.choices) { mostrarErro('erro-reclamacao', 'Erro na API. Tente novamente.'); return; }
+    if (!data.choices) { mostrarErro('erro-reclamacao', 'Erro na API. Tente novamente.'); console.log('resposta API:', JSON.stringify(data)); return; }
     const texto2 = data.choices[0].message.content;
     const jsonMatch = texto2.match(/\{[\s\S]*\}/);
     if (!jsonMatch) { mostrarErro('erro-reclamacao', 'Erro ao processar resposta. Tente novamente.'); return; }
