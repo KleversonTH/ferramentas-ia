@@ -148,7 +148,9 @@ if (tokenExistente) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email || 'usuario@email.com' })
       }).then(function(r) { return r.json(); }).then(function(pagamento) {
+        console.log('pagamento:', JSON.stringify(pagamento));
         if (pagamento.sucesso) window.location.href = pagamento.url;
+        else console.log('erro pagamento:', pagamento);
       });
     } else {
       window.location.href = 'ferramenta.html';
