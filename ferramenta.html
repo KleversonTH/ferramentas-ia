@@ -161,6 +161,7 @@
     <button class="tab" id="tab-btn-calculadora" onclick="mudarTab('calculadora', this)">💰 Lucro</button>
     <button class="tab" id="tab-btn-gerador" onclick="mudarTab('gerador', this)">✍️ Anúncio</button>
     <button class="tab" id="tab-btn-reclamacao" onclick="mudarTab('reclamacao', this)">💬 Reclamação</button>
+    <button class="tab" id="tab-btn-palavras" onclick="mudarTab('palavras', this)">🔑 Palavras-chave</button>
   </div>
 
   <!-- ABA 1: BUSCAR NICHOS -->
@@ -375,6 +376,23 @@
   </div>
   <div class="erro" id="erro-reclamacao"></div>
   <div id="resultado-reclamacao" style="display:none;"></div>
+</div>
+
+<!-- ABA 6: GERADOR DE PALAVRAS-CHAVE -->
+<div class="tab-content" id="tab-palavras">
+  <div class="card">
+    <label>Produto</label>
+    <input type="text" id="pw-produto" placeholder="Ex: Mochila escolar juvenil, Tênis corrida masculino..." />
+    <label>Nicho / Categoria</label>
+    <input type="text" id="pw-nicho" placeholder="Ex: moda, esporte, tecnologia, casa, pet..." />
+    <button class="primary" id="btn-palavras" onclick="gerarPalavras()">Gerar palavras-chave →</button>
+  </div>
+  <div class="loading" id="loading-palavras">
+    <div class="loading-dots"><span></span><span></span><span></span></div>
+    <p>Gerando palavras-chave com IA...</p>
+  </div>
+  <div class="erro" id="erro-palavras"></div>
+  <div id="resultado-palavras" style="display:none;"></div>
 </div>
 
   <div class="footer">ferramentas baseadas em IA — verifique os dados reais antes de investir</div>
@@ -748,6 +766,70 @@ function mostrarResultadoReclamacao(r) {
         '</div>' +
       '</div>' +
     '</div>';
+  container.style.display = 'block';
+}
+
+// ABA 6 — GERADOR DE PALAVRAS-CHAVE
+async function gerarPalavras() {
+  const produto = document.getElementById('pw-produto').value.trim();
+  const nicho = document.getElementById('pw-nicho').value.trim();
+  if (!produto) { mostrarErro('erro-palavras', 'Digite o nome do produto.'); return; }
+
+  document.getElementById('loading-palavras').style.display = 'block';
+  document.getElementById('resultado-palavras').style.display = 'none';
+  document.getElementById('erro-palavras').style.display = 'none';
+  document.getElementById('btn-palavras').disabled = true;
+
+  const prompt = 'Você é um especialista em SEO para Mercado Livre Brasil.\n\nGere palavras-chave otimizadas para o produto: "' + produto + '"\nNicho/Categoria: ' + (nicho || 'geral') + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois:\n{\n  "principais": ["palavra1", "palavra2", "palavra3", "palavra4", "palavra5"],\n  "secundarias": ["palavra1", "palavra2", "palavra3", "palavra4", "palavra5", "palavra6", "palavra7"],\n  "long_tail": ["frase de busca longa 1", "frase de busca longa 2", "frase de busca longa 3"],\n  "evitar": ["palavra1", "palavra2", "palavra3"],\n  "dica_seo": "Dica principal de como usar essas palavras-chave no título e descrição para ranquear melhor no ML."\n}';
+
+  try {
+    const response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }, body: JSON.stringify({ prompt })
+    });
+    if (response.status === 403) {
+      const erro = await response.json();
+      if (erro.limite) { document.getElementById('banner-limite').style.display = 'block'; document.getElementById('btn-palavras').disabled = true; document.getElementById('contador-analises').textContent = '0 restantes hoje'; return; }
+    }
+    const data = await response.json();
+    if (!data.choices) { mostrarErro('erro-palavras', 'Erro na API. Tente novamente.'); return; }
+    const texto = data.choices[0].message.content;
+    const jsonMatch = texto.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) { mostrarErro('erro-palavras', 'Erro ao processar resposta. Tente novamente.'); return; }
+    mostrarResultadoPalavras(JSON.parse(jsonMatch[0]));
+    carregarPlano();
+  } catch (e) { mostrarErro('erro-palavras', 'Erro de conexão. Tente novamente.'); }
+  finally { document.getElementById('loading-palavras').style.display = 'none'; document.getElementById('btn-palavras').disabled = false; }
+}
+
+function mostrarResultadoPalavras(r) {
+  const container = document.getElementById('resultado-palavras');
+
+  function tagsHtml(lista, cor) {
+    return (lista || []).map(function(p) {
+      return '<span style="display:inline-flex;align-items:center;background:' + cor + ';border-radius:100px;padding:4px 12px;font-size:12px;color:#e8e8f0;margin:3px;">' + p + '</span>';
+    }).join('');
+  }
+
+  container.innerHTML =
+    '<div class="produto-card">' +
+      '<div class="secao-titulo" style="margin-bottom:10px;">🏆 Palavras-chave principais</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;">' + tagsHtml(r.principais, 'rgba(250,204,21,0.15)') + '</div>' +
+
+      '<div class="secao-titulo" style="margin-bottom:10px;">📋 Palavras-chave secundárias</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;">' + tagsHtml(r.secundarias, 'rgba(34,197,94,0.1)') + '</div>' +
+
+      '<div class="secao-titulo" style="margin-bottom:10px;">🔍 Frases de busca (long tail)</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;">' + tagsHtml(r.long_tail, 'rgba(99,102,241,0.15)') + '</div>' +
+
+      '<div class="secao-titulo" style="margin-bottom:10px;">🚫 Palavras para evitar</div>' +
+      '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;">' + tagsHtml(r.evitar, 'rgba(239,68,68,0.1)') + '</div>' +
+
+      '<div class="secao">' +
+        '<div class="secao-titulo">💡 Dica de SEO</div>' +
+        '<div class="secao-conteudo">' + (r.dica_seo || '') + '</div>' +
+      '</div>' +
+    '</div>';
+
   container.style.display = 'block';
 }
   function mostrarErro(id, msg) {
