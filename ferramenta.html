@@ -543,9 +543,14 @@
       if (!data.choices) { mostrarErro('erro', 'Erro na API. Tente novamente.'); return; }
       const texto = data.choices[0].message.content;
       const textoLimpo = texto.replace(/```json|```/g, '').trim();
-      const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) { mostrarErro('erro', 'Erro ao processar resposta. Tente novamente.'); return; }
-      mostrarResultados(JSON.parse(jsonMatch[0]).produtos);
+      let r;
+      try { r = JSON.parse(textoLimpo); } catch(e) {
+        const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) { mostrarErro('erro', 'Erro ao processar resposta. Tente novamente.'); return; }
+        try { r = JSON.parse(jsonMatch[0]); } catch(e2) { mostrarErro('erro', 'Erro ao processar resposta. Tente novamente.'); return; }
+      }
+      if (!r || !r.produtos) { mostrarErro('erro', 'Resposta inválida. Tente novamente.'); return; }
+      mostrarResultados(r.produtos);
       carregarPlano();
     } catch (e) { mostrarErro('erro', 'Erro de conexão ou resposta inválida. Tente novamente.'); }
     finally { document.getElementById('loading').style.display = 'none'; document.getElementById('btn-analisar').disabled = false; }
@@ -561,7 +566,7 @@
     document.getElementById('banner-limite').style.display = 'none';
     document.getElementById('btn-analisar-especifico').disabled = true;
 
-    const prompt = 'Você é um especialista em e-commerce brasileiro e Mercado Livre.\n\nIMPORTANTE: Responda SOMENTE o JSON abaixo, sem explicações, sem markdown, sem texto adicional.\n\nAnalise o produto específico "' + produto + '" para revenda no Mercado Livre Brasil e responda APENAS este JSON:\n{\n  "nome": "Nome completo do produto",\n  "custo_fornecedor": "R$ XX a R$ XX",\n  "preco_ml": "R$ XX a R$ XX",\n  "margem": "XX% a XX%",\n  "lucro_unitario": "R$ XX a R$ XX",\n  "volume_vendas": "XXX a XXX unidades/mês no ML",\n  "concorrencia": "Alta",\n  "tendencia": "Crescendo",\n  "veredito": "sim",\n  "veredito_titulo": "Vale a pena vender!",\n  "veredito_motivo": "Explicação em 2 frases do por que vale ou não vale a pena.",\n  "ponto_forte": "Principal vantagem desse produto para revender.",\n  "ponto_fraco": "Principal risco ou desvantagem.",\n  "dica_destaque": "Como se destacar da concorrência vendendo esse produto."\n}\n\nValores válidos para veredito: "sim" ou "nao"\nValores válidos para concorrencia: "Baixa", "Média", "Alta"\nValores válidos para tendencia: "Crescendo", "Estável", "Caindo"';
+    const prompt = 'Você é um especialista em e-commerce brasileiro e Mercado Livre.\n\nIMPORTANTE: Responda SOMENTE o JSON abaixo, sem explicações, sem markdown, sem texto adicional.\n\nAnalise o produto específico "' + produto + '" para revenda no Mercado Livre Brasil e responda APENAS este JSON:\n{\n  "nome": "Nome completo do produto",\n  "custo_fornecedor": "R$ XX a R$ XX",\n  "preco_ml": "R$ XX a R$ XX",\n  "margem": "XX% a XX%",\n  "lucro_unitario": "R$ XX a R$ XX",\n  "volume_vendas": "XXX a XXX unidades/mês no ML",\n  "concorrencia": "Alta",\n  "tendencia": "Crescendo",\n  "veredito": "sim",\n  "veredito_titulo": "Vale a pena vender!",\n  "veredito_motivo": "Explicação em 2 frases.",\n  "ponto_forte": "Principal vantagem.",\n  "ponto_fraco": "Principal risco.",\n  "dica_destaque": "Como se destacar."\n}\n\nValores válidos para veredito: "sim" ou "nao"\nValores válidos para concorrencia: "Baixa", "Média", "Alta"\nValores válidos para tendencia: "Crescendo", "Estável", "Caindo"';
 
     try {
       const response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
@@ -575,14 +580,15 @@
       if (!data.choices) { mostrarErro('erro-especifico', 'Erro na API. Tente novamente.'); return; }
       const texto = data.choices[0].message.content;
       const textoLimpo = texto.replace(/```json|```/g, '').trim();
-      const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) { mostrarErro('erro-especifico', 'Erro ao processar resposta. Tente novamente.'); return; }
-      try {
-        const r = JSON.parse(jsonMatch[0]);
-        if (!r.custo_fornecedor) { mostrarErro('erro-especifico', 'Resposta inválida da IA. Tente novamente.'); return; }
-        mostrarResultadoEspecifico(r);
-        carregarPlano();
-      } catch(e) { mostrarErro('erro-especifico', 'Erro ao processar resposta. Tente novamente.'); }
+      let r;
+      try { r = JSON.parse(textoLimpo); } catch(e) {
+        const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) { mostrarErro('erro-especifico', 'Erro ao processar resposta. Tente novamente.'); return; }
+        try { r = JSON.parse(jsonMatch[0]); } catch(e2) { mostrarErro('erro-especifico', 'Erro ao processar resposta. Tente novamente.'); return; }
+      }
+      if (!r || !r.custo_fornecedor) { mostrarErro('erro-especifico', 'Resposta inválida. Tente novamente.'); return; }
+      mostrarResultadoEspecifico(r);
+      carregarPlano();
     } catch (e) { mostrarErro('erro-especifico', 'Erro de conexão. Tente novamente.'); }
     finally { document.getElementById('loading-especifico').style.display = 'none'; document.getElementById('btn-analisar-especifico').disabled = false; }
   }
@@ -671,9 +677,14 @@ async function gerarAnuncio() {
     if (!data.choices) { mostrarErro('erro-gerador', 'Erro na API. Tente novamente.'); return; }
     const texto = data.choices[0].message.content;
     const textoLimpo = texto.replace(/```json|```/g, '').trim();
-    const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) { mostrarErro('erro-gerador', 'Erro ao processar resposta. Tente novamente.'); return; }
-    mostrarResultadoGerador(JSON.parse(jsonMatch[0]));
+    let r;
+    try { r = JSON.parse(textoLimpo); } catch(e) {
+      const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) { mostrarErro('erro-gerador', 'Erro ao processar resposta. Tente novamente.'); return; }
+      try { r = JSON.parse(jsonMatch[0]); } catch(e2) { mostrarErro('erro-gerador', 'Erro ao processar resposta. Tente novamente.'); return; }
+    }
+    if (!r || !r.titulo) { mostrarErro('erro-gerador', 'Resposta inválida. Tente novamente.'); return; }
+    mostrarResultadoGerador(r);
     carregarPlano();
   } catch (e) { mostrarErro('erro-gerador', 'Erro de conexão. Tente novamente.'); }
   finally { document.getElementById('loading-gerador').style.display = 'none'; document.getElementById('btn-gerar').disabled = false; }
@@ -751,11 +762,16 @@ async function gerarResposta() {
     const data = await response.json();
     if (!data.choices) { mostrarErro('erro-reclamacao', 'Erro na API. Tente novamente.'); console.log('resposta API:', JSON.stringify(data)); return; }
     const texto2 = data.choices[0].message.content;
-    const textoLimpo = texto.replace(/```json|```/g, '').trim();
-    const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) { mostrarErro('erro-reclamacao', 'Erro ao processar resposta. Tente novamente.'); return; }
-    mostrarResultadoReclamacao(JSON.parse(jsonMatch[0]));
-    carregarPlano();
+    const textoLimpo2 = texto2.replace(/```json|```/g, '').trim();
+    let r;
+    try { r = JSON.parse(textoLimpo2); } catch(e) {
+      const jsonMatch = textoLimpo2.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) { mostrarErro('erro-reclamacao', 'Erro ao processar resposta. Tente novamente.'); return; }
+      try { r = JSON.parse(jsonMatch[0]); } catch(e2) { mostrarErro('erro-reclamacao', 'Erro ao processar resposta. Tente novamente.'); return; }
+    }
+    if (!r || !r.resposta) { mostrarErro('erro-reclamacao', 'Resposta inválida. Tente novamente.'); return; }
+    mostrarResultadoReclamacao(r);
+    carregarPlano(); 
   } catch (e) { mostrarErro('erro-reclamacao', 'Erro de conexão. Tente novamente.'); }
   finally { document.getElementById('loading-reclamacao').style.display = 'none'; document.getElementById('btn-responder').disabled = false; }
 }
@@ -808,9 +824,14 @@ async function gerarPalavras() {
     if (!data.choices) { mostrarErro('erro-palavras', 'Erro na API. Tente novamente.'); return; }
     const texto = data.choices[0].message.content;
     const textoLimpo = texto.replace(/```json|```/g, '').trim();
-    const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) { mostrarErro('erro-palavras', 'Erro ao processar resposta. Tente novamente.'); return; }
-    mostrarResultadoPalavras(JSON.parse(jsonMatch[0]));
+    let r;
+    try { r = JSON.parse(textoLimpo); } catch(e) {
+      const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) { mostrarErro('erro-palavras', 'Erro ao processar resposta. Tente novamente.'); return; }
+      try { r = JSON.parse(jsonMatch[0]); } catch(e2) { mostrarErro('erro-palavras', 'Erro ao processar resposta. Tente novamente.'); return; }
+    }
+    if (!r || !r.principais) { mostrarErro('erro-palavras', 'Resposta inválida. Tente novamente.'); return; }
+    mostrarResultadoPalavras(r);
     carregarPlano();
   } catch (e) { mostrarErro('erro-palavras', 'Erro de conexão. Tente novamente.'); }
   finally { document.getElementById('loading-palavras').style.display = 'none'; document.getElementById('btn-palavras').disabled = false; }
