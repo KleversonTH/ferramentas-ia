@@ -257,7 +257,7 @@ app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
   try {
     console.log("Iniciando chamada para o OpenRouter...");
     // Tente o Gemma 3 4B que você viu que está habilitado
-    const resposta = await fazerChamada('google/gemma-3-4b-it:free');
+    const resposta = await fazerChamada('meta-llama/llama-3-8b-instruct');
     res.json({ sucesso: true, analise: resposta });
   } catch (error) {
     console.error("Falha total na análise:", error);
