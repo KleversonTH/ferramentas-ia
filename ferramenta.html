@@ -415,6 +415,25 @@
   let favoritos = [];
   let planoAtual = 'gratuito';
 
+  function gerarLinks(nomeProduto) {
+    const busca = encodeURIComponent(nomeProduto);
+    const links = [
+      { nome: 'AliExpress', url: 'https://pt.aliexpress.com/wholesale?SearchText=' + busca, desc: 'Importado direto da China — preço mais baixo', icon: '🛒' },
+      { nome: 'Shopee', url: 'https://shopee.com.br/search?keyword=' + busca, desc: 'Fornecedores nacionais e importados', icon: '🛍️' },
+      { nome: 'Alibaba', url: 'https://www.alibaba.com/trade/search?SearchText=' + busca, desc: 'Atacado direto de fábricas chinesas', icon: '🏭' },
+      { nome: 'Mercado Livre', url: 'https://lista.mercadolivre.com.br/' + busca, desc: 'Compare preços e veja demanda real', icon: '🟡' }
+    ];
+    if (planoAtual === 'pro') {
+      links.push(
+        { nome: '1688', url: 'https://s.1688.com/selloffer/offer_search.htm?keywords=' + busca, desc: '⭐ PRO — Atacado chinês direto, preço de fábrica', icon: '🇨🇳' },
+        { nome: 'Shopee Atacado', url: 'https://shopee.com.br/search?keyword=' + busca + '%20atacado', desc: '⭐ PRO — Atacado nacional na Shopee', icon: '📦' },
+        { nome: 'ML Atacado', url: 'https://lista.mercadolivre.com.br/' + busca + '-atacado', desc: '⭐ PRO — Atacado direto no ML', icon: '🟡' },
+        { nome: 'Magalu', url: 'https://www.magazineluiza.com.br/busca/' + busca + '/', desc: '⭐ PRO — Magazine Luiza para comparar preços', icon: '🛒' }
+      );
+    }
+    return links;
+  }
+
   function mudarTab(tab, btn) {
     const abasPro = ['calculadora', 'gerador', 'reclamacao', 'palavras'];
     
