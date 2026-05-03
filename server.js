@@ -176,7 +176,10 @@ app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
   const { prompt } = req.body;
   const body = JSON.stringify({
     model: 'google/gemma-3-4b-it:free',
-    messages: [{ role: 'user', content: prompt }]
+    messages: [
+      { role: 'system', content: 'Você é um especialista em e-commerce e Mercado Livre Brasil. Responda SEMPRE em JSON válido, sem markdown, sem texto adicional.' },
+      { role: 'user', content: prompt }
+    ]
   });
 
   const options = {
