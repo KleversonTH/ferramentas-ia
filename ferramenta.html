@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Ferramentas IA — Mercado Livre</title>
+  <title>Revenda IA — Ferramentas Mercado Livre</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -133,7 +134,7 @@
 <body>
 
 <div class="navbar">
-  <div class="navbar-logo">Ferramentas <span>IA</span></div>
+  <div class="navbar-logo">Revenda <span>IA</span></div>
   <div class="navbar-right">
     <span class="contador-analises" id="contador-analises"></span>
     <span class="badge-plano gratuito" id="badge-plano">...</span>
@@ -152,24 +153,15 @@
   </div>
 
   <!-- CARD DE BOAS-VINDAS -->
-<div id="card-boasvindas" style="display:none; background:#13131a; border:1px solid #1e1e2e; border-radius:12px; padding:14px 18px; margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-  <div style="font-size:14px; color:#c8c8e0;">
-    👋 Olá, <strong id="bv-nome" style="color:#fff;"></strong>!
-    <span id="bv-plano-texto" style="margin-left:6px; font-size:13px; color:#666680;"></span>
+  <div id="card-boasvindas" style="display:none; background:#13131a; border:1px solid #1e1e2e; border-radius:12px; padding:14px 18px; margin-bottom:1rem; flex-wrap:wrap; gap:8px;">
+    <div style="font-size:14px; color:#c8c8e0;">
+      👋 Olá, <strong id="bv-nome" style="color:#fff;"></strong>!
+      <span id="bv-plano-texto" style="margin-left:6px; font-size:13px; color:#666680;"></span>
+    </div>
+    <div id="bv-upgrade" style="display:none;">
+      <a href="https://ferramentas-ia-production.up.railway.app/index.html?bypass=1#precos" style="font-size:12px; padding:5px 12px; border-radius:6px; background:linear-gradient(135deg,rgba(250,204,21,0.15),rgba(249,115,22,0.15)); border:1px solid rgba(250,204,21,0.3); color:#facc15; text-decoration:none; font-family:JetBrains Mono,monospace;">⭐ Fazer upgrade Pro</a>
+    </div>
   </div>
-  <div id="bv-upgrade" style="display:none;">
-    <a href="index.html#precos" style="font-size:12px; padding:5px 12px; border-radius:6px; background:linear-gradient(135deg,rgba(250,204,21,0.15),rgba(249,115,22,0.15)); border:1px solid rgba(250,204,21,0.3); color:#facc15; text-decoration:none; font-family:JetBrains Mono,monospace;">⭐ Fazer upgrade Pro</a>
-  </div>
-</div>
-<div id="card-boasvindas" style="display:none; background:#13131a; border:1px solid #1e1e2e; border-radius:12px; padding:14px 18px; margin-bottom:1rem; flex-wrap:wrap; gap:8px;">
-  <div style="font-size:14px; color:#c8c8e0;">
-    👋 Olá, <strong id="bv-nome" style="color:#fff;"></strong>!
-    <span id="bv-plano-texto" style="margin-left:6px; font-size:13px; color:#666680;"></span>
-  </div>
-  <div id="bv-upgrade" style="display:none;">
-    <a href="index.html#precos" style="font-size:12px; padding:5px 12px; border-radius:6px; background:linear-gradient(135deg,rgba(250,204,21,0.15),rgba(249,115,22,0.15)); border:1px solid rgba(250,204,21,0.3); color:#facc15; text-decoration:none; font-family:JetBrains Mono,monospace;">⭐ Fazer upgrade Pro</a>
-  </div>
-</div>
 
   <div class="banner-limite" id="banner-limite">
     Você atingiu o limite de 3 análises diárias do plano gratuito.
@@ -416,7 +408,7 @@
   <div id="resultado-palavras" style="display:none;"></div>
 </div>
 
-  <div class="footer">ferramentas baseadas em IA — verifique os dados reais antes de investir</div>
+  <div class="footer">Revenda IA — powered by Node.js + OpenRouter</div>
 </div>
 
 <script>
