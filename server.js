@@ -87,37 +87,57 @@ function verificarAcesso(req, res, next) {
 async function verificarLimite(req, res, next) {
   const userId = req.usuario.id;
 
-  const { rows } = await pool.query(
-    'SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1',
-    [userId]
-  );
-  // Dentro do verificarLimite
-  if (usuario.plano === 'pro') {
-    return next(); // Pula a contagem para usuários Pro
-  }
+  try {
+    const { rows } = await pool.query(
+      'SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1',
+      [userId]
+    );
 
-  const usuario = rows[0];
-  const hoje = new Date().toISOString().split('T')[0];
-  const ultimaData = usuario.ultima_analise
-    ? usuario.ultima_analise.toISOString().split('T')[0]
-    : null;
+    const usuario = rows[0]; // Agora definimos 'usuario' logo após a consulta
 
-  // Reseta contador se for um novo dia
-  if (ultimaData !== hoje) {
+    if (!usuario) {
+      return res.status(404).json({ sucesso: false, mensagem: 'Usuário não encontrado.' });
+    }
+
+    const hoje = new Date().toISOString().split('T')[0];
+    const ultimaData = usuario.ultima_analise
+      ? new Date(usuario.ultima_analise).toISOString().split('T')[0]
+      : null;
+
+    // 1. Pula a verificação se for Pro
+    if (usuario.plano === 'pro') {
+      return next();
+    }
+
+    // 2. Reseta contador se for um novo dia
+    if (ultimaData !== hoje) {
+      await pool.query(
+        'UPDATE usuarios SET analises_hoje = 0, ultima_analise = $1 WHERE id = $2',
+        [hoje, userId]
+      );
+      usuario.analises_hoje = 0; // Atualiza o objeto local também
+    }
+
+    // 3. Bloqueia gratuito com 3 ou mais análises
+    if (usuario.analises_hoje >= 3) {
+      return res.status(403).json({
+        erro: 'Limite diário atingido. Faça upgrade para o plano Pro.',
+        limite: true
+      });
+    }
+
+    // 4. Se passou por tudo, incrementa e segue
     await pool.query(
-      'UPDATE usuarios SET analises_hoje = 0, ultima_analise = $1 WHERE id = $2',
+      'UPDATE usuarios SET analises_hoje = analises_hoje + 1, ultima_analise = $1 WHERE id = $2',
       [hoje, userId]
     );
-    usuario.analises_hoje = 0;
-  }
 
-  // Bloqueia gratuito com 3 ou mais análises no dia
-  if (usuario.plano === 'gratuito' && usuario.analises_hoje >= 3) {
-    return res.status(403).json({
-      erro: 'Limite diário atingido. Faça upgrade para o plano Pro.',
-      limite: true
-    });
+    next();
+  } catch (error) {
+    console.error('Erro no verificarLimite:', error);
+    res.status(500).json({ erro: 'Erro interno no servidor.' });
   }
+}
 
   // Incrementa contador
   await pool.query(
