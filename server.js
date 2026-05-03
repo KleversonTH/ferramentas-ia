@@ -175,7 +175,7 @@ app.post('/admin/excluir', async (req, res) => {
 app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
   const { prompt } = req.body;
   const body = JSON.stringify({
-    model: 'google/gemma-3-4b-it:free',
+    model: 'google/gemma-3-12b-it:free',
     messages: [{ role: 'user', content: prompt }]
   });
 
