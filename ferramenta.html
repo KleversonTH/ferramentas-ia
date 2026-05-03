@@ -771,15 +771,23 @@ async function gerarResposta() {
   const prompt = 'Você é um especialista em atendimento ao cliente para vendedores do Mercado Livre Brasil.\n\nGere uma resposta profissional para a seguinte reclamação de cliente:\n\nReclamação: "' + texto + '"\nTipo de problema: ' + tipo + '\nTom desejado: ' + tom + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois:\n{\n  "resposta": "Resposta completa e profissional para o cliente. Deve ser empática, resolver o problema e manter a reputação do vendedor.",\n  "acao": "Ação prática que o vendedor deve tomar além de responder (ex: enviar novo produto, reembolsar, etc)",\n  "dica": "Dica para evitar esse tipo de reclamação no futuro."\n}';
 
   try {
-    const response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }, body: JSON.stringify({ prompt })
-    });
-    if (response.status === 403) {
-      const erro = await response.json();
-      if (erro.limite) { document.getElementById('banner-limite').style.display = 'block'; document.getElementById('btn-responder').disabled = true; document.getElementById('contador-analises').textContent = '0 restantes hoje'; return; }
+    let tentativas = 0;
+    let response, data;
+    while (tentativas < 3) {
+      try {
+        response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }, body: JSON.stringify({ prompt })
+        });
+        if (response.status === 403) {
+          const erro = await response.json();
+          if (erro.limite) { document.getElementById('banner-limite').style.display = 'block'; document.getElementById('btn-responder').disabled = true; document.getElementById('contador-analises').textContent = '0 restantes hoje'; return; }
+        }
+        data = await response.json();
+        if (data.choices) break;
+        tentativas++;
+      } catch(e) { tentativas++; }
     }
-    const data = await response.json();
-    if (!data.choices) { mostrarErro('erro-reclamacao', 'Erro na API. Tente novamente.'); console.log('resposta API:', JSON.stringify(data)); return; }
+    if (!data || !data.choices) { mostrarErro('erro-reclamacao', 'Erro na API. Tente novamente.'); return; }
     const texto2 = data.choices[0].message.content;
     const textoLimpo2 = texto2.replace(/```json|```/g, '').trim();
     let r;
