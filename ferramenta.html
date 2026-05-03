@@ -560,7 +560,7 @@
     document.getElementById('banner-limite').style.display = 'none';
     document.getElementById('btn-analisar-especifico').disabled = true;
 
-    const prompt = 'Você é um especialista em e-commerce brasileiro e Mercado Livre.\n\nAnalise o produto específico "' + produto + '" para revenda no Mercado Livre Brasil.\n\nResponda APENAS em JSON válido, sem texto antes ou depois, neste formato exato:\n{\n  "nome": "Nome completo do produto",\n  "custo_fornecedor": "R$ XX a R$ XX",\n  "preco_ml": "R$ XX a R$ XX",\n  "margem": "XX% a XX%",\n  "lucro_unitario": "R$ XX a R$ XX",\n  "volume_vendas": "XXX a XXX unidades/mês no ML",\n  "concorrencia": "Alta",\n  "tendencia": "Crescendo",\n  "veredito": "sim",\n  "veredito_titulo": "Vale a pena vender!",\n  "veredito_motivo": "Explicação em 2 frases do por que vale ou não vale a pena.",\n  "ponto_forte": "Principal vantagem desse produto para revender.",\n  "ponto_fraco": "Principal risco ou desvantagem.",\n  "dica_destaque": "Como se destacar da concorrência vendendo esse produto."\n}\n\nValores válidos para veredito: "sim" ou "nao"\nValores válidos para concorrencia: "Baixa", "Média", "Alta"\nValores válidos para tendencia: "Crescendo", "Estável", "Caindo"';
+    const prompt = 'Você é um especialista em e-commerce brasileiro e Mercado Livre.\n\nIMPORTANTE: Responda SOMENTE o JSON abaixo, sem explicações, sem markdown, sem texto adicional.\n\nAnalise o produto específico "' + produto + '" para revenda no Mercado Livre Brasil e responda APENAS este JSON:\n{\n  "nome": "Nome completo do produto",\n  "custo_fornecedor": "R$ XX a R$ XX",\n  "preco_ml": "R$ XX a R$ XX",\n  "margem": "XX% a XX%",\n  "lucro_unitario": "R$ XX a R$ XX",\n  "volume_vendas": "XXX a XXX unidades/mês no ML",\n  "concorrencia": "Alta",\n  "tendencia": "Crescendo",\n  "veredito": "sim",\n  "veredito_titulo": "Vale a pena vender!",\n  "veredito_motivo": "Explicação em 2 frases do por que vale ou não vale a pena.",\n  "ponto_forte": "Principal vantagem desse produto para revender.",\n  "ponto_fraco": "Principal risco ou desvantagem.",\n  "dica_destaque": "Como se destacar da concorrência vendendo esse produto."\n}\n\nValores válidos para veredito: "sim" ou "nao"\nValores válidos para concorrencia: "Baixa", "Média", "Alta"\nValores válidos para tendencia: "Crescendo", "Estável", "Caindo"';
 
     try {
       const response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
@@ -575,9 +575,13 @@
       const texto = data.choices[0].message.content;
       const jsonMatch = texto.match(/\{[\s\S]*\}/);
       if (!jsonMatch) { mostrarErro('erro-especifico', 'Erro ao processar resposta. Tente novamente.'); return; }
-      mostrarResultadoEspecifico(JSON.parse(jsonMatch[0]));
-      carregarPlano();
-    } catch (e) { mostrarErro('erro-especifico', 'Erro de conexão ou resposta inválida. Tente novamente.'); }
+      try {
+        const r = JSON.parse(jsonMatch[0]);
+        if (!r.custo_fornecedor) { mostrarErro('erro-especifico', 'Resposta inválida da IA. Tente novamente.'); return; }
+        mostrarResultadoEspecifico(r);
+        carregarPlano();
+      } catch(e) { mostrarErro('erro-especifico', 'Erro ao processar resposta. Tente novamente.'); }
+    } catch (e) { mostrarErro('erro-especifico', 'Erro de conexão. Tente novamente.'); }
     finally { document.getElementById('loading-especifico').style.display = 'none'; document.getElementById('btn-analisar-especifico').disabled = false; }
   }
 
