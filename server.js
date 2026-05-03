@@ -55,6 +55,20 @@ app.post('/login', async (req, res) => {
   }
 });
 
+async function chamarIA(prompt, tentativa = 1) {
+  const modelo = tentativa === 1 
+    ? 'google/gemma-2-9b-it:free' // Modelo principal
+    : 'meta-llama/llama-3-8b-instruct:free'; // Fallback mais estável
+
+  const body = JSON.stringify({
+    model: modelo,
+    messages: [{ role: 'user', content: prompt }]
+  });
+
+  // ... lógica do fetch/request ...
+  // Se der erro e tentativa < 2, chama chamarIA(prompt, 2)
+}
+
 // Middleware token
 function verificarAcesso(req, res, next) {
   const token = req.headers['authorization'];
@@ -77,6 +91,10 @@ async function verificarLimite(req, res, next) {
     'SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1',
     [userId]
   );
+  // Dentro do verificarLimite
+  if (usuario.plano === 'pro') {
+    return next(); // Pula a contagem para usuários Pro
+  }
 
   const usuario = rows[0];
   const hoje = new Date().toISOString().split('T')[0];
@@ -172,41 +190,75 @@ app.post('/admin/excluir', async (req, res) => {
 });
 
 // Rota que chama o OpenRouter com a chave protegida
+// Rota de análise com Fallback (Plano B) e melhor tratamento de erros
 app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
   const { prompt } = req.body;
-  const body = JSON.stringify({
-    model: 'google/gemma-4-31b-it:free',
-    messages: [
-      { role: 'user', content: prompt }
-    ]
-  });
 
-  const options = {
-    hostname: 'openrouter.ai',
-    path: '/api/v1/chat/completions',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      'Content-Length': Buffer.byteLength(body)
-    }
-  };
+  // Função interna para fazer a chamada à API
+  async function fazerChamada(modelo) {
+    return new Promise((resolve, reject) => {
+      const body = JSON.stringify({
+        model: modelo,
+        messages: [{ role: 'user', content: prompt }]
+      });
 
-  const request = https.request(options, (response) => {
-    let data = '';
-    response.on('data', chunk => data += chunk);
-    response.on('end', () => {
-      try {
-        res.json(JSON.parse(data));
-      } catch (e) {
-        res.json({ error: 'Erro ao parsear resposta' });
-      }
+      const options = {
+        hostname: 'openrouter.ai',
+        path: '/api/v1/chat/completions',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'Content-Length': Buffer.byteLength(body)
+        },
+        timeout: 20000 // 20 segundos para desistir
+      };
+
+      const request = https.request(options, (response) => {
+        let data = '';
+        response.on('data', chunk => data += chunk);
+        response.on('end', () => {
+          try {
+            const json = JSON.parse(data);
+            if (json.choices && json.choices[0]) {
+              resolve(json);
+            } else {
+              reject('Resposta inválida do OpenRouter');
+            }
+          } catch (e) {
+            reject('Erro ao processar JSON');
+          }
+        });
+      });
+
+      request.on('error', (e) => reject(e.message));
+      request.on('timeout', () => {
+        request.destroy();
+        reject('Tempo esgotado');
+      });
+      request.write(body);
+      request.end();
     });
-  });
+  }
 
-  request.on('error', (e) => res.json({ error: e.message }));
-  request.write(body);
-  request.end();
+  try {
+    // TENTATIVA 1: Modelo Principal (Gemma)
+    console.log('Tentando modelo principal...');
+    const resultado = await fazerChamada('google/gemma-2-9b-it:free');
+    res.json(resultado);
+
+  } catch (erro) {
+    console.log('Modelo principal falhou, tentando Fallback (Llama)...', erro);
+    
+    try {
+      // TENTATIVA 2: Modelo Reserva (Llama - costuma ser muito estável)
+      const fallback = await fazerChamada('meta-llama/llama-3-8b-instruct:free');
+      res.json(fallback);
+    } catch (erro2) {
+      console.error('Ambos os modelos falharam.');
+      res.status(500).json({ error: 'Sistema de IA instável. Tente novamente em 30 segundos.' });
+    }
+  }
 });
 
 // Criar pagamento
