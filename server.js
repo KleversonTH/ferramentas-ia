@@ -211,48 +211,57 @@ app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
   const { prompt } = req.body;
 
   async function fazerChamada(modelo) {
-    return new Promise((resolve, reject) => {
-      const body = JSON.stringify({
-        model: modelo,
-        messages: [{ role: 'user', content: prompt }]
-      });
-
-      const options = {
-        hostname: 'openrouter.ai',
-        path: '/api/v1/chat/completions',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'HTTP-Referer': 'https://railway.app', // OBRIGATÓRIO PARA FREE
-          'X-Title': 'Minha Ferramenta'           // OBRIGATÓRIO PARA FREE
-        }
-      };
-
-      const request = https.request(options, (response) => {
-        let data = '';
-        response.on('data', chunk => data += chunk);
-        response.on('end', () => {
-          try {
-            const json = JSON.parse(data);
-            if (json.choices && json.choices[0]) {
-              resolve(json.choices[0].message.content);
-            } else {
-              console.log(`ERRO DA API (${modelo}):`, JSON.stringify(json));
-              reject('Erro na resposta da IA');
-            }
-          } catch (e) {
-            console.log("ERRO AO PROCESSAR JSON:", data);
-            reject('Resposta inválida');
-          }
-        });
-      });
-
-      request.on('error', (e) => reject(e.message));
-      request.write(body);
-      request.end();
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({
+      model: modelo,
+      messages: [{ role: 'user', content: prompt }],
+      // O segredo está aqui embaixo:
+      headers: {
+        "HTTP-Referer": "https://meusite.com", 
+        "X-Title": "Gerador de Nichos"
+      }
     });
-  }
+
+    const options = {
+      hostname: 'openrouter.ai',
+      path: '/api/v1/chat/completions',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://railway.app' // Repetindo por segurança
+      }
+    };
+
+    const request = https.request(options, (response) => {
+      let data = '';
+      response.on('data', chunk => data += chunk);
+      response.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          // Adicionando um log para a gente ver o que ele respondeu se falhar
+          if (json.choices && json.choices[0]) {
+            resolve(json.choices[0].message.content);
+          } else {
+            console.log("RESPOSTA COMPLETA DA API:", JSON.stringify(json));
+            reject('Erro na estrutura da resposta');
+          }
+        } catch (e) {
+          console.log("ERRO AO PROCESSAR JSON:", data);
+          reject('Erro ao ler resposta');
+        }
+      });
+    });
+
+    request.on('error', (e) => {
+      console.log("ERRO DE CONEXÃO:", e.message);
+      reject(e.message);
+    });
+
+    request.write(body);
+    request.end();
+  });
+}
 
   try {
     console.log("Iniciando chamada para o OpenRouter...");
