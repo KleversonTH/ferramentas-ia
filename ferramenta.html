@@ -552,7 +552,7 @@
       if (!r || !r.produtos) { mostrarErro('erro', 'Resposta inválida. Tente novamente.'); return; }
       mostrarResultados(r.produtos);
       carregarPlano();
-    } catch (e) { mostrarErro('erro', 'Erro de conexão ou resposta inválida. Tente novamente.'); }
+    } catch (e) { console.log('ERRO analisar:', e.name, e.message, e.stack); mostrarErro('erro', 'Erro de conexão ou resposta inválida. Tente novamente.'); }
     finally { document.getElementById('loading').style.display = 'none'; document.getElementById('btn-analisar').disabled = false; }
   }
 
