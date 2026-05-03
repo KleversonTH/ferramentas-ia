@@ -225,9 +225,9 @@ app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'Content-Length': Buffer.byteLength(body)
-        },
-        timeout: 20000 // 20 segundos para desistir
+          'HTTP-Referer': 'https://railway.app', // Necessário para modelos free
+          'X-Title': 'Minha Ferramenta'
+        }
       };
 
       const request = https.request(options, (response) => {
@@ -239,19 +239,18 @@ app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
             if (json.choices && json.choices[0]) {
               resolve(json);
             } else {
-              reject('Resposta inválida do OpenRouter');
+              // Se a IA não responder, vamos pegar o erro real
+              const msgErro = json.error ? json.error.message : 'Erro desconhecido';
+              console.error(`ERRO REAL DO OPENROUTER (${modelo}):`, msgErro);
+              reject(msgErro);
             }
           } catch (e) {
-            reject('Erro ao processar JSON');
+            reject('Erro ao ler resposta da API');
           }
         });
       });
 
       request.on('error', (e) => reject(e.message));
-      request.on('timeout', () => {
-        request.destroy();
-        reject('Tempo esgotado');
-      });
       request.write(body);
       request.end();
     });
