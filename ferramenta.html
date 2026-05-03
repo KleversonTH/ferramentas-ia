@@ -542,7 +542,8 @@
       const data = await response.json();
       if (!data.choices) { mostrarErro('erro', 'Erro na API. Tente novamente.'); return; }
       const texto = data.choices[0].message.content;
-      const jsonMatch = texto.match(/\{[\s\S]*\}/);
+      const textoLimpo = texto.replace(/```json|```/g, '').trim();
+      const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
       if (!jsonMatch) { mostrarErro('erro', 'Erro ao processar resposta. Tente novamente.'); return; }
       mostrarResultados(JSON.parse(jsonMatch[0]).produtos);
       carregarPlano();
@@ -573,7 +574,8 @@
       const data = await response.json();
       if (!data.choices) { mostrarErro('erro-especifico', 'Erro na API. Tente novamente.'); return; }
       const texto = data.choices[0].message.content;
-      const jsonMatch = texto.match(/\{[\s\S]*\}/);
+      const textoLimpo = texto.replace(/```json|```/g, '').trim();
+      const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
       if (!jsonMatch) { mostrarErro('erro-especifico', 'Erro ao processar resposta. Tente novamente.'); return; }
       try {
         const r = JSON.parse(jsonMatch[0]);
@@ -668,7 +670,8 @@ async function gerarAnuncio() {
     const data = await response.json();
     if (!data.choices) { mostrarErro('erro-gerador', 'Erro na API. Tente novamente.'); return; }
     const texto = data.choices[0].message.content;
-    const jsonMatch = texto.match(/\{[\s\S]*\}/);
+    const textoLimpo = texto.replace(/```json|```/g, '').trim();
+    const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
     if (!jsonMatch) { mostrarErro('erro-gerador', 'Erro ao processar resposta. Tente novamente.'); return; }
     mostrarResultadoGerador(JSON.parse(jsonMatch[0]));
     carregarPlano();
@@ -748,7 +751,8 @@ async function gerarResposta() {
     const data = await response.json();
     if (!data.choices) { mostrarErro('erro-reclamacao', 'Erro na API. Tente novamente.'); console.log('resposta API:', JSON.stringify(data)); return; }
     const texto2 = data.choices[0].message.content;
-    const jsonMatch = texto2.match(/\{[\s\S]*\}/);
+    const textoLimpo = texto.replace(/```json|```/g, '').trim();
+    const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
     if (!jsonMatch) { mostrarErro('erro-reclamacao', 'Erro ao processar resposta. Tente novamente.'); return; }
     mostrarResultadoReclamacao(JSON.parse(jsonMatch[0]));
     carregarPlano();
@@ -803,7 +807,8 @@ async function gerarPalavras() {
     const data = await response.json();
     if (!data.choices) { mostrarErro('erro-palavras', 'Erro na API. Tente novamente.'); return; }
     const texto = data.choices[0].message.content;
-    const jsonMatch = texto.match(/\{[\s\S]*\}/);
+    const textoLimpo = texto.replace(/```json|```/g, '').trim();
+    const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
     if (!jsonMatch) { mostrarErro('erro-palavras', 'Erro ao processar resposta. Tente novamente.'); return; }
     mostrarResultadoPalavras(JSON.parse(jsonMatch[0]));
     carregarPlano();
