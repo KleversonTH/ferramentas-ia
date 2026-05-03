@@ -85,48 +85,51 @@ function verificarAcesso(req, res, next) {
 
 // Middleware: verifica limite de análises
 async function verificarLimite(req, res, next) {
-  const userId = req.usuario.id;
-
   try {
+    const userId = req.usuario.id;
+
     const { rows } = await pool.query(
       'SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1',
       [userId]
     );
 
-    const usuario = rows[0]; // Agora definimos 'usuario' logo após a consulta
+    const usuarioData = rows[0];
 
-    if (!usuario) {
+    if (!usuarioData) {
       return res.status(404).json({ sucesso: false, mensagem: 'Usuário não encontrado.' });
     }
 
     const hoje = new Date().toISOString().split('T')[0];
-    const ultimaData = usuario.ultima_analise
-      ? new Date(usuario.ultima_analise).toISOString().split('T')[0]
-      : null;
+    let ultimaData = null;
+    
+    if (usuarioData.ultima_analise) {
+        ultimaData = new Date(usuarioData.ultima_analise).toISOString().split('T')[0];
+    }
 
-    // 1. Pula a verificação se for Pro
-    if (usuario.plano === 'pro') {
+    // 1. Se for PRO, passa direto
+    if (usuarioData.plano === 'pro') {
       return next();
     }
 
-    // 2. Reseta contador se for um novo dia
+    // 2. Reset diário
+    let analisesContador = usuarioData.analises_hoje;
     if (ultimaData !== hoje) {
       await pool.query(
         'UPDATE usuarios SET analises_hoje = 0, ultima_analise = $1 WHERE id = $2',
         [hoje, userId]
       );
-      usuario.analises_hoje = 0; // Atualiza o objeto local também
+      analisesContador = 0;
     }
 
-    // 3. Bloqueia gratuito com 3 ou mais análises
-    if (usuario.analises_hoje >= 3) {
+    // 3. Bloqueio do limite Gratuito
+    if (analisesContador >= 3) {
       return res.status(403).json({
         erro: 'Limite diário atingido. Faça upgrade para o plano Pro.',
         limite: true
       });
     }
 
-    // 4. Se passou por tudo, incrementa e segue
+    // 4. Incrementa e segue
     await pool.query(
       'UPDATE usuarios SET analises_hoje = analises_hoje + 1, ultima_analise = $1 WHERE id = $2',
       [hoje, userId]
@@ -134,7 +137,7 @@ async function verificarLimite(req, res, next) {
 
     next();
   } catch (error) {
-    console.error('Erro no verificarLimite:', error);
+    console.error('ERRO NO LIMITE:', error);
     res.status(500).json({ erro: 'Erro interno no servidor.' });
   }
 }
@@ -146,7 +149,6 @@ async function verificarLimite(req, res, next) {
   );
 
   next();
-}
 
 // Ferramenta protegida
 app.get('/ferramenta', verificarAcesso, async (req, res) => {
