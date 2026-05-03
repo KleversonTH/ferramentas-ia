@@ -57,8 +57,8 @@ app.post('/login', async (req, res) => {
 
 async function chamarIA(prompt, tentativa = 1) {
   const modelo = tentativa === 1 
-    ? 'google/gemma-2-9b-it:free' // Modelo principal
-    : 'meta-llama/llama-3-8b-instruct:free'; // Fallback mais estável
+    ? 'google/gemma-3-4b-it:free' // Modelo principal
+    : 'google/gemma-2-9b-it:free'; // Fallback mais estável
 
   const body = JSON.stringify({
     model: modelo,
