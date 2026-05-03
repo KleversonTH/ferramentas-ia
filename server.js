@@ -210,7 +210,6 @@ app.post('/admin/excluir', async (req, res) => {
 app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
   const { prompt } = req.body;
 
-  // Função interna para fazer a chamada à API
   async function fazerChamada(modelo) {
     return new Promise((resolve, reject) => {
       const body = JSON.stringify({
@@ -225,8 +224,8 @@ app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'HTTP-Referer': 'https://railway.app', // Necessário para modelos free
-          'X-Title': 'Minha Ferramenta'
+          'HTTP-Referer': 'https://railway.app', // OBRIGATÓRIO PARA FREE
+          'X-Title': 'Minha Ferramenta'           // OBRIGATÓRIO PARA FREE
         }
       };
 
@@ -237,15 +236,14 @@ app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
           try {
             const json = JSON.parse(data);
             if (json.choices && json.choices[0]) {
-              resolve(json);
+              resolve(json.choices[0].message.content);
             } else {
-              // Se a IA não responder, vamos pegar o erro real
-              const msgErro = json.error ? json.error.message : 'Erro desconhecido';
-              console.error(`ERRO REAL DO OPENROUTER (${modelo}):`, msgErro);
-              reject(msgErro);
+              console.log(`ERRO DA API (${modelo}):`, JSON.stringify(json));
+              reject('Erro na resposta da IA');
             }
           } catch (e) {
-            reject('Erro ao ler resposta da API');
+            console.log("ERRO AO PROCESSAR JSON:", data);
+            reject('Resposta inválida');
           }
         });
       });
@@ -257,22 +255,13 @@ app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
   }
 
   try {
-    // TENTATIVA 1: Modelo Principal (Gemma)
-    console.log('Tentando modelo principal...');
-    const resultado = await fazerChamada('google/gemma-2-9b-it:free');
-    res.json(resultado);
-
-  } catch (erro) {
-    console.log('Modelo principal falhou, tentando Fallback (Llama)...', erro);
-    
-    try {
-      // TENTATIVA 2: Modelo Reserva (Llama - costuma ser muito estável)
-      const fallback = await fazerChamada('meta-llama/llama-3-8b-instruct:free');
-      res.json(fallback);
-    } catch (erro2) {
-      console.error('Ambos os modelos falharam.');
-      res.status(500).json({ error: 'Sistema de IA instável. Tente novamente em 30 segundos.' });
-    }
+    console.log("Iniciando chamada para o OpenRouter...");
+    // Tente o Gemma 3 4B que você viu que está habilitado
+    const resposta = await fazerChamada('google/gemma-3-4b-it:free');
+    res.json({ sucesso: true, analise: resposta });
+  } catch (error) {
+    console.error("Falha total na análise:", error);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro na API. Verifique os créditos no OpenRouter.' });
   }
 });
 
