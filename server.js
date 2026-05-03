@@ -129,7 +129,7 @@ async function verificarLimite(req, res, next) {
       });
     }
 
-    // 4. Incrementa e segue
+    // 4. Incrementa contador e segue
     await pool.query(
       'UPDATE usuarios SET analises_hoje = analises_hoje + 1, ultima_analise = $1 WHERE id = $2',
       [hoje, userId]
@@ -142,13 +142,7 @@ async function verificarLimite(req, res, next) {
   }
 }
 
-  // Incrementa contador
-  await pool.query(
-    'UPDATE usuarios SET analises_hoje = analises_hoje + 1, ultima_analise = $1 WHERE id = $2',
-    [hoje, userId]
-  );
-
-  next();
+// --- ROTAS DA FERRAMENTA ---
 
 // Ferramenta protegida
 app.get('/ferramenta', verificarAcesso, async (req, res) => {
@@ -162,11 +156,11 @@ app.get('/meu-plano', verificarAcesso, async (req, res) => {
     'SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1',
     [req.usuario.id]
   );
-
+  
   const usuario = rows[0];
   const hoje = new Date().toISOString().split('T')[0];
-  const ultimaData = usuario.ultima_analise
-    ? usuario.ultima_analise.toISOString().split('T')[0]
+  const ultimaData = usuario.ultima_analise 
+    ? new Date(usuario.ultima_analise).toISOString().split('T')[0] 
     : null;
 
   const analisesHoje = ultimaData === hoje ? usuario.analises_hoje : 0;
