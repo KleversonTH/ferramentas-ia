@@ -31,6 +31,50 @@ async function initDB() {
   `);
 }
 
+// Middleware token
+function verificarAcesso(req, res, next) {
+  const token = req.headers['authorization'];
+  if (!token) return res.json({ sucesso: false, mensagem: 'Acesso negado. Faça login.' });
+  try {
+    const dados = jwt.verify(token, SEGREDO);
+    if (dados.ativo !== 1) return res.json({ sucesso: false, mensagem: 'Conta não ativada. Realize o pagamento.' });
+    req.usuario = dados;
+    next();
+  } catch (e) {
+    res.json({ sucesso: false, mensagem: 'Token inválido ou expirado.' });
+  }
+}
+
+// Middleware limite
+async function verificarLimite(req, res, next) {
+  try {
+    const userId = req.usuario.id;
+    const { rows } = await pool.query('SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1', [userId]);
+    const usuario = rows[0];
+    if (!usuario) return res.status(404).json({ sucesso: false, mensagem: 'Usuário não encontrado.' });
+
+    const hoje = new Date().toISOString().split('T')[0];
+    const ultimaData = usuario.ultima_analise ? new Date(usuario.ultima_analise).toISOString().split('T')[0] : null;
+
+    if (usuario.plano === 'pro') return next();
+
+    if (ultimaData !== hoje) {
+      await pool.query('UPDATE usuarios SET analises_hoje = 0, ultima_analise = $1 WHERE id = $2', [hoje, userId]);
+      usuario.analises_hoje = 0;
+    }
+
+    if (usuario.analises_hoje >= 3) {
+      return res.status(403).json({ erro: 'Limite diário atingido. Faça upgrade para o plano Pro.', limite: true });
+    }
+
+    await pool.query('UPDATE usuarios SET analises_hoje = analises_hoje + 1, ultima_analise = $1 WHERE id = $2', [hoje, userId]);
+    next();
+  } catch (error) {
+    console.error('ERRO NO LIMITE:', error);
+    res.status(500).json({ erro: 'Erro interno no servidor.' });
+  }
+}
+
 // Cadastro
 app.post('/cadastro', async (req, res) => {
   const { nome, email, senha } = req.body;
@@ -55,95 +99,6 @@ app.post('/login', async (req, res) => {
   }
 });
 
-async function chamarIA(prompt, tentativa = 1) {
-  const modelo = tentativa === 1 
-    ? 'google/gemma-3-4b-it:free' // Modelo principal
-    : 'google/gemma-2-9b-it:free'; // Fallback mais estável
-
-  const body = JSON.stringify({
-    model: modelo,
-    messages: [{ role: 'user', content: prompt }]
-  });
-
-  // ... lógica do fetch/request ...
-  // Se der erro e tentativa < 2, chama chamarIA(prompt, 2)
-}
-
-// Middleware token
-function verificarAcesso(req, res, next) {
-  const token = req.headers['authorization'];
-  if (!token) return res.json({ sucesso: false, mensagem: 'Acesso negado. Faça login.' });
-  try {
-    const dados = jwt.verify(token, SEGREDO);
-    if (dados.ativo !== 1) return res.json({ sucesso: false, mensagem: 'Conta não ativada. Realize o pagamento.' });
-    req.usuario = dados;
-    next();
-  } catch (e) {
-    res.json({ sucesso: false, mensagem: 'Token inválido ou expirado.' });
-  }
-}
-
-// Middleware: verifica limite de análises
-async function verificarLimite(req, res, next) {
-  try {
-    const userId = req.usuario.id;
-
-    const { rows } = await pool.query(
-      'SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1',
-      [userId]
-    );
-
-    const usuarioData = rows[0];
-
-    if (!usuarioData) {
-      return res.status(404).json({ sucesso: false, mensagem: 'Usuário não encontrado.' });
-    }
-
-    const hoje = new Date().toISOString().split('T')[0];
-    let ultimaData = null;
-    
-    if (usuarioData.ultima_analise) {
-        ultimaData = new Date(usuarioData.ultima_analise).toISOString().split('T')[0];
-    }
-
-    // 1. Se for PRO, passa direto
-    if (usuarioData.plano === 'pro') {
-      return next();
-    }
-
-    // 2. Reset diário
-    let analisesContador = usuarioData.analises_hoje;
-    if (ultimaData !== hoje) {
-      await pool.query(
-        'UPDATE usuarios SET analises_hoje = 0, ultima_analise = $1 WHERE id = $2',
-        [hoje, userId]
-      );
-      analisesContador = 0;
-    }
-
-    // 3. Bloqueio do limite Gratuito
-    if (analisesContador >= 3) {
-      return res.status(403).json({
-        erro: 'Limite diário atingido. Faça upgrade para o plano Pro.',
-        limite: true
-      });
-    }
-
-    // 4. Incrementa contador e segue
-    await pool.query(
-      'UPDATE usuarios SET analises_hoje = analises_hoje + 1, ultima_analise = $1 WHERE id = $2',
-      [hoje, userId]
-    );
-
-    next();
-  } catch (error) {
-    console.error('ERRO NO LIMITE:', error);
-    res.status(500).json({ erro: 'Erro interno no servidor.' });
-  }
-}
-
-// --- ROTAS DA FERRAMENTA ---
-
 // Ferramenta protegida
 app.get('/ferramenta', verificarAcesso, async (req, res) => {
   const { rows } = await pool.query('SELECT email FROM usuarios WHERE id = $1', [req.usuario.id]);
@@ -152,25 +107,52 @@ app.get('/ferramenta', verificarAcesso, async (req, res) => {
 
 // Rota plano do usuário
 app.get('/meu-plano', verificarAcesso, async (req, res) => {
-  const { rows } = await pool.query(
-    'SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1',
-    [req.usuario.id]
-  );
-  
+  const { rows } = await pool.query('SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1', [req.usuario.id]);
   const usuario = rows[0];
   const hoje = new Date().toISOString().split('T')[0];
-  const ultimaData = usuario.ultima_analise 
-    ? new Date(usuario.ultima_analise).toISOString().split('T')[0] 
-    : null;
-
+  const ultimaData = usuario.ultima_analise ? new Date(usuario.ultima_analise).toISOString().split('T')[0] : null;
   const analisesHoje = ultimaData === hoje ? usuario.analises_hoje : 0;
   const restantes = usuario.plano === 'pro' ? 'ilimitado' : Math.max(0, 3 - analisesHoje);
+  res.json({ plano: usuario.plano, analisesHoje, restantes });
+});
 
-  res.json({
-    plano: usuario.plano,
-    analisesHoje,
-    restantes
+// Rota de análise — retorna no formato padrão OpenRouter (choices)
+app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
+  const { prompt } = req.body;
+
+  const body = JSON.stringify({
+    model: 'google/gemma-4-31b-it:free',
+    messages: [{ role: 'user', content: prompt }]
   });
+
+  const options = {
+    hostname: 'openrouter.ai',
+    path: '/api/v1/chat/completions',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'HTTP-Referer': 'https://ferramentas-ia-production.up.railway.app',
+      'X-Title': 'Revenda IA',
+      'Content-Length': Buffer.byteLength(body)
+    }
+  };
+
+  const request = https.request(options, (response) => {
+    let data = '';
+    response.on('data', chunk => data += chunk);
+    response.on('end', () => {
+      try {
+        res.json(JSON.parse(data));
+      } catch (e) {
+        res.json({ error: 'Erro ao parsear resposta' });
+      }
+    });
+  });
+
+  request.on('error', (e) => res.json({ error: e.message }));
+  request.write(body);
+  request.end();
 });
 
 // Ativar usuário
@@ -198,80 +180,16 @@ app.post('/admin/desativar', async (req, res) => {
   res.json({ sucesso: true, mensagem: `${email} desativado!` });
 });
 
-const PORT = process.env.PORT || 3000;
 app.post('/admin/excluir', async (req, res) => {
   const { email } = req.body;
   await pool.query('DELETE FROM usuarios WHERE email = $1', [email]);
   res.json({ sucesso: true, mensagem: `${email} excluído!` });
 });
 
-// Rota que chama o OpenRouter com a chave protegida
-// Rota de análise com Fallback (Plano B) e melhor tratamento de erros
-app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
-  const { prompt } = req.body;
-
-  async function fazerChamada(modelo) {
-  return new Promise((resolve, reject) => {
-    const body = JSON.stringify({
-      model: modelo,
-      messages: [{ role: 'user', content: prompt }],
-      // O segredo está aqui embaixo:
-      headers: {
-        "HTTP-Referer": "https://meusite.com", 
-        "X-Title": "Gerador de Nichos"
-      }
-    });
-
-    const options = {
-      hostname: 'openrouter.ai',
-      path: '/api/v1/chat/completions',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'HTTP-Referer': 'https://railway.app' // Repetindo por segurança
-      }
-    };
-
-    const request = https.request(options, (response) => {
-      let data = '';
-      response.on('data', chunk => data += chunk);
-      response.on('end', () => {
-        try {
-          const json = JSON.parse(data);
-          // Adicionando um log para a gente ver o que ele respondeu se falhar
-          if (json.choices && json.choices[0]) {
-            resolve(json.choices[0].message.content);
-          } else {
-            console.log("RESPOSTA COMPLETA DA API:", JSON.stringify(json));
-            reject('Erro na estrutura da resposta');
-          }
-        } catch (e) {
-          console.log("ERRO AO PROCESSAR JSON:", data);
-          reject('Erro ao ler resposta');
-        }
-      });
-    });
-
-    request.on('error', (e) => {
-      console.log("ERRO DE CONEXÃO:", e.message);
-      reject(e.message);
-    });
-
-    request.write(body);
-    request.end();
-  });
-}
-
-  try {
-    console.log("Iniciando chamada para o OpenRouter...");
-    // Tente o Gemma 3 4B que você viu que está habilitado
-    const resposta = await fazerChamada('meta-llama/llama-3-8b-instruct');
-    res.json({ sucesso: true, analise: resposta });
-  } catch (error) {
-    console.error("Falha total na análise:", error);
-    res.status(500).json({ sucesso: false, mensagem: 'Erro na API. Verifique os créditos no OpenRouter.' });
-  }
+app.post('/admin/plano', async (req, res) => {
+  const { email, plano } = req.body;
+  await pool.query('UPDATE usuarios SET plano = $1 WHERE email = $2', [plano, email]);
+  res.json({ sucesso: true, mensagem: `${email} agora é ${plano}!` });
 });
 
 // Criar pagamento
@@ -279,54 +197,33 @@ app.post('/criar-pagamento', async (req, res) => {
   res.json({ sucesso: true, url: 'https://mpago.la/2D6c6S4' });
 });
 
-// Rotas de debug — remover após confirmar funcionamento
-app.get('/debug-db', async (req, res) => {
-  const { rows } = await pool.query(`
-    SELECT table_name FROM information_schema.tables 
-    WHERE table_schema = 'public'
-  `);
-  res.json(rows);
+// Webhook MP
+app.post('/webhook', async (req, res) => {
+  const { type, data } = req.body;
+  if (type === 'payment' && data?.id) {
+    try {
+      const { Payment } = require('mercadopago');
+      const payment = new Payment(mp);
+      const resultado = await payment.get({ id: data.id });
+      if (resultado.status === 'approved') {
+        const email = resultado.external_reference;
+        await pool.query('UPDATE usuarios SET ativo = 1, plano = $1 WHERE email = $2', ['pro', email]);
+        console.log(`Usuário ${email} ativado com plano Pro após pagamento!`);
+      }
+    } catch (e) {
+      console.log('Erro no webhook:', e.message);
+    }
+  }
+  res.sendStatus(200);
 });
 
-app.get('/debug-colunas', async (req, res) => {
-  const { rows } = await pool.query(`
-    SELECT column_name, data_type, column_default 
-    FROM information_schema.columns 
-    WHERE table_name = 'usuarios'
-  `);
-  res.json(rows);
-});
+// Callback ML
 app.get('/callback', (req, res) => {
   const code = req.query.code;
   res.send(`<h2>Seu code:</h2><p style="font-size:20px; word-break:break-all;">${code}</p>`);
 });
-app.get('/teste-ml', async (req, res) => {
-  const https = require('https');
-  const options = {
-    hostname: 'api.mercadolibre.com',
-    path: '/users/me',
-    method: 'GET',
-    headers: {
-      'Authorization': `Bearer ${process.env.ML_ACCESS_TOKEN}`
-    }
-  };
-  const request = https.request(options, (response) => {
-    let data = '';
-    response.on('data', chunk => data += chunk);
-    response.on('end', () => res.json(JSON.parse(data)));
-  });
-  request.on('error', (e) => res.json({ error: e.message }));
-  request.end();
-});
-app.post('/admin/plano', async (req, res) => {
-  const { email, plano } = req.body;
-  await pool.query('UPDATE usuarios SET plano = $1 WHERE email = $2', [plano, email]);
-  res.json({ sucesso: true, mensagem: `${email} agora é ${plano}!` });
-});
-app.get('/debug-mp', (req, res) => {
-  res.json({ token: process.env.MP_ACCESS_TOKEN ? process.env.MP_ACCESS_TOKEN.substring(0, 20) + '...' : 'NAO DEFINIDO' });
-});
 
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, async () => {
   await initDB();
   console.log(`Servidor rodando na porta ${PORT}`);
