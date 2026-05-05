@@ -130,6 +130,9 @@ const fazerChamadaIA = (modelo, prompt, tentativa = 1) => {
 
     const request = https.request(options, (response) => {
       let data = '';
+      const request = https.request(options, (response) => {
+      let data = '';
+      console.log("STATUS HTTP OPENROUTER:", response.statusCode);
       response.on('data', chunk => data += chunk);
       response.on('end', async () => {
         try {
