@@ -129,15 +129,13 @@ const fazerChamadaIA = (modelo, prompt, tentativa = 1) => {
     };
 
     const request = https.request(options, (response) => {
-      let data = '';
-      const request = https.request(options, (response) => {
-      let data = '';
-      console.log("STATUS HTTP OPENROUTER:", response.statusCode);
-      response.on('data', chunk => data += chunk);
-      response.on('end', async () => {
-        try {
-          console.log("RESPOSTA BRUTA OPENROUTER:", data);
-          const json = typeof data === 'string' ? JSON.parse(data) : data;
+    let data = '';
+    console.log("STATUS HTTP OPENROUTER:", response.statusCode);
+    response.on('data', chunk => data += chunk);
+    response.on('end', async () => {
+    try {
+      console.log("RESPOSTA BRUTA OPENROUTER:", data);
+      const json = typeof data === 'string' ? JSON.parse(data) : data;
 
           // ✅ Verifica erros específicos da API (sem saldo, modelo inválido, etc.)
           if (json.error) {
