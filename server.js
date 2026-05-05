@@ -133,6 +133,7 @@ const fazerChamadaIA = (modelo, prompt, tentativa = 1) => {
       response.on('data', chunk => data += chunk);
       response.on('end', async () => {
         try {
+          console.log("RESPOSTA BRUTA OPENROUTER:", data);
           const json = JSON.parse(data);
 
           // ✅ Verifica erros específicos da API (sem saldo, modelo inválido, etc.)
