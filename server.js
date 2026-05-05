@@ -8,7 +8,8 @@ const app = express();
 app.use(express.json());
 app.use(express.static('.'));
 
-const SEGREDO = 'minha-chave-secreta-123';
+// ✅ JWT_SECRET agora vem de variável de ambiente
+const SEGREDO = process.env.JWT_SECRET || 'minha-chave-secreta-123';
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
 const pool = new Pool({
@@ -31,7 +32,8 @@ async function initDB() {
   `);
 }
 
-// Middleware token
+// --- MIDDLEWARES ---
+
 function verificarAcesso(req, res, next) {
   const token = req.headers['authorization'];
   if (!token) return res.json({ sucesso: false, mensagem: 'Acesso negado. Faça login.' });
@@ -45,25 +47,24 @@ function verificarAcesso(req, res, next) {
   }
 }
 
-// Middleware limite
 async function verificarLimite(req, res, next) {
   try {
     const userId = req.usuario.id;
     const { rows } = await pool.query('SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1', [userId]);
-    const usuario = rows[0];
-    if (!usuario) return res.status(404).json({ sucesso: false, mensagem: 'Usuário não encontrado.' });
+    const usuarioData = rows[0];
+    if (!usuarioData) return res.status(404).json({ sucesso: false, mensagem: 'Usuário não encontrado.' });
 
     const hoje = new Date().toISOString().split('T')[0];
-    const ultimaData = usuario.ultima_analise ? new Date(usuario.ultima_analise).toISOString().split('T')[0] : null;
+    let ultimaData = usuarioData.ultima_analise ? new Date(usuarioData.ultima_analise).toISOString().split('T')[0] : null;
 
-    if (usuario.plano === 'pro') return next();
+    if (usuarioData.plano === 'pro') return next();
 
     if (ultimaData !== hoje) {
       await pool.query('UPDATE usuarios SET analises_hoje = 0, ultima_analise = $1 WHERE id = $2', [hoje, userId]);
-      usuario.analises_hoje = 0;
+      usuarioData.analises_hoje = 0;
     }
 
-    if (usuario.analises_hoje >= 3) {
+    if (usuarioData.analises_hoje >= 3) {
       return res.status(403).json({ erro: 'Limite diário atingido. Faça upgrade para o plano Pro.', limite: true });
     }
 
@@ -75,7 +76,8 @@ async function verificarLimite(req, res, next) {
   }
 }
 
-// Cadastro
+// --- ROTAS DE AUTENTICAÇÃO ---
+
 app.post('/cadastro', async (req, res) => {
   const { nome, email, senha } = req.body;
   try {
@@ -86,7 +88,6 @@ app.post('/cadastro', async (req, res) => {
   }
 });
 
-// Login
 app.post('/login', async (req, res) => {
   const { email, senha } = req.body;
   const result = await pool.query('SELECT * FROM usuarios WHERE email = $1 AND senha = $2', [email, senha]);
@@ -99,91 +100,146 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Ferramenta protegida
-app.get('/ferramenta', verificarAcesso, async (req, res) => {
-  const { rows } = await pool.query('SELECT email FROM usuarios WHERE id = $1', [req.usuario.id]);
-  res.json({ sucesso: true, mensagem: `Olá ${req.usuario.nome}! Você tem acesso à ferramenta.`, email: rows[0].email });
+// --- ROTA DE ANÁLISE (O MOTOR DO SITE) ---
+
+// ✅ Função com retry automático (3 tentativas com delay crescente)
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+const fazerChamadaIA = (modelo, prompt, tentativa = 1) => {
+  return new Promise(async (resolve, reject) => {
+    const body = JSON.stringify({
+      model: modelo,
+      messages: [{ role: 'user', content: prompt }]
+    });
+
+    // ✅ HTTP-Referer corrigido para a URL real do app
+    const APP_URL = process.env.APP_URL || 'https://ferramentas-ia-production.up.railway.app';
+
+    const options = {
+      hostname: 'openrouter.ai',
+      path: '/api/v1/chat/completions',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'HTTP-Referer': APP_URL,
+        'X-Title': 'Revenda IA'
+      },
+      timeout: 45000
+    };
+
+    const request = https.request(options, (response) => {
+      let data = '';
+      response.on('data', chunk => data += chunk);
+      response.on('end', async () => {
+        try {
+          const json = JSON.parse(data);
+
+          // ✅ Verifica erros específicos da API (sem saldo, modelo inválido, etc.)
+          if (json.error) {
+            const codigoErro = json.error.code || json.error.status;
+            const msgErro = json.error.message || 'Erro desconhecido';
+            console.error(`ERRO OPENROUTER (tentativa ${tentativa}):`, msgErro);
+
+            // Sem saldo — não adianta tentar de novo
+            if (codigoErro === 402 || msgErro.toLowerCase().includes('credit') || msgErro.toLowerCase().includes('balance')) {
+              return reject({ tipo: 'sem_saldo', mensagem: 'Saldo insuficiente na conta OpenRouter.' });
+            }
+
+            // Outros erros — tenta de novo se ainda tiver tentativas
+            if (tentativa < 3) {
+              console.log(`Tentando novamente em ${tentativa * 2}s...`);
+              await sleep(tentativa * 2000);
+              return fazerChamadaIA(modelo, prompt, tentativa + 1).then(resolve).catch(reject);
+            }
+
+            return reject({ tipo: 'erro_api', mensagem: `Erro da IA após 3 tentativas: ${msgErro}` });
+          }
+
+          if (json.choices && json.choices[0]) {
+            resolve(json.choices[0].message.content);
+          } else {
+            console.error("RESPOSTA INESPERADA OPENROUTER:", data);
+
+            if (tentativa < 3) {
+              console.log(`Tentando novamente em ${tentativa * 2}s...`);
+              await sleep(tentativa * 2000);
+              return fazerChamadaIA(modelo, prompt, tentativa + 1).then(resolve).catch(reject);
+            }
+
+            reject({ tipo: 'erro_resposta', mensagem: 'Resposta inválida da IA após 3 tentativas.' });
+          }
+        } catch (e) {
+          if (tentativa < 3) {
+            await sleep(tentativa * 2000);
+            return fazerChamadaIA(modelo, prompt, tentativa + 1).then(resolve).catch(reject);
+          }
+          reject({ tipo: 'erro_parse', mensagem: 'Erro ao processar resposta da IA.' });
+        }
+      });
+    });
+
+    request.on('timeout', async () => {
+      request.destroy();
+      console.warn(`Timeout na tentativa ${tentativa}`);
+      if (tentativa < 3) {
+        await sleep(tentativa * 2000);
+        return fazerChamadaIA(modelo, prompt, tentativa + 1).then(resolve).catch(reject);
+      }
+      reject({ tipo: 'timeout', mensagem: 'A IA demorou demais para responder. Tente novamente.' });
+    });
+
+    request.on('error', async (e) => {
+      console.error(`Erro de rede (tentativa ${tentativa}):`, e.message);
+      if (tentativa < 3) {
+        await sleep(tentativa * 2000);
+        return fazerChamadaIA(modelo, prompt, tentativa + 1).then(resolve).catch(reject);
+      }
+      reject({ tipo: 'erro_rede', mensagem: 'Erro de conexão com a IA.' });
+    });
+
+    request.write(body);
+    request.end();
+  });
+};
+
+app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
+  const { prompt } = req.body;
+  console.log("=== SOLICITAÇÃO DE ANÁLISE RECEBIDA ===");
+
+  try {
+    const resposta = await fazerChamadaIA('meta-llama/llama-3.1-8b-instruct', prompt);
+    res.json({ sucesso: true, analise: resposta });
+  } catch (error) {
+    console.error("FALHA NA ANÁLISE:", error);
+
+    // ✅ Mensagens de erro específicas para o usuário
+    const mensagens = {
+      sem_saldo: 'Serviço temporariamente indisponível. Contate o suporte.',
+      timeout: 'A IA demorou para responder. Tente novamente em alguns instantes.',
+      erro_rede: 'Erro de conexão. Tente novamente.',
+      erro_api: 'Erro no serviço de IA. Tente novamente mais tarde.',
+      erro_resposta: 'Resposta inválida da IA. Tente novamente.',
+      erro_parse: 'Erro ao processar resposta. Tente novamente.'
+    };
+
+    const msg = (error.tipo && mensagens[error.tipo]) ? mensagens[error.tipo] : 'Erro inesperado. Tente novamente.';
+    res.status(500).json({ sucesso: false, mensagem: msg });
+  }
 });
 
-// Rota plano do usuário
+// --- RESTANTE DAS ROTAS (ADM, PAGAMENTO, ETC) ---
+
 app.get('/meu-plano', verificarAcesso, async (req, res) => {
   const { rows } = await pool.query('SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1', [req.usuario.id]);
   const usuario = rows[0];
   const hoje = new Date().toISOString().split('T')[0];
-  const ultimaData = usuario.ultima_analise ? new Date(usuario.ultima_analise).toISOString().split('T')[0] : null;
-  const analisesHoje = ultimaData === hoje ? usuario.analises_hoje : 0;
-  const restantes = usuario.plano === 'pro' ? 'ilimitado' : Math.max(0, 3 - analisesHoje);
-  res.json({ plano: usuario.plano, analisesHoje, restantes });
+  const analisesHoje = (usuario.ultima_analise && new Date(usuario.ultima_analise).toISOString().split('T')[0] === hoje) ? usuario.analises_hoje : 0;
+  res.json({ plano: usuario.plano, analisesHoje, restantes: usuario.plano === 'pro' ? 'ilimitado' : Math.max(0, 3 - analisesHoje) });
 });
 
-// Rota de análise — retorna no formato padrão OpenRouter (choices)
-app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
-  const { prompt } = req.body;
-
-  const body = JSON.stringify({
-    model: 'google/gemma-4-31b-it:free',
-    messages: [{ role: 'user', content: prompt }]
-  });
-
-  const options = {
-    hostname: 'openrouter.ai',
-    path: '/api/v1/chat/completions',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-      'HTTP-Referer': 'https://ferramentas-ia-production.up.railway.app',
-      'X-Title': 'Revenda IA',
-      'Content-Length': Buffer.byteLength(body)
-    }
-  };
-
-  const request = https.request(options, (response) => {
-    let data = '';
-    response.on('data', chunk => data += chunk);
-    response.on('end', () => {
-      try {
-        res.json(JSON.parse(data));
-      } catch (e) {
-        res.json({ error: 'Erro ao parsear resposta' });
-      }
-    });
-  });
-
-  request.on('error', (e) => res.json({ error: e.message }));
-  request.write(body);
-  request.end();
-});
-
-// Ativar usuário
-app.post('/ativar', async (req, res) => {
-  const { email } = req.body;
-  await pool.query('UPDATE usuarios SET ativo = 1 WHERE email = $1', [email]);
-  res.json({ sucesso: true, mensagem: `${email} ativado!` });
-});
-
-// Admin
-app.get('/admin/usuarios', async (req, res) => {
-  const result = await pool.query('SELECT id, nome, email, ativo, plano FROM usuarios');
-  res.json(result.rows);
-});
-
-app.post('/admin/ativar', async (req, res) => {
-  const { email } = req.body;
-  await pool.query('UPDATE usuarios SET ativo = 1 WHERE email = $1', [email]);
-  res.json({ sucesso: true, mensagem: `${email} ativado!` });
-});
-
-app.post('/admin/desativar', async (req, res) => {
-  const { email } = req.body;
-  await pool.query('UPDATE usuarios SET ativo = 0 WHERE email = $1', [email]);
-  res.json({ sucesso: true, mensagem: `${email} desativado!` });
-});
-
-app.post('/admin/excluir', async (req, res) => {
-  const { email } = req.body;
-  await pool.query('DELETE FROM usuarios WHERE email = $1', [email]);
-  res.json({ sucesso: true, mensagem: `${email} excluído!` });
+app.post('/criar-pagamento', async (req, res) => {
+  res.json({ sucesso: true, url: 'https://mpago.la/2D6c6S4' });
 });
 
 app.post('/admin/plano', async (req, res) => {
@@ -192,35 +248,10 @@ app.post('/admin/plano', async (req, res) => {
   res.json({ sucesso: true, mensagem: `${email} agora é ${plano}!` });
 });
 
-// Criar pagamento
-app.post('/criar-pagamento', async (req, res) => {
-  res.json({ sucesso: true, url: 'https://mpago.la/2D6c6S4' });
-});
-
-// Webhook MP
-app.post('/webhook', async (req, res) => {
-  const { type, data } = req.body;
-  if (type === 'payment' && data?.id) {
-    try {
-      const { Payment } = require('mercadopago');
-      const payment = new Payment(mp);
-      const resultado = await payment.get({ id: data.id });
-      if (resultado.status === 'approved') {
-        const email = resultado.external_reference;
-        await pool.query('UPDATE usuarios SET ativo = 1, plano = $1 WHERE email = $2', ['pro', email]);
-        console.log(`Usuário ${email} ativado com plano Pro após pagamento!`);
-      }
-    } catch (e) {
-      console.log('Erro no webhook:', e.message);
-    }
-  }
-  res.sendStatus(200);
-});
-
-// Callback ML
-app.get('/callback', (req, res) => {
-  const code = req.query.code;
-  res.send(`<h2>Seu code:</h2><p style="font-size:20px; word-break:break-all;">${code}</p>`);
+app.post('/admin/ativar', async (req, res) => {
+  const { email } = req.body;
+  await pool.query('UPDATE usuarios SET ativo = 1 WHERE email = $1', [email]);
+  res.json({ sucesso: true, mensagem: `${email} ativado!` });
 });
 
 const PORT = process.env.PORT || 8080;
