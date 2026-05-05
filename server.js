@@ -108,9 +108,10 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const fazerChamadaIA = (modelo, prompt, tentativa = 1) => {
   return new Promise(async (resolve, reject) => {
     const body = JSON.stringify({
-      model: modelo,
-      messages: [{ role: 'user', content: prompt }]
-    });
+    model: modelo,
+    messages: [{ role: 'user', content: prompt }],
+    stream: false
+  });
 
     // ✅ HTTP-Referer corrigido para a URL real do app
     const APP_URL = process.env.APP_URL || 'https://ferramentas-ia-production.up.railway.app';
