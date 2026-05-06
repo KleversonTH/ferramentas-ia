@@ -242,6 +242,23 @@ app.post('/admin/plano', async (req, res) => {
   res.json({ sucesso: true, mensagem: `${email} agora é ${plano}!` });
 });
 
+app.get('/admin/usuarios', async (req, res) => {
+  const { rows } = await pool.query('SELECT id, nome, email, ativo, plano FROM usuarios ORDER BY id DESC');
+  res.json(rows);
+});
+
+app.post('/admin/desativar', async (req, res) => {
+  const { email } = req.body;
+  await pool.query('UPDATE usuarios SET ativo = 0 WHERE email = $1', [email]);
+  res.json({ sucesso: true, mensagem: `${email} desativado!` });
+});
+
+app.post('/admin/excluir', async (req, res) => {
+  const { email } = req.body;
+  await pool.query('DELETE FROM usuarios WHERE email = $1', [email]);
+  res.json({ sucesso: true, mensagem: `${email} excluído!` });
+});
+
 app.post('/admin/ativar', async (req, res) => {
   const { email } = req.body;
   await pool.query('UPDATE usuarios SET ativo = 1 WHERE email = $1', [email]);
