@@ -35,184 +35,230 @@
     .plano-pro { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, rgba(250,204,21,0.15), rgba(249,115,22,0.15)); border: 1px solid rgba(250,204,21,0.3); color: #facc15; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 100px; }
     .plano-gratuito { display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.04); border: 1px solid #2a2a3e; color: #555570; font-size: 11px; font-family: 'JetBrains Mono', monospace; padding: 3px 8px; border-radius: 100px; }
     .acoes { display: flex; gap: 4px; flex-wrap: wrap; }
-    .btn-ativar { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); color: #86efac; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: border-color 0.2s; }
-    .btn-ativar:hover { border-color: #86efac; }
-    .btn-desativar { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); color: #fca5a5; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: border-color 0.2s; }
-    .btn-desativar:hover { border-color: #fca5a5; }
-    .btn-pro { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(250,204,21,0.3); background: rgba(250,204,21,0.08); color: #facc15; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: border-color 0.2s; }
-    .btn-pro:hover { border-color: #facc15; }
-    .btn-gratuito { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(148,163,184,0.3); background: rgba(148,163,184,0.08); color: #94a3b8; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: border-color 0.2s; }
-    .btn-gratuito:hover { border-color: #94a3b8; }
-    .btn-excluir { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(107,114,128,0.3); background: rgba(107,114,128,0.08); color: #9ca3af; cursor: pointer; font-family: 'Space Grotesk', sans-serif; transition: border-color 0.2s; }
-    .btn-excluir:hover { border-color: #9ca3af; }
+    .btn-ativar { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); color: #86efac; cursor: pointer; font-family: 'Space Grotesk', sans-serif; }
+    .btn-desativar { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); color: #fca5a5; cursor: pointer; font-family: 'Space Grotesk', sans-serif; }
+    .btn-pro { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(250,204,21,0.3); background: rgba(250,204,21,0.08); color: #facc15; cursor: pointer; font-family: 'Space Grotesk', sans-serif; }
+    .btn-gratuito { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(148,163,184,0.3); background: rgba(148,163,184,0.08); color: #94a3b8; cursor: pointer; font-family: 'Space Grotesk', sans-serif; }
+    .btn-excluir { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(107,114,128,0.3); background: rgba(107,114,128,0.08); color: #9ca3af; cursor: pointer; font-family: 'Space Grotesk', sans-serif; }
     .toast { position: fixed; bottom: 2rem; right: 2rem; background: #13131a; border: 1px solid #1e1e2e; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #86efac; display: none; z-index: 999; }
     .vazio { text-align: center; padding: 2rem; font-size: 13px; color: #555570; }
     .refresh { font-size: 12px; padding: 6px 12px; border-radius: 8px; border: 1px solid #1e1e2e; background: transparent; color: #666680; cursor: pointer; font-family: 'Space Grotesk', sans-serif; }
     .refresh:hover { border-color: #facc15; color: #facc15; }
+    .btn-sair { font-size: 12px; padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(239,68,68,0.3); background: transparent; color: #fca5a5; cursor: pointer; font-family: 'Space Grotesk', sans-serif; }
+
+    /* TELA DE LOGIN */
+    .login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-box { background: #13131a; border: 1px solid #1e1e2e; border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 380px; }
+    .login-title { font-size: 20px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+    .login-title span { background: linear-gradient(135deg, #facc15, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .login-subtitle { font-size: 13px; color: #555570; margin-bottom: 2rem; }
+    .login-label { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #555570; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 6px; }
+    .login-input { width: 100%; padding: 12px 14px; font-size: 14px; border: 1px solid #1e1e2e; border-radius: 10px; background: #0d0d14; color: #c8c8e0; font-family: 'Space Grotesk', sans-serif; margin-bottom: 1rem; }
+    .login-input:focus { outline: none; border-color: #facc15; }
+    .login-btn { width: 100%; padding: 12px; font-size: 14px; font-weight: 600; border-radius: 10px; border: none; background: linear-gradient(135deg, #facc15, #f97316); color: #0a0a0f; cursor: pointer; font-family: 'Space Grotesk', sans-serif; margin-top: 0.5rem; }
+    .login-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .login-erro { display: none; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #fca5a5; margin-top: 1rem; }
+
+    /* PAINEL (escondido até login) */
+    .painel { display: none; }
   </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <div>
-      <h1>Painel <span>Admin</span></h1>
-    </div>
-    <div style="display:flex; gap:8px; align-items:center;">
-      <span class="badge-admin">admin</span>
-      <button class="refresh" onclick="carregar()">↻ Atualizar</button>
-    </div>
-  </div>
 
-  <div class="stats">
-    <div class="stat-card">
-      <div class="stat-label">Total usuários</div>
-      <div class="stat-valor" id="total">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Ativos</div>
-      <div class="stat-valor" id="ativos" style="color:#86efac;">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Inativos</div>
-      <div class="stat-valor" id="inativos" style="color:#fca5a5;">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Plano Pro</div>
-      <div class="stat-valor" id="pros" style="color:#facc15;">—</div>
-    </div>
+<!-- TELA DE LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-title">Painel <span>Admin</span></div>
+    <div class="login-subtitle">Acesso restrito — apenas administradores</div>
+    <label class="login-label">Email</label>
+    <input class="login-input" type="email" id="login-email" placeholder="admin@email.com" />
+    <label class="login-label">Senha</label>
+    <input class="login-input" type="password" id="login-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter') fazerLogin()" />
+    <button class="login-btn" id="login-btn" onclick="fazerLogin()">Entrar →</button>
+    <div class="login-erro" id="login-erro"></div>
   </div>
+</div>
 
-  <div class="card">
-    <div class="card-header">
-      <span class="card-titulo">Usuários cadastrados</span>
+<!-- PAINEL ADMIN -->
+<div class="painel" id="painel">
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>Painel <span>Admin</span></h1>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <span class="badge-admin">admin</span>
+        <button class="refresh" onclick="carregar()">↻ Atualizar</button>
+        <button class="btn-sair" onclick="sair()">Sair</button>
+      </div>
     </div>
-    <input class="busca" type="text" id="busca" placeholder="Buscar por nome ou email..." oninput="filtrar()" />
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Nome</th>
-          <th>Email</th>
-          <th>Status</th>
-          <th>Plano</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="tabela"></tbody>
-    </table>
+
+    <div class="stats">
+      <div class="stat-card"><div class="stat-label">Total usuários</div><div class="stat-valor" id="total">—</div></div>
+      <div class="stat-card"><div class="stat-label">Ativos</div><div class="stat-valor" id="ativos" style="color:#86efac;">—</div></div>
+      <div class="stat-card"><div class="stat-label">Inativos</div><div class="stat-valor" id="inativos" style="color:#fca5a5;">—</div></div>
+      <div class="stat-card"><div class="stat-label">Plano Pro</div><div class="stat-valor" id="pros" style="color:#facc15;">—</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-titulo">Usuários cadastrados</span>
+      </div>
+      <input class="busca" type="text" id="busca" placeholder="Buscar por nome ou email..." oninput="filtrar()" />
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Nome</th><th>Email</th><th>Status</th><th>Plano</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabela"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  let usuarios = [];
+const BASE_URL = 'https://ferramentas-ia-production.up.railway.app';
+let usuarios = [];
+let adminToken = localStorage.getItem('adminToken');
 
-  async function carregar() {
-    try {
-      const response = await fetch('https://ferramentas-ia-production.up.railway.app/admin/usuarios');
-      usuarios = await response.json();
-      renderizar(usuarios);
-      atualizarStats(usuarios);
-    } catch (e) {
-      console.error('Erro ao carregar usuários');
-    }
-  }
-
-  function atualizarStats(lista) {
-    document.getElementById('total').textContent = lista.length;
-    document.getElementById('ativos').textContent = lista.filter(u => u.ativo == 1).length;
-    document.getElementById('inativos').textContent = lista.filter(u => u.ativo == 0).length;
-    document.getElementById('pros').textContent = lista.filter(u => u.plano === 'pro').length;
-  }
-
-  function filtrar() {
-    const busca = document.getElementById('busca').value.toLowerCase();
-    const filtrados = usuarios.filter(u =>
-      u.nome.toLowerCase().includes(busca) || u.email.toLowerCase().includes(busca)
-    );
-    renderizar(filtrados);
-  }
-
-  function renderizar(lista) {
-    const tabela = document.getElementById('tabela');
-    if (lista.length === 0) {
-      tabela.innerHTML = '<tr><td colspan="6" class="vazio">Nenhum usuário encontrado</td></tr>';
-      return;
-    }
-    tabela.innerHTML = lista.map(u => `
-      <tr>
-        <td style="color:#555570; font-family:monospace;">${u.id}</td>
-        <td>${u.nome}</td>
-        <td style="color:#888899;">${u.email}</td>
-        <td>${u.ativo == 1 ? '<span class="status-ativo">Ativo</span>' : '<span class="status-inativo">Inativo</span>'}</td>
-        <td>${u.plano === 'pro' ? '<span class="plano-pro">⭐ Pro</span>' : '<span class="plano-gratuito">Gratuito</span>'}</td>
-        <td>
-          <div class="acoes">
-            ${u.ativo == 0
-              ? `<button class="btn-ativar" onclick="ativar('${u.email}')">Ativar</button>`
-              : `<button class="btn-desativar" onclick="desativar('${u.email}')">Desativar</button>`
-            }
-            ${u.plano !== 'pro'
-              ? `<button class="btn-pro" onclick="tornarPro('${u.email}')">⭐ Pro</button>`
-              : `<button class="btn-gratuito" onclick="tornarGratuito('${u.email}')">Gratuito</button>`
-            }
-            <button class="btn-excluir" onclick="excluir('${u.email}')">Excluir</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  async function ativar(email) {
-    await fetch('https://ferramentas-ia-production.up.railway.app/admin/ativar', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email })
-    });
-    mostrarToast('✅ ' + email + ' ativado!');
-    carregar();
-  }
-
-  async function desativar(email) {
-    await fetch('https://ferramentas-ia-production.up.railway.app/admin/desativar', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email })
-    });
-    mostrarToast('❌ ' + email + ' desativado!');
-    carregar();
-  }
-
-  async function tornarPro(email) {
-    await fetch('https://ferramentas-ia-production.up.railway.app/admin/plano', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, plano: 'pro' })
-    });
-    mostrarToast('⭐ ' + email + ' agora é Pro!');
-    carregar();
-  }
-
-  async function tornarGratuito(email) {
-    await fetch('https://ferramentas-ia-production.up.railway.app/admin/plano', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, plano: 'gratuito' })
-    });
-    mostrarToast('🔄 ' + email + ' voltou para Gratuito!');
-    carregar();
-  }
-
-  async function excluir(email) {
-    if (!confirm('Excluir ' + email + '?')) return;
-    await fetch('https://ferramentas-ia-production.up.railway.app/admin/excluir', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email })
-    });
-    mostrarToast('🗑️ ' + email + ' excluído!');
-    carregar();
-  }
-
-  function mostrarToast(msg) {
-    const toast = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.style.display = 'block';
-    setTimeout(() => toast.style.display = 'none', 3000);
-  }
-
+// Verifica se já tem token salvo
+if (adminToken) {
+  mostrarPainel();
   carregar();
+}
+
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const btn = document.getElementById('login-btn');
+  const erro = document.getElementById('login-erro');
+
+  if (!email || !senha) { erro.textContent = 'Preencha email e senha.'; erro.style.display = 'block'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+  erro.style.display = 'none';
+
+  try {
+    const res = await fetch(BASE_URL + '/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, senha })
+    });
+    const data = await res.json();
+    if (data.sucesso) {
+      adminToken = data.token;
+      localStorage.setItem('adminToken', adminToken);
+      mostrarPainel();
+      carregar();
+    } else {
+      erro.textContent = data.mensagem || 'Credenciais inválidas.';
+      erro.style.display = 'block';
+    }
+  } catch (e) {
+    erro.textContent = 'Erro de conexão. Tente novamente.';
+    erro.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Entrar →';
+  }
+}
+
+function mostrarPainel() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('painel').style.display = 'block';
+}
+
+function sair() {
+  localStorage.removeItem('adminToken');
+  adminToken = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('painel').style.display = 'none';
+}
+
+async function carregar() {
+  try {
+    const response = await fetch(BASE_URL + '/admin/usuarios', {
+      headers: { 'authorization': adminToken }
+    });
+    if (response.status === 401) { sair(); return; }
+    usuarios = await response.json();
+    renderizar(usuarios);
+    atualizarStats(usuarios);
+  } catch (e) {
+    console.error('Erro ao carregar usuários');
+  }
+}
+
+function atualizarStats(lista) {
+  document.getElementById('total').textContent = lista.length;
+  document.getElementById('ativos').textContent = lista.filter(u => u.ativo == 1).length;
+  document.getElementById('inativos').textContent = lista.filter(u => u.ativo == 0).length;
+  document.getElementById('pros').textContent = lista.filter(u => u.plano === 'pro').length;
+}
+
+function filtrar() {
+  const busca = document.getElementById('busca').value.toLowerCase();
+  renderizar(usuarios.filter(u => u.nome.toLowerCase().includes(busca) || u.email.toLowerCase().includes(busca)));
+}
+
+function renderizar(lista) {
+  const tabela = document.getElementById('tabela');
+  if (lista.length === 0) { tabela.innerHTML = '<tr><td colspan="6" class="vazio">Nenhum usuário encontrado</td></tr>'; return; }
+  tabela.innerHTML = lista.map(u => `
+    <tr>
+      <td style="color:#555570;font-family:monospace;">${u.id}</td>
+      <td>${u.nome}</td>
+      <td style="color:#888899;">${u.email}</td>
+      <td>${u.ativo == 1 ? '<span class="status-ativo">Ativo</span>' : '<span class="status-inativo">Inativo</span>'}</td>
+      <td>${u.plano === 'pro' ? '<span class="plano-pro">⭐ Pro</span>' : '<span class="plano-gratuito">Gratuito</span>'}</td>
+      <td>
+        <div class="acoes">
+          ${u.ativo == 0
+            ? `<button class="btn-ativar" onclick="ativar('${u.email}')">Ativar</button>`
+            : `<button class="btn-desativar" onclick="desativar('${u.email}')">Desativar</button>`
+          }
+          ${u.plano !== 'pro'
+            ? `<button class="btn-pro" onclick="tornarPro('${u.email}')">⭐ Pro</button>`
+            : `<button class="btn-gratuito" onclick="tornarGratuito('${u.email}')">Gratuito</button>`
+          }
+          <button class="btn-excluir" onclick="excluir('${u.email}')">Excluir</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function chamarAdmin(rota, body) {
+  const res = await fetch(BASE_URL + rota, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'authorization': adminToken },
+    body: JSON.stringify(body)
+  });
+  if (res.status === 401) { sair(); return null; }
+  return res.json();
+}
+
+async function ativar(email) { await chamarAdmin('/admin/ativar', { email }); mostrarToast('✅ ' + email + ' ativado!'); carregar(); }
+async function desativar(email) { await chamarAdmin('/admin/desativar', { email }); mostrarToast('❌ ' + email + ' desativado!'); carregar(); }
+async function tornarPro(email) { await chamarAdmin('/admin/plano', { email, plano: 'pro' }); mostrarToast('⭐ ' + email + ' agora é Pro!'); carregar(); }
+async function tornarGratuito(email) { await chamarAdmin('/admin/plano', { email, plano: 'gratuito' }); mostrarToast('🔄 ' + email + ' voltou para Gratuito!'); carregar(); }
+async function excluir(email) {
+  if (!confirm('Excluir ' + email + '?')) return;
+  await chamarAdmin('/admin/excluir', { email });
+  mostrarToast('🗑️ ' + email + ' excluído!');
+  carregar();
+}
+
+function mostrarToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  setTimeout(() => toast.style.display = 'none', 3000);
+}
 </script>
 </body>
 </html>

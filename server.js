@@ -46,6 +46,18 @@ function verificarAcesso(req, res, next) {
   }
 }
 
+function verificarAdmin(req, res, next) {
+  const token = req.headers['authorization'];
+  if (!token) return res.status(401).json({ sucesso: false, mensagem: 'Acesso negado.' });
+  try {
+    const dados = jwt.verify(token, SEGREDO);
+    if (!dados.admin) return res.status(401).json({ sucesso: false, mensagem: 'Acesso negado.' });
+    next();
+  } catch (e) {
+    res.status(401).json({ sucesso: false, mensagem: 'Token inválido ou expirado.' });
+  }
+}
+
 async function verificarLimite(req, res, next) {
   try {
     const userId = req.usuario.id;
@@ -99,7 +111,6 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// ✅ Rota para verificar token e retornar dados do usuário
 app.get('/me', verificarAcesso, async (req, res) => {
   const { rows } = await pool.query('SELECT nome, email, plano FROM usuarios WHERE id = $1', [req.usuario.id]);
   const usuario = rows[0];
@@ -203,7 +214,6 @@ async function fazerChamadaIA(prompt, tentativa = 1) {
 app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
   const { prompt } = req.body;
   console.log("=== ANÁLISE RECEBIDA ===");
-
   try {
     const analise = await fazerChamadaIA(prompt);
     res.json({ sucesso: true, analise });
@@ -222,7 +232,7 @@ app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
   }
 });
 
-// --- ROTAS DE PLANO E ADMIN ---
+// --- ROTAS DE PLANO ---
 
 app.get('/meu-plano', verificarAcesso, async (req, res) => {
   const { rows } = await pool.query('SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1', [req.usuario.id]);
@@ -236,33 +246,45 @@ app.post('/criar-pagamento', async (req, res) => {
   res.json({ sucesso: true, url: 'https://mpago.la/2D6c6S4' });
 });
 
-app.post('/admin/plano', async (req, res) => {
-  const { email, plano } = req.body;
-  await pool.query('UPDATE usuarios SET plano = $1 WHERE email = $2', [plano, email]);
-  res.json({ sucesso: true, mensagem: `${email} agora é ${plano}!` });
+// --- ROTAS ADMIN (protegidas) ---
+
+app.post('/admin/login', async (req, res) => {
+  const { email, senha } = req.body;
+  if (email === process.env.ADMIN_EMAIL && senha === process.env.ADMIN_SENHA) {
+    const token = jwt.sign({ admin: true }, SEGREDO, { expiresIn: '8h' });
+    res.json({ sucesso: true, token });
+  } else {
+    res.json({ sucesso: false, mensagem: 'Credenciais inválidas.' });
+  }
 });
 
-app.get('/admin/usuarios', async (req, res) => {
+app.get('/admin/usuarios', verificarAdmin, async (req, res) => {
   const { rows } = await pool.query('SELECT id, nome, email, ativo, plano FROM usuarios ORDER BY id DESC');
   res.json(rows);
 });
 
-app.post('/admin/desativar', async (req, res) => {
+app.post('/admin/ativar', verificarAdmin, async (req, res) => {
+  const { email } = req.body;
+  await pool.query('UPDATE usuarios SET ativo = 1 WHERE email = $1', [email]);
+  res.json({ sucesso: true, mensagem: `${email} ativado!` });
+});
+
+app.post('/admin/desativar', verificarAdmin, async (req, res) => {
   const { email } = req.body;
   await pool.query('UPDATE usuarios SET ativo = 0 WHERE email = $1', [email]);
   res.json({ sucesso: true, mensagem: `${email} desativado!` });
 });
 
-app.post('/admin/excluir', async (req, res) => {
+app.post('/admin/plano', verificarAdmin, async (req, res) => {
+  const { email, plano } = req.body;
+  await pool.query('UPDATE usuarios SET plano = $1 WHERE email = $2', [plano, email]);
+  res.json({ sucesso: true, mensagem: `${email} agora é ${plano}!` });
+});
+
+app.post('/admin/excluir', verificarAdmin, async (req, res) => {
   const { email } = req.body;
   await pool.query('DELETE FROM usuarios WHERE email = $1', [email]);
   res.json({ sucesso: true, mensagem: `${email} excluído!` });
-});
-
-app.post('/admin/ativar', async (req, res) => {
-  const { email } = req.body;
-  await pool.query('UPDATE usuarios SET ativo = 1 WHERE email = $1', [email]);
-  res.json({ sucesso: true, mensagem: `${email} ativado!` });
 });
 
 const PORT = process.env.PORT || 8080;
