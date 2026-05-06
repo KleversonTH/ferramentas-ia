@@ -115,7 +115,7 @@ async function fazerChamadaIA(prompt, tentativa = 1) {
 
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
-      model: 'meta-llama/llama-3.1-8b-instruct',
+      model: 'meta-llama/llama-3.3-70b-instruct',
       messages: [{ role: 'user', content: prompt }],
       stream: false
     });
