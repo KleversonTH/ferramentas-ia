@@ -371,6 +371,7 @@ async function chamarAPI(prompt, loadingId, erroId, btnId) {
 
     // ✅ data.analise contém o texto da IA
     const texto = data.analise;
+    console.log("RESPOSTA IA:", texto);
     const textoLimpo = texto.replace(/```json|```/g, '').trim();
     try {
       return JSON.parse(textoLimpo);
@@ -477,11 +478,11 @@ async function analisar() {
   document.getElementById('resultado-container').style.display = 'none';
   document.getElementById('favoritos-section').style.display = 'none';
 
-  const prompt = 'Você é um especialista em e-commerce brasileiro e Mercado Livre.\n\nAnalise a categoria "' + categoria + '" e sugira 4 produtos com alta demanda e boa margem de lucro para revender no Mercado Livre.\n\nConsidere:\n- Capital disponível: ' + document.getElementById('capital').value + '\n- Modelo: ' + document.getElementById('modelo').value + '\n- Meta de vendas por mês: ' + document.getElementById('meta').value + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois, neste formato exato:\n{\n  "produtos": [\n    {\n      "nome": "Nome do produto",\n      "demanda": "Alta",\n      "concorrencia": "Média",\n      "tendencia": "Crescendo",\n      "margem": "30-50%",\n      "descricao": "Por que esse produto é uma boa oportunidade em 2 frases.",\n      "dica": "Dica prática para se destacar na venda desse produto.",\n      "onde_pesquisar": "Dica rápida de como pesquisar o melhor preço nos fornecedores."\n    }\n  ]\n}\n\nValores válidos para tendencia: "Crescendo", "Estável", "Caindo"';
+  const prompt = 'Você é um especialista em e-commerce brasileiro e Mercado Livre.\n\nAnalise a categoria "' + categoria + '" e sugira 4 produtos com alta demanda e boa margem de lucro para revender no Mercado Livre.\n\nConsidere:\n- Capital disponível: ' + document.getElementById('capital').value + '\n- Modelo: ' + document.getElementById('modelo').value + '\n- Meta de vendas por mês: ' + document.getElementById('meta').value + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois, neste formato exato:\n{\n  "produtos": [\n    {\n      "nome": "Nome do produto",\n      "demanda": "Alta",\n      "concorrencia": "Média",\n      "tendencia": "Crescendo",\n      "margem": "30-50%",\n      "descricao": "Por que esse produto é uma boa oportunidade em 2 frases.",\n      "dica": "Dica prática para se destacar na venda desse produto.",\n      "onde_pesquisar": "Dica rápida de como pesquisar o melhor preço nos fornecedores."\n    }\n  ]\n}\n\nValores válidos para tendencia: "Crescendo", "Estável", "Caindo" \n\nIMPORTANTE: Responda SOMENTE o JSON, sem texto antes ou depois, sem markdown, sem explicações.';
 
   const r = await chamarAPI(prompt, 'loading', 'erro', 'btn-analisar');
   if (!r) return;
-  if (!r.produtos) { document.getElementById('erro').textContent = 'Resposta inválida. Tente novamente.'; document.getElementById('erro').style.display = 'block'; return; }
+  if (!r || !r.produtos) { document.getElementById('erro').textContent = 'Resposta inválida. Tente novamente.'; document.getElementById('erro').style.display = 'block'; return; }
   mostrarResultados(r.produtos);
   carregarPlano();
 }
