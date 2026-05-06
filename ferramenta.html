@@ -104,7 +104,6 @@
     .veredito-sim .veredito-titulo { color: #86efac; }
     .veredito-nao .veredito-titulo { color: #fca5a5; }
     .veredito-desc { font-size: 13px; color: #888899; line-height: 1.5; }
-    /* CALCULADORA */
     .calc-resultado { display: none; margin-top: 1rem; }
     .calc-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 1rem; }
     @media (min-width: 500px) { .calc-stats { grid-template-columns: repeat(4, 1fr); } }
@@ -152,7 +151,6 @@
     <p class="subtitle">Analise produtos, calcule lucros e encontre os melhores nichos</p>
   </div>
 
-  <!-- CARD DE BOAS-VINDAS -->
   <div id="card-boasvindas" style="display:none; background:#13131a; border:1px solid #1e1e2e; border-radius:12px; padding:14px 18px; margin-bottom:1rem; flex-wrap:wrap; gap:8px;">
     <div style="font-size:14px; color:#c8c8e0;">
       👋 Olá, <strong id="bv-nome" style="color:#fff;"></strong>!
@@ -169,15 +167,15 @@
   </div>
 
   <div class="tabs">
-    <button class="tab ativo" id="tab-btn-nichos" onclick="mudarTab('nichos', this)">🔍 Nichos</button>
-    <button class="tab" id="tab-btn-especifico" onclick="mudarTab('especifico', this)">🎯 Produto</button>
-    <button class="tab" id="tab-btn-calculadora" onclick="mudarTab('calculadora', this)">💰 Lucro</button>
-    <button class="tab" id="tab-btn-gerador" onclick="mudarTab('gerador', this)">✍️ Anúncio</button>
-    <button class="tab" id="tab-btn-reclamacao" onclick="mudarTab('reclamacao', this)">💬 Reclamação</button>
-    <button class="tab" id="tab-btn-palavras" onclick="mudarTab('palavras', this)">🔑 Palavras-chave</button>
+    <button class="tab ativo" onclick="mudarTab('nichos', this)">🔍 Nichos</button>
+    <button class="tab" onclick="mudarTab('especifico', this)">🎯 Produto</button>
+    <button class="tab" onclick="mudarTab('calculadora', this)">💰 Lucro</button>
+    <button class="tab" onclick="mudarTab('gerador', this)">✍️ Anúncio</button>
+    <button class="tab" onclick="mudarTab('reclamacao', this)">💬 Reclamação</button>
+    <button class="tab" onclick="mudarTab('palavras', this)">🔑 Palavras-chave</button>
   </div>
 
-  <!-- ABA 1: BUSCAR NICHOS -->
+  <!-- ABA 1 -->
   <div class="tab-content ativo" id="tab-nichos">
     <div class="card">
       <label>Categoria de interesse</label>
@@ -212,784 +210,431 @@
       </div>
       <button class="primary" id="btn-analisar" onclick="analisar()">Analisar produtos →</button>
     </div>
-    <div class="loading" id="loading">
-      <div class="loading-dots"><span></span><span></span><span></span></div>
-      <p>Analisando mercado com IA...</p>
-    </div>
+    <div class="loading" id="loading"><div class="loading-dots"><span></span><span></span><span></span></div><p>Analisando mercado com IA...</p></div>
     <div class="erro" id="erro"></div>
     <div class="favoritos-section" id="favoritos-section" style="display:none;">
       <div class="card">
-        <div class="favoritos-header">
-          <span>Produtos favoritados</span>
-          <span id="fav-count" style="color:#facc15; font-size:12px;"></span>
-        </div>
+        <div class="favoritos-header"><span>Produtos favoritados</span><span id="fav-count" style="color:#facc15;font-size:12px;"></span></div>
         <div class="favoritos-lista" id="favoritos-lista"></div>
       </div>
     </div>
     <div class="resultado-container" id="resultado-container"></div>
   </div>
 
-  <!-- ABA 2: PRODUTO ESPECÍFICO -->
+  <!-- ABA 2 -->
   <div class="tab-content" id="tab-especifico">
     <div class="card">
       <label>Nome do produto</label>
       <input type="text" id="produto-especifico" placeholder="Ex: Suporte de celular para carro, Fone bluetooth..." />
       <button class="primary" id="btn-analisar-especifico" onclick="analisarEspecifico()">Analisar produto →</button>
     </div>
-    <div class="loading" id="loading-especifico">
-      <div class="loading-dots"><span></span><span></span><span></span></div>
-      <p>Analisando produto com IA...</p>
-    </div>
+    <div class="loading" id="loading-especifico"><div class="loading-dots"><span></span><span></span><span></span></div><p>Analisando produto com IA...</p></div>
     <div class="erro" id="erro-especifico"></div>
     <div id="resultado-especifico" style="display:none;"></div>
   </div>
 
-  <!-- ABA 3: CALCULADORA DE LUCRO -->
+  <!-- ABA 3 -->
   <div class="tab-content" id="tab-calculadora">
     <div class="card">
       <div class="grid-2">
-        <div>
-          <label>Preço de venda no ML (R$)</label>
-          <input type="number" id="calc-preco" placeholder="Ex: 89.90" min="0" step="0.01" oninput="calcular()" />
-        </div>
-        <div>
-          <label>Custo do produto (R$)</label>
-          <input type="number" id="calc-custo" placeholder="Ex: 25.00" min="0" step="0.01" oninput="calcular()" />
-        </div>
-        <div>
-          <label>Custo do frete de envio (R$)</label>
-          <input type="number" id="calc-frete" placeholder="Ex: 12.00" min="0" step="0.01" oninput="calcular()" />
-        </div>
-        <div>
-          <label>Custo de embalagem (R$)</label>
-          <input type="number" id="calc-embalagem" placeholder="Ex: 2.50" min="0" step="0.01" oninput="calcular()" />
-        </div>
+        <div><label>Preço de venda no ML (R$)</label><input type="number" id="calc-preco" placeholder="Ex: 89.90" min="0" step="0.01" oninput="calcular()" /></div>
+        <div><label>Custo do produto (R$)</label><input type="number" id="calc-custo" placeholder="Ex: 25.00" min="0" step="0.01" oninput="calcular()" /></div>
+        <div><label>Custo do frete de envio (R$)</label><input type="number" id="calc-frete" placeholder="Ex: 12.00" min="0" step="0.01" oninput="calcular()" /></div>
+        <div><label>Custo de embalagem (R$)</label><input type="number" id="calc-embalagem" placeholder="Ex: 2.50" min="0" step="0.01" oninput="calcular()" /></div>
       </div>
-
       <div class="range-wrapper">
-        <div class="range-header">
-          <label style="margin-bottom:0;">Taxa do Mercado Livre (%)</label>
-          <span class="range-value" id="taxa-valor">16%</span>
-        </div>
-        <input type="range" id="calc-taxa" min="10" max="20" value="16" step="0.5" oninput="atualizarTaxa(); calcular()" />
-        <div style="display:flex; justify-content:space-between; font-size:11px; color:#333350; margin-top:4px;">
-          <span>10%</span><span>Clássico ~16%</span><span>Premium ~20%</span>
-        </div>
+        <div class="range-header"><label style="margin-bottom:0;">Taxa do Mercado Livre (%)</label><span class="range-value" id="taxa-valor">16%</span></div>
+        <input type="range" id="calc-taxa" min="10" max="20" value="16" step="0.5" oninput="atualizarTaxa();calcular()" />
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#333350;margin-top:4px;"><span>10%</span><span>Clássico ~16%</span><span>Premium ~20%</span></div>
       </div>
-
       <div class="range-wrapper">
-        <div class="range-header">
-          <label style="margin-bottom:0;">Meta de vendas por mês</label>
-          <span class="range-value" id="meta-valor">30 vendas</span>
-        </div>
-        <input type="range" id="calc-meta" min="1" max="500" value="30" step="1" oninput="atualizarMeta(); calcular()" />
+        <div class="range-header"><label style="margin-bottom:0;">Meta de vendas por mês</label><span class="range-value" id="meta-valor">30 vendas</span></div>
+        <input type="range" id="calc-meta" min="1" max="500" value="30" step="1" oninput="atualizarMeta();calcular()" />
       </div>
     </div>
-
     <div class="calc-resultado" id="calc-resultado">
       <div class="calc-stats">
-        <div class="calc-stat-neutro">
-          <div class="calc-label">💸 Taxa ML</div>
-          <div class="calc-valor-amarelo" id="res-taxa-valor">R$ 0,00</div>
-        </div>
-        <div id="res-lucro-card" class="calc-stat-positivo">
-          <div class="calc-label">✅ Lucro líquido</div>
-          <div class="calc-valor-verde" id="res-lucro">R$ 0,00</div>
-        </div>
-        <div id="res-margem-card" class="calc-stat-neutro">
-          <div class="calc-label">📊 Margem</div>
-          <div id="res-margem" class="calc-valor-amarelo">0%</div>
-        </div>
-        <div class="calc-stat-neutro">
-          <div class="calc-label">📦 Lucro/mês</div>
-          <div class="calc-valor-amarelo" id="res-mensal">R$ 0,00</div>
-        </div>
+        <div class="calc-stat-neutro"><div class="calc-label">💸 Taxa ML</div><div class="calc-valor-amarelo" id="res-taxa-valor">R$ 0,00</div></div>
+        <div id="res-lucro-card" class="calc-stat-positivo"><div class="calc-label">✅ Lucro líquido</div><div class="calc-valor-verde" id="res-lucro">R$ 0,00</div></div>
+        <div id="res-margem-card" class="calc-stat-neutro"><div class="calc-label">📊 Margem</div><div id="res-margem" class="calc-valor-amarelo">0%</div></div>
+        <div class="calc-stat-neutro"><div class="calc-label">📦 Lucro/mês</div><div class="calc-valor-amarelo" id="res-mensal">R$ 0,00</div></div>
       </div>
-
       <div class="calc-breakdown">
-        <div class="calc-linha">
-          <span class="calc-linha-label">Preço de venda</span>
-          <span class="calc-linha-valor verde" id="bd-preco">+ R$ 0,00</span>
-        </div>
-        <div class="calc-linha">
-          <span class="calc-linha-label">Custo do produto</span>
-          <span class="calc-linha-valor vermelho" id="bd-custo">- R$ 0,00</span>
-        </div>
-        <div class="calc-linha">
-          <span class="calc-linha-label">Taxa do ML</span>
-          <span class="calc-linha-valor vermelho" id="bd-taxa">- R$ 0,00</span>
-        </div>
-        <div class="calc-linha">
-          <span class="calc-linha-label">Frete de envio</span>
-          <span class="calc-linha-valor vermelho" id="bd-frete">- R$ 0,00</span>
-        </div>
-        <div class="calc-linha">
-          <span class="calc-linha-label">Embalagem</span>
-          <span class="calc-linha-valor vermelho" id="bd-embalagem">- R$ 0,00</span>
-        </div>
-        <div class="calc-linha" style="margin-top:4px; padding-top:10px; border-top: 1px solid #2a2a3e;">
-          <span class="calc-linha-label" style="color:#c8c8e0; font-weight:600;">Lucro líquido por venda</span>
-          <span class="calc-linha-valor amarelo" id="bd-lucro" style="font-size:15px;">R$ 0,00</span>
-        </div>
+        <div class="calc-linha"><span class="calc-linha-label">Preço de venda</span><span class="calc-linha-valor verde" id="bd-preco">+ R$ 0,00</span></div>
+        <div class="calc-linha"><span class="calc-linha-label">Custo do produto</span><span class="calc-linha-valor vermelho" id="bd-custo">- R$ 0,00</span></div>
+        <div class="calc-linha"><span class="calc-linha-label">Taxa do ML</span><span class="calc-linha-valor vermelho" id="bd-taxa">- R$ 0,00</span></div>
+        <div class="calc-linha"><span class="calc-linha-label">Frete de envio</span><span class="calc-linha-valor vermelho" id="bd-frete">- R$ 0,00</span></div>
+        <div class="calc-linha"><span class="calc-linha-label">Embalagem</span><span class="calc-linha-valor vermelho" id="bd-embalagem">- R$ 0,00</span></div>
+        <div class="calc-linha" style="margin-top:4px;padding-top:10px;border-top:1px solid #2a2a3e;"><span class="calc-linha-label" style="color:#c8c8e0;font-weight:600;">Lucro líquido por venda</span><span class="calc-linha-valor amarelo" id="bd-lucro" style="font-size:15px;">R$ 0,00</span></div>
       </div>
-
       <div id="veredito-calc"></div>
     </div>
   </div>
-  <!-- ABA 4: GERADOR DE TÍTULO + DESCRIÇÃO -->
-<div class="tab-content" id="tab-gerador">
-  <div class="card">
-    <label>Nome do produto</label>
-    <input type="text" id="gen-produto" placeholder="Ex: Fone de ouvido bluetooth sem fio" />
-    <label>Público-alvo</label>
-    <input type="text" id="gen-publico" placeholder="Ex: gamers, estudantes, mães, esportistas..." />
-    <label>Principais características</label>
-    <input type="text" id="gen-features" placeholder="Ex: resistente à água, bateria 20h, cancelamento de ruído..." />
-    <button class="primary" id="btn-gerar" onclick="gerarAnuncio()">Gerar anúncio →</button>
-  </div>
-  <div class="loading" id="loading-gerador">
-    <div class="loading-dots"><span></span><span></span><span></span></div>
-    <p>Gerando anúncio com IA...</p>
-  </div>
-  <div class="erro" id="erro-gerador"></div>
-  <div id="resultado-gerador" style="display:none;"></div>
-</div>
 
-<!-- ABA 5: GERADOR DE RESPOSTA PARA RECLAMAÇÃO -->
-<div class="tab-content" id="tab-reclamacao">
-  <div class="card">
-    <label>Reclamação do cliente</label>
-    <textarea id="rec-texto" placeholder="Cole aqui a reclamação ou mensagem do cliente..." style="width:100%;padding:12px 14px;font-size:14px;border:1px solid #1e1e2e;border-radius:10px;background:#0d0d14;color:#c8c8e0;font-family:Space Grotesk,sans-serif;resize:vertical;min-height:120px;margin-bottom:1rem;transition:border-color 0.2s;"></textarea>
-    <div class="grid-2">
-      <div>
-        <label>Tom da resposta</label>
-        <select id="rec-tom">
-          <option value="profissional e empático">Profissional e empático</option>
-          <option value="formal">Formal</option>
-          <option value="amigável e descontraído">Amigável e descontraído</option>
-        </select>
-      </div>
-      <div>
-        <label>Tipo de problema</label>
-        <select id="rec-tipo">
-          <option value="produto com defeito">Produto com defeito</option>
-          <option value="atraso na entrega">Atraso na entrega</option>
-          <option value="produto diferente do anúncio">Diferente do anúncio</option>
-          <option value="produto não chegou">Produto não chegou</option>
-          <option value="cliente insatisfeito">Cliente insatisfeito</option>
-          <option value="outro">Outro</option>
-        </select>
-      </div>
+  <!-- ABA 4 -->
+  <div class="tab-content" id="tab-gerador">
+    <div class="card">
+      <label>Nome do produto</label><input type="text" id="gen-produto" placeholder="Ex: Fone de ouvido bluetooth sem fio" />
+      <label>Público-alvo</label><input type="text" id="gen-publico" placeholder="Ex: gamers, estudantes, mães, esportistas..." />
+      <label>Principais características</label><input type="text" id="gen-features" placeholder="Ex: resistente à água, bateria 20h, cancelamento de ruído..." />
+      <button class="primary" id="btn-gerar" onclick="gerarAnuncio()">Gerar anúncio →</button>
     </div>
-    <button class="primary" id="btn-responder" onclick="gerarResposta()">Gerar resposta →</button>
+    <div class="loading" id="loading-gerador"><div class="loading-dots"><span></span><span></span><span></span></div><p>Gerando anúncio com IA...</p></div>
+    <div class="erro" id="erro-gerador"></div>
+    <div id="resultado-gerador" style="display:none;"></div>
   </div>
-  <div class="loading" id="loading-reclamacao">
-    <div class="loading-dots"><span></span><span></span><span></span></div>
-    <p>Gerando resposta com IA...</p>
-  </div>
-  <div class="erro" id="erro-reclamacao"></div>
-  <div id="resultado-reclamacao" style="display:none;"></div>
-</div>
 
-<!-- ABA 6: GERADOR DE PALAVRAS-CHAVE -->
-<div class="tab-content" id="tab-palavras">
-  <div class="card">
-    <label>Produto</label>
-    <input type="text" id="pw-produto" placeholder="Ex: Mochila escolar juvenil, Tênis corrida masculino..." />
-    <label>Nicho / Categoria</label>
-    <input type="text" id="pw-nicho" placeholder="Ex: moda, esporte, tecnologia, casa, pet..." />
-    <button class="primary" id="btn-palavras" onclick="gerarPalavras()">Gerar palavras-chave →</button>
+  <!-- ABA 5 -->
+  <div class="tab-content" id="tab-reclamacao">
+    <div class="card">
+      <label>Reclamação do cliente</label>
+      <textarea id="rec-texto" placeholder="Cole aqui a reclamação ou mensagem do cliente..." style="width:100%;padding:12px 14px;font-size:14px;border:1px solid #1e1e2e;border-radius:10px;background:#0d0d14;color:#c8c8e0;font-family:Space Grotesk,sans-serif;resize:vertical;min-height:120px;margin-bottom:1rem;transition:border-color 0.2s;"></textarea>
+      <div class="grid-2">
+        <div><label>Tom da resposta</label><select id="rec-tom"><option value="profissional e empático">Profissional e empático</option><option value="formal">Formal</option><option value="amigável e descontraído">Amigável e descontraído</option></select></div>
+        <div><label>Tipo de problema</label><select id="rec-tipo"><option value="produto com defeito">Produto com defeito</option><option value="atraso na entrega">Atraso na entrega</option><option value="produto diferente do anúncio">Diferente do anúncio</option><option value="produto não chegou">Produto não chegou</option><option value="cliente insatisfeito">Cliente insatisfeito</option><option value="outro">Outro</option></select></div>
+      </div>
+      <button class="primary" id="btn-responder" onclick="gerarResposta()">Gerar resposta →</button>
+    </div>
+    <div class="loading" id="loading-reclamacao"><div class="loading-dots"><span></span><span></span><span></span></div><p>Gerando resposta com IA...</p></div>
+    <div class="erro" id="erro-reclamacao"></div>
+    <div id="resultado-reclamacao" style="display:none;"></div>
   </div>
-  <div class="loading" id="loading-palavras">
-    <div class="loading-dots"><span></span><span></span><span></span></div>
-    <p>Gerando palavras-chave com IA...</p>
+
+  <!-- ABA 6 -->
+  <div class="tab-content" id="tab-palavras">
+    <div class="card">
+      <label>Produto</label><input type="text" id="pw-produto" placeholder="Ex: Mochila escolar juvenil, Tênis corrida masculino..." />
+      <label>Nicho / Categoria</label><input type="text" id="pw-nicho" placeholder="Ex: moda, esporte, tecnologia, casa, pet..." />
+      <button class="primary" id="btn-palavras" onclick="gerarPalavras()">Gerar palavras-chave →</button>
+    </div>
+    <div class="loading" id="loading-palavras"><div class="loading-dots"><span></span><span></span><span></span></div><p>Gerando palavras-chave com IA...</p></div>
+    <div class="erro" id="erro-palavras"></div>
+    <div id="resultado-palavras" style="display:none;"></div>
   </div>
-  <div class="erro" id="erro-palavras"></div>
-  <div id="resultado-palavras" style="display:none;"></div>
-</div>
 
   <div class="footer">Revenda IA — powered by Node.js + OpenRouter</div>
 </div>
 
 <script>
-  let favoritos = [];
-  let planoAtual = 'gratuito';
+const BASE_URL = 'https://ferramentas-ia-production.up.railway.app';
+const token = localStorage.getItem('token');
+let favoritos = [];
+let planoAtual = 'gratuito';
 
-  function gerarLinks(nomeProduto) {
-    const busca = encodeURIComponent(nomeProduto);
-    const links = [
-      { nome: 'AliExpress', url: 'https://pt.aliexpress.com/wholesale?SearchText=' + busca, desc: 'Importado direto da China — preço mais baixo', icon: '🛒' },
-      { nome: 'Shopee', url: 'https://shopee.com.br/search?keyword=' + busca, desc: 'Fornecedores nacionais e importados', icon: '🛍️' },
-      { nome: 'Alibaba', url: 'https://www.alibaba.com/trade/search?SearchText=' + busca, desc: 'Atacado direto de fábricas chinesas', icon: '🏭' },
-      { nome: 'Mercado Livre', url: 'https://lista.mercadolivre.com.br/' + busca, desc: 'Compare preços e veja demanda real', icon: '🟡' }
-    ];
-    if (planoAtual === 'pro') {
-      links.push(
-        { nome: '1688', url: 'https://s.1688.com/selloffer/offer_search.htm?keywords=' + busca, desc: '⭐ PRO — Atacado chinês direto, preço de fábrica', icon: '🇨🇳' },
-        { nome: 'Shopee Atacado', url: 'https://shopee.com.br/search?keyword=' + busca + '%20atacado', desc: '⭐ PRO — Atacado nacional na Shopee', icon: '📦' },
-        { nome: 'ML Atacado', url: 'https://lista.mercadolivre.com.br/' + busca + '-atacado', desc: '⭐ PRO — Atacado direto no ML', icon: '🟡' },
-        { nome: 'Magalu', url: 'https://www.magazineluiza.com.br/busca/' + busca + '/', desc: '⭐ PRO — Magazine Luiza para comparar preços', icon: '🛒' }
-      );
-    }
-    return links;
-  }
+// ✅ Redireciona se não tiver token
+if (!token) window.location.href = 'login.html';
 
-  function mudarTab(tab, btn) {
-    const abasPro = ['calculadora', 'gerador', 'reclamacao', 'palavras'];
-    
-    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('ativo'); });
-    document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('ativo'); });
-    btn.classList.add('ativo');
-    document.getElementById('tab-' + tab).classList.add('ativo');
+// ✅ Verifica token no servidor — usa rota /me (existe no server.js)
+async function verificarAcesso() {
+  try {
+    const res = await fetch(BASE_URL + '/me', { headers: { 'authorization': token } });
+    const data = await res.json();
+    if (!data.sucesso) { localStorage.removeItem('token'); window.location.href = 'login.html'; return; }
+    localStorage.setItem('userName', data.nome);
+    document.getElementById('navbar-user').textContent = data.nome;
+  } catch (e) { console.log('Erro ao verificar acesso:', e.message); }
+}
 
-    if (abasPro.includes(tab) && planoAtual !== 'pro') {
-      document.getElementById('tab-' + tab).innerHTML =
-        '<div style="text-align:center;padding:3rem 1rem;background:#13131a;border:1px solid rgba(250,204,21,0.2);border-radius:16px;margin-top:1rem;">' +
-        '<div style="font-size:40px;margin-bottom:12px;">⭐</div>' +
-        '<div style="font-size:18px;font-weight:600;color:#fff;margin-bottom:8px;">Recurso exclusivo Pro</div>' +
-        '<div style="font-size:14px;color:#666680;margin-bottom:1.5rem;">Esta ferramenta está disponível apenas para assinantes do plano Pro.</div>' +
-        '<a href="https://ferramentas-ia-production.up.railway.app/index.html?bypass=1#precos" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#facc15,#f97316);color:#0a0a0f;font-weight:600;border-radius:10px;text-decoration:none;font-size:14px;">Ver planos →</a>' +
-        '</div>';
-    }
-  }
-
-  // CALCULADORA
-  function fmt(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
-
-  function atualizarTaxa() {
-    document.getElementById('taxa-valor').textContent = document.getElementById('calc-taxa').value + '%';
-  }
-
-  function atualizarMeta() {
-    document.getElementById('meta-valor').textContent = document.getElementById('calc-meta').value + ' vendas';
-  }
-
-  function calcular() {
-    const preco = parseFloat(document.getElementById('calc-preco').value) || 0;
-    const custo = parseFloat(document.getElementById('calc-custo').value) || 0;
-    const frete = parseFloat(document.getElementById('calc-frete').value) || 0;
-    const embalagem = parseFloat(document.getElementById('calc-embalagem').value) || 0;
-    const taxa = parseFloat(document.getElementById('calc-taxa').value) || 16;
-    const meta = parseInt(document.getElementById('calc-meta').value) || 30;
-
-    if (preco === 0) return;
-
-    const taxaValor = preco * (taxa / 100);
-    const lucro = preco - custo - taxaValor - frete - embalagem;
-    const margem = preco > 0 ? (lucro / preco) * 100 : 0;
-    const mensal = lucro * meta;
-
-    document.getElementById('calc-resultado').style.display = 'block';
-    document.getElementById('res-taxa-valor').textContent = fmt(taxaValor);
-    document.getElementById('res-lucro').textContent = fmt(lucro);
-    document.getElementById('res-margem').textContent = margem.toFixed(1) + '%';
-    document.getElementById('res-mensal').textContent = fmt(mensal);
-
-    document.getElementById('bd-preco').textContent = '+ ' + fmt(preco);
-    document.getElementById('bd-custo').textContent = '- ' + fmt(custo);
-    document.getElementById('bd-taxa').textContent = '- ' + fmt(taxaValor);
-    document.getElementById('bd-frete').textContent = '- ' + fmt(frete);
-    document.getElementById('bd-embalagem').textContent = '- ' + fmt(embalagem);
-    document.getElementById('bd-lucro').textContent = fmt(lucro);
-
-    // Cores dinâmicas
-    const lucroEl = document.getElementById('res-lucro');
-    const lucroCard = document.getElementById('res-lucro-card');
-    const margemEl = document.getElementById('res-margem');
-    const margemCard = document.getElementById('res-margem-card');
-    const bdLucro = document.getElementById('bd-lucro');
-
-    if (lucro > 0) {
-      lucroEl.className = 'calc-valor-verde';
-      lucroCard.className = 'calc-stat-positivo';
-      bdLucro.className = 'calc-linha-valor verde';
-    } else {
-      lucroEl.className = 'calc-valor-vermelho';
-      lucroCard.className = 'calc-stat-negativo';
-      bdLucro.className = 'calc-linha-valor vermelho';
-    }
-
-    if (margem >= 20) {
-      margemEl.className = 'calc-valor-verde';
-      margemCard.className = 'calc-stat-positivo';
-    } else if (margem >= 10) {
-      margemEl.className = 'calc-valor-amarelo';
-      margemCard.className = 'calc-stat-neutro';
-    } else {
-      margemEl.className = 'calc-valor-vermelho';
-      margemCard.className = 'calc-stat-negativo';
-    }
-
-    // Veredito
-    let veredito = '';
-    if (lucro <= 0) {
-      veredito = '<div class="veredito-nao"><div class="veredito-emoji">❌</div><div><div class="veredito-titulo">Prejuízo!</div><div class="veredito-desc">Com esses números você está perdendo dinheiro por venda. Aumente o preço de venda ou reduza os custos.</div></div></div>';
-    } else if (margem < 10) {
-      veredito = '<div class="veredito-nao"><div class="veredito-emoji">⚠️</div><div><div class="veredito-titulo">Margem muito baixa</div><div class="veredito-desc">Margem abaixo de 10% é arriscada. Qualquer problema (devolução, taxa extra) pode virar prejuízo.</div></div></div>';
-    } else if (margem < 20) {
-      veredito = '<div class="veredito-sim" style="background:rgba(250,204,21,0.08);border-color:rgba(250,204,21,0.25);"><div class="veredito-emoji">🟡</div><div><div class="veredito-titulo" style="color:#facc15;">Margem aceitável</div><div class="veredito-desc">Dá para trabalhar, mas tente negociar melhor com o fornecedor para aumentar a margem.</div></div></div>';
-    } else {
-      veredito = '<div class="veredito-sim"><div class="veredito-emoji">✅</div><div><div class="veredito-titulo">Boa margem!</div><div class="veredito-desc">Margem acima de 20% é excelente para revenda no ML. Vale a pena investir nesse produto!</div></div></div>';
-    }
-    document.getElementById('veredito-calc').innerHTML = veredito;
-  }
-
-  // ABA 1
-  async function analisar() {
-    const categoria = document.getElementById('categoria').value.trim();
-    const capital = document.getElementById('capital').value;
-    const modelo = document.getElementById('modelo').value;
-    const meta = document.getElementById('meta').value;
-    if (!categoria) { mostrarErro('erro', 'Digite uma categoria de produto.'); return; }
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('resultado-container').style.display = 'none';
-    document.getElementById('favoritos-section').style.display = 'none';
-    document.getElementById('erro').style.display = 'none';
-    document.getElementById('banner-limite').style.display = 'none';
-    document.getElementById('btn-analisar').disabled = true;
-
-    const prompt = 'Você é um especialista em e-commerce brasileiro e Mercado Livre.\n\nAnalise a categoria "' + categoria + '" e sugira 4 produtos com alta demanda e boa margem de lucro para revender no Mercado Livre.\n\nConsidere:\n- Capital disponível: ' + capital + '\n- Modelo: ' + modelo + '\n- Meta de vendas por mês: ' + meta + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois, neste formato exato:\n{\n  "produtos": [\n    {\n      "nome": "Nome do produto",\n      "demanda": "Alta",\n      "concorrencia": "Média",\n      "tendencia": "Crescendo",\n      "margem": "30-50%",\n      "descricao": "Por que esse produto é uma boa oportunidade em 2 frases.",\n      "dica": "Dica prática para se destacar na venda desse produto.",\n      "onde_pesquisar": "Dica rápida de como pesquisar o melhor preço nos fornecedores."\n    }\n  ]\n}\n\nValores válidos para tendencia: "Crescendo", "Estável", "Caindo"';
-
-    try {
-      let tentativas = 0;
-      let response, data;
-      while (tentativas < 3) {
-        try {
-          response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
-            method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }, body: JSON.stringify({ prompt })
-          });
-          if (response.status === 403) {
-            const erro = await response.json();
-            if (erro.limite) { document.getElementById('banner-limite').style.display = 'block'; document.getElementById('btn-analisar').disabled = true; document.getElementById('contador-analises').textContent = '0 restantes hoje'; return; }
-          }
-          data = await response.json();
-          if (data.choices) break;
-          tentativas++;
-        } catch(e) { tentativas++; }
-      }
-      if (!data || !data.choices) { mostrarErro('erro', 'Erro na API. Tente novamente.'); return; }
-      const texto = data.choices[0].message.content;
-      const textoLimpo = texto.replace(/```json|```/g, '').trim();
-      let r;
-      try { r = JSON.parse(textoLimpo); } catch(e) {
-        const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) { mostrarErro('erro', 'Erro ao processar resposta. Tente novamente.'); return; }
-        try { r = JSON.parse(jsonMatch[0]); } catch(e2) { mostrarErro('erro', 'Erro ao processar resposta. Tente novamente.'); return; }
-      }
-      if (!r || !r.produtos) { mostrarErro('erro', 'Resposta inválida. Tente novamente.'); return; }
-      mostrarResultados(r.produtos);
-      carregarPlano();
-    } catch (e) { console.log('ERRO analisar:', e.name, e.message, e.stack); mostrarErro('erro', 'Erro de conexão ou resposta inválida. Tente novamente.'); }
-    finally { document.getElementById('loading').style.display = 'none'; document.getElementById('btn-analisar').disabled = false; }
-  }
-
-  // ABA 2
-  async function analisarEspecifico() {
-    const produto = document.getElementById('produto-especifico').value.trim();
-    if (!produto) { mostrarErro('erro-especifico', 'Digite o nome de um produto.'); return; }
-    document.getElementById('loading-especifico').style.display = 'block';
-    document.getElementById('resultado-especifico').style.display = 'none';
-    document.getElementById('erro-especifico').style.display = 'none';
-    document.getElementById('banner-limite').style.display = 'none';
-    document.getElementById('btn-analisar-especifico').disabled = true;
-
-    const prompt = 'Você é um especialista em e-commerce brasileiro e Mercado Livre.\n\nIMPORTANTE: Responda SOMENTE o JSON abaixo, sem explicações, sem markdown, sem texto adicional.\n\nAnalise o produto específico "' + produto + '" para revenda no Mercado Livre Brasil e responda APENAS este JSON:\n{\n  "nome": "Nome completo do produto",\n  "custo_fornecedor": "R$ XX a R$ XX",\n  "preco_ml": "R$ XX a R$ XX",\n  "margem": "XX% a XX%",\n  "lucro_unitario": "R$ XX a R$ XX",\n  "volume_vendas": "XXX a XXX unidades/mês no ML",\n  "concorrencia": "Alta",\n  "tendencia": "Crescendo",\n  "veredito": "sim",\n  "veredito_titulo": "Vale a pena vender!",\n  "veredito_motivo": "Explicação em 2 frases.",\n  "ponto_forte": "Principal vantagem.",\n  "ponto_fraco": "Principal risco.",\n  "dica_destaque": "Como se destacar."\n}\n\nValores válidos para veredito: "sim" ou "nao"\nValores válidos para concorrencia: "Baixa", "Média", "Alta"\nValores válidos para tendencia: "Crescendo", "Estável", "Caindo"';
-
-    try {
-      let tentativas = 0;
-      let response, data;
-      while (tentativas < 3) {
-        try {
-          response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
-            method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }, body: JSON.stringify({ prompt })
-          });
-          if (response.status === 403) {
-            const erro = await response.json();
-            if (erro.limite) { document.getElementById('banner-limite').style.display = 'block'; document.getElementById('btn-analisar-especifico').disabled = true; document.getElementById('contador-analises').textContent = '0 restantes hoje'; return; }
-          }
-          data = await response.json();
-          if (data.choices) break;
-          tentativas++;
-        } catch(e) { tentativas++; }
-      }
-      if (!data || !data.choices) { mostrarErro('erro-especifico', 'Erro na API. Tente novamente.'); return; }
-      const texto = data.choices[0].message.content;
-      const textoLimpo = texto.replace(/```json|```/g, '').trim();
-      let r;
-      try { r = JSON.parse(textoLimpo); } catch(e) {
-        const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) { mostrarErro('erro-especifico', 'Erro ao processar resposta. Tente novamente.'); return; }
-        try { r = JSON.parse(jsonMatch[0]); } catch(e2) { mostrarErro('erro-especifico', 'Erro ao processar resposta. Tente novamente.'); return; }
-      }
-      if (!r || !r.custo_fornecedor) { mostrarErro('erro-especifico', 'Resposta inválida. Tente novamente.'); return; }
-      mostrarResultadoEspecifico(r);
-      carregarPlano();
-    } catch (e) { mostrarErro('erro-especifico', 'Erro de conexão. Tente novamente.'); }
-    finally { document.getElementById('loading-especifico').style.display = 'none'; document.getElementById('btn-analisar-especifico').disabled = false; }
-  }
-
-  function mostrarResultadoEspecifico(r) {
-    const container = document.getElementById('resultado-especifico');
-    const links = gerarLinks(r.nome);
-    const linksHtml = links.map(function(l) { return '<a href="' + l.url + '" target="_blank" class="fornecedor-link"><div class="fornecedor-icon">' + l.icon + '</div><div class="fornecedor-info"><div class="fornecedor-nome">' + l.nome + '</div><div class="fornecedor-desc">' + l.desc + '</div></div><div class="fornecedor-arrow">↗</div></a>'; }).join('');
-    const veredito = r.veredito === 'sim';
-    const tendEmoji = r.tendencia === 'Crescendo' ? '↑' : r.tendencia === 'Caindo' ? '↓' : '→';
-    const concClass = r.concorrencia === 'Baixa' ? 'badge-alta' : r.concorrencia === 'Alta' ? 'badge-baixa' : 'badge-media';
-    const tendClass = r.tendencia === 'Crescendo' ? 'badge-tendencia-up' : r.tendencia === 'Caindo' ? 'badge-tendencia-down' : 'badge-tendencia-estavel';
-    container.innerHTML = '<div class="' + (veredito ? 'veredito-sim' : 'veredito-nao') + '"><div class="veredito-emoji">' + (veredito ? '✅' : '❌') + '</div><div><div class="veredito-titulo">' + r.veredito_titulo + '</div><div class="veredito-desc">' + r.veredito_motivo + '</div></div></div><div class="produto-card"><div class="produto-nome" style="margin-bottom:12px;">' + r.nome + '</div><div class="badges" style="margin-bottom:14px;"><span class="badge-tag ' + concClass + '">Concorrência: ' + r.concorrencia + '</span><span class="badge-tag ' + tendClass + '">' + tendEmoji + ' ' + r.tendencia + '</span></div><div class="stats-grid-4"><div class="stat"><div class="stat-label">💰 Custo</div><div class="stat-valor" style="font-size:12px;">' + r.custo_fornecedor + '</div></div><div class="stat"><div class="stat-label">💵 Preço ML</div><div class="stat-valor" style="font-size:12px;">' + r.preco_ml + '</div></div><div class="stat"><div class="stat-label">📊 Margem</div><div class="stat-valor">' + r.margem + '</div></div><div class="stat"><div class="stat-label">💸 Lucro unit.</div><div class="stat-valor" style="font-size:12px;">' + r.lucro_unitario + '</div></div></div><div class="stat" style="margin-bottom:14px;"><div class="stat-label">📦 Volume de vendas estimado no ML</div><div class="stat-valor" style="font-size:13px;margin-top:4px;">' + r.volume_vendas + '</div></div><div class="secoes"><div class="secao"><div class="secao-titulo">💪 Ponto forte</div><div class="secao-conteudo">' + r.ponto_forte + '</div></div><div class="secao"><div class="secao-titulo">⚠️ Ponto fraco</div><div class="secao-conteudo">' + r.ponto_fraco + '</div></div><div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🎯 Como se destacar</div><div class="secao-conteudo">' + r.dica_destaque + '</div></div><div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🏭 Pesquise o preço real</div><div class="fornecedor-links">' + linksHtml + '</div></div></div></div><div class="aviso">⚠ Estimativas geradas por IA. Pesquise os preços reais nos links acima antes de investir.</div>';
-    container.style.display = 'block';
-  }
-
-  function getBadgeClass(tipo, valor) {
-    if (!valor) return 'badge-media';
-    const v = valor.toLowerCase();
-    if (tipo === 'concorrencia') { if (v.includes('baixa')) return 'badge-alta'; if (v.includes('alta')) return 'badge-baixa'; return 'badge-media'; }
-    if (v.includes('alta') || v.includes('alto')) return 'badge-alta';
-    if (v.includes('baixa') || v.includes('baixo')) return 'badge-baixa';
-    return 'badge-media';
-  }
-  function getTendenciaClass(t) { if (!t) return 'badge-tendencia-estavel'; const v = t.toLowerCase(); if (v.includes('crescendo')) return 'badge-tendencia-up'; if (v.includes('caindo')) return 'badge-tendencia-down'; return 'badge-tendencia-estavel'; }
-  function getTendenciaEmoji(t) { if (!t) return '→'; const v = t.toLowerCase(); if (v.includes('crescendo')) return '↑'; if (v.includes('caindo')) return '↓'; return '→'; }
-
-  function toggleFavorito(nome, btnEl, cardEl) {
-    const idx = favoritos.indexOf(nome);
-    if (idx === -1) { favoritos.push(nome); btnEl.classList.add('ativo'); cardEl.classList.add('favoritado'); }
-    else { favoritos.splice(idx, 1); btnEl.classList.remove('ativo'); cardEl.classList.remove('favoritado'); }
-    atualizarFavoritos();
-  }
-  function removerFavorito(nome) {
-    favoritos = favoritos.filter(function(f) { return f !== nome; });
-    document.querySelectorAll('.btn-fav').forEach(function(btn) { if (btn.dataset.nome === nome) { btn.classList.remove('ativo'); btn.closest('.produto-card').classList.remove('favoritado'); } });
-    atualizarFavoritos();
-  }
-  function atualizarFavoritos() {
-    const section = document.getElementById('favoritos-section');
-    const lista = document.getElementById('favoritos-lista');
-    const count = document.getElementById('fav-count');
-    if (favoritos.length === 0) { section.style.display = 'none'; return; }
-    section.style.display = 'block';
-    count.textContent = favoritos.length + ' produto(s)';
-    lista.innerHTML = favoritos.map(function(nome) { return '<span class="fav-tag">' + nome + ' <button onclick="removerFavorito(\'' + nome + '\')" title="Remover">×</button></span>'; }).join('');
-  }
-  function mostrarResultados(produtos) {
-    const container = document.getElementById('resultado-container');
-    container.innerHTML = '';
-    produtos.forEach(function(p, i) {
-      const div = document.createElement('div');
-      div.className = 'produto-card'; div.id = 'produto-card-' + i;
-      const links = gerarLinks(p.nome);
-      const linksHtml = links.map(function(l) { return '<a href="' + l.url + '" target="_blank" class="fornecedor-link"><div class="fornecedor-icon">' + l.icon + '</div><div class="fornecedor-info"><div class="fornecedor-nome">' + l.nome + '</div><div class="fornecedor-desc">' + l.desc + '</div></div><div class="fornecedor-arrow">↗</div></a>'; }).join('');
-      div.innerHTML = '<div class="produto-top"><div><div class="produto-nome">' + p.nome + '</div><div class="badges" style="margin-top:6px;"><span class="badge-tag ' + getBadgeClass('demanda', p.demanda) + '">Demanda: ' + p.demanda + '</span><span class="badge-tag ' + getBadgeClass('concorrencia', p.concorrencia) + '">Concorrência: ' + p.concorrencia + '</span><span class="badge-tag ' + getTendenciaClass(p.tendencia) + '">' + getTendenciaEmoji(p.tendencia) + ' ' + (p.tendencia || 'Estável') + '</span></div></div><button class="btn-fav" data-nome="' + p.nome + '" onclick="toggleFavorito(\'' + p.nome + '\', this, document.getElementById(\'produto-card-' + i + '\'))" title="Favoritar">⭐</button></div><div class="stats-grid"><div class="stat"><div class="stat-label">Margem estimada</div><div class="stat-valor">' + p.margem + '</div></div><div class="stat"><div class="stat-label">Tendência</div><div class="stat-valor" style="font-size:13px;">' + getTendenciaEmoji(p.tendencia) + ' ' + (p.tendencia || 'Estável') + '</div></div></div><div class="secoes"><div class="secao"><div class="secao-titulo">💡 Por que vender?</div><div class="secao-conteudo">' + p.descricao + '</div></div><div class="secao"><div class="secao-titulo">🎯 Dica para se destacar</div><div class="secao-conteudo">' + p.dica + '</div></div><div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🏭 Pesquise o preço real</div><div class="fornecedor-links">' + linksHtml + '</div><div style="margin-top:8px;font-size:12px;color:#555570;">💡 ' + (p.onde_pesquisar || '') + '</div></div></div>';
-      container.appendChild(div);
-    });
-    const aviso = document.createElement('div'); aviso.className = 'aviso'; aviso.textContent = '⚠ Análise gerada por IA. Use os links acima para pesquisar os preços reais antes de investir.'; container.appendChild(aviso);
-    container.style.display = 'block';
-  }
-  // ABA 4 — GERADOR DE ANÚNCIO
-async function gerarAnuncio() {
-  const produto = document.getElementById('gen-produto').value.trim();
-  const publico = document.getElementById('gen-publico').value.trim();
-  const features = document.getElementById('gen-features').value.trim();
-  if (!produto) { mostrarErro('erro-gerador', 'Digite o nome do produto.'); return; }
-
-  document.getElementById('loading-gerador').style.display = 'block';
-  document.getElementById('resultado-gerador').style.display = 'none';
-  document.getElementById('erro-gerador').style.display = 'none';
+// ✅ Função central de chamada — usa data.analise (não data.choices)
+async function chamarAPI(prompt, loadingId, erroId, btnId) {
+  document.getElementById(loadingId).style.display = 'block';
+  document.getElementById(erroId).style.display = 'none';
   document.getElementById('banner-limite').style.display = 'none';
-  document.getElementById('btn-gerar').disabled = true;
-
-  const prompt = 'Você é um especialista em copywriting para Mercado Livre Brasil.\n\nCrie um anúncio completo para o produto: "' + produto + '"\nPúblico-alvo: ' + (publico || 'geral') + '\nCaracterísticas: ' + (features || 'não informadas') + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois:\n{\n  "titulo": "Título otimizado com até 60 caracteres com palavras-chave do ML",\n  "titulo_chars": 55,\n  "subtitulo": "Subtítulo complementar de até 60 caracteres",\n  "descricao": "Descrição completa do produto com 3 a 5 parágrafos. Use linguagem persuasiva, destaque benefícios, inclua especificações e finalize com chamada para ação.",\n  "palavras_chave": ["palavra1", "palavra2", "palavra3", "palavra4", "palavra5"],\n  "dica_titulo": "Dica de por que esse título vai ranquear bem no ML."\n}';
+  if (btnId) document.getElementById(btnId).disabled = true;
 
   try {
-    const response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }, body: JSON.stringify({ prompt })
+    const response = await fetch(BASE_URL + '/analisar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'authorization': token },
+      body: JSON.stringify({ prompt })
     });
+
     if (response.status === 403) {
       const erro = await response.json();
-      if (erro.limite) { document.getElementById('banner-limite').style.display = 'block'; document.getElementById('btn-gerar').disabled = true; document.getElementById('contador-analises').textContent = '0 restantes hoje'; return; }
+      if (erro.limite) {
+        document.getElementById('banner-limite').style.display = 'block';
+        document.getElementById('contador-analises').textContent = '0 restantes hoje';
+        if (btnId) document.getElementById(btnId).disabled = true;
+        return null;
+      }
     }
+
+    if (response.status === 401) { localStorage.removeItem('token'); window.location.href = 'login.html'; return null; }
+
     const data = await response.json();
-    if (!data.choices) { mostrarErro('erro-gerador', 'Erro na API. Tente novamente.'); return; }
-    const texto = data.choices[0].message.content;
-    const textoLimpo = texto.replace(/```json|```/g, '').trim();
-    let r;
-    try { r = JSON.parse(textoLimpo); } catch(e) {
-      const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) { mostrarErro('erro-gerador', 'Erro ao processar resposta. Tente novamente.'); return; }
-      try { r = JSON.parse(jsonMatch[0]); } catch(e2) { mostrarErro('erro-gerador', 'Erro ao processar resposta. Tente novamente.'); return; }
+
+    if (!data.sucesso) {
+      document.getElementById(erroId).textContent = data.mensagem || 'Erro na API. Tente novamente.';
+      document.getElementById(erroId).style.display = 'block';
+      return null;
     }
-    if (!r || !r.titulo) { mostrarErro('erro-gerador', 'Resposta inválida. Tente novamente.'); return; }
-    mostrarResultadoGerador(r);
-    carregarPlano();
-  } catch (e) { mostrarErro('erro-gerador', 'Erro de conexão. Tente novamente.'); }
-  finally { document.getElementById('loading-gerador').style.display = 'none'; document.getElementById('btn-gerar').disabled = false; }
+
+    // ✅ data.analise contém o texto da IA
+    const texto = data.analise;
+    const textoLimpo = texto.replace(/```json|```/g, '').trim();
+    try {
+      return JSON.parse(textoLimpo);
+    } catch (e) {
+      const match = textoLimpo.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+      if (!match) { document.getElementById(erroId).textContent = 'Erro ao processar resposta. Tente novamente.'; document.getElementById(erroId).style.display = 'block'; return null; }
+      try { return JSON.parse(match[0]); } catch (e2) { document.getElementById(erroId).textContent = 'Erro ao processar resposta. Tente novamente.'; document.getElementById(erroId).style.display = 'block'; return null; }
+    }
+  } catch (e) {
+    document.getElementById(erroId).textContent = 'Erro de conexão. Tente novamente.';
+    document.getElementById(erroId).style.display = 'block';
+    return null;
+  } finally {
+    document.getElementById(loadingId).style.display = 'none';
+    if (btnId) document.getElementById(btnId).disabled = false;
+  }
+}
+
+async function carregarPlano() {
+  try {
+    const res = await fetch(BASE_URL + '/meu-plano', { headers: { 'authorization': token } });
+    const dados = await res.json();
+    planoAtual = dados.plano;
+    const nome = localStorage.getItem('userName') || '';
+    document.getElementById('bv-nome').textContent = nome;
+    if (dados.plano === 'pro') {
+      document.getElementById('bv-plano-texto').innerHTML = '— plano <strong style="color:#facc15;">⭐ Pro</strong> — análises ilimitadas!';
+      document.getElementById('bv-upgrade').style.display = 'none';
+      document.getElementById('badge-plano').textContent = '⭐ Pro';
+      document.getElementById('badge-plano').className = 'badge-plano pro';
+      document.getElementById('contador-analises').textContent = '';
+      document.getElementById('btn-analisar').disabled = false;
+      document.getElementById('btn-analisar-especifico').disabled = false;
+      document.getElementById('banner-limite').style.display = 'none';
+    } else {
+      const r = dados.restantes;
+      document.getElementById('bv-plano-texto').innerHTML = '— plano <strong style="color:#555570;">Gratuito</strong> — ' + r + ' análise' + (r===1?'':'s') + ' restante' + (r===1?'':'s') + ' hoje.';
+      document.getElementById('bv-upgrade').style.display = 'block';
+      document.getElementById('badge-plano').textContent = 'Gratuito';
+      document.getElementById('badge-plano').className = 'badge-plano gratuito';
+      if (r === 0) {
+        document.getElementById('contador-analises').textContent = '0 restantes hoje';
+        document.getElementById('btn-analisar').disabled = true;
+        document.getElementById('btn-analisar-especifico').disabled = true;
+        document.getElementById('banner-limite').style.display = 'block';
+      } else {
+        document.getElementById('contador-analises').textContent = r + ' análise' + (r===1?'':'s') + ' restante' + (r===1?'':'s') + ' hoje';
+        document.getElementById('btn-analisar').disabled = false;
+        document.getElementById('btn-analisar-especifico').disabled = false;
+        document.getElementById('banner-limite').style.display = 'none';
+      }
+    }
+    document.getElementById('card-boasvindas').style.display = 'flex';
+  } catch (e) { console.log('Erro ao carregar plano:', e.message); }
+}
+
+function sair() { localStorage.removeItem('token'); localStorage.removeItem('plano'); localStorage.removeItem('userName'); window.location.href = 'login.html'; }
+
+function mudarTab(tab, btn) {
+  const abasPro = ['calculadora', 'gerador', 'reclamacao', 'palavras'];
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('ativo'); });
+  document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('ativo'); });
+  btn.classList.add('ativo');
+  document.getElementById('tab-' + tab).classList.add('ativo');
+  if (abasPro.includes(tab) && planoAtual !== 'pro') {
+    document.getElementById('tab-' + tab).innerHTML = '<div style="text-align:center;padding:3rem 1rem;background:#13131a;border:1px solid rgba(250,204,21,0.2);border-radius:16px;margin-top:1rem;"><div style="font-size:40px;margin-bottom:12px;">⭐</div><div style="font-size:18px;font-weight:600;color:#fff;margin-bottom:8px;">Recurso exclusivo Pro</div><div style="font-size:14px;color:#666680;margin-bottom:1.5rem;">Esta ferramenta está disponível apenas para assinantes do plano Pro.</div><a href="' + BASE_URL + '/index.html?bypass=1#precos" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#facc15,#f97316);color:#0a0a0f;font-weight:600;border-radius:10px;text-decoration:none;font-size:14px;">Ver planos →</a></div>';
+  }
+}
+
+function gerarLinks(nomeProduto) {
+  const busca = encodeURIComponent(nomeProduto);
+  const links = [
+    { nome: 'AliExpress', url: 'https://pt.aliexpress.com/wholesale?SearchText=' + busca, desc: 'Importado direto da China — preço mais baixo', icon: '🛒' },
+    { nome: 'Shopee', url: 'https://shopee.com.br/search?keyword=' + busca, desc: 'Fornecedores nacionais e importados', icon: '🛍️' },
+    { nome: 'Alibaba', url: 'https://www.alibaba.com/trade/search?SearchText=' + busca, desc: 'Atacado direto de fábricas chinesas', icon: '🏭' },
+    { nome: 'Mercado Livre', url: 'https://lista.mercadolivre.com.br/' + busca, desc: 'Compare preços e veja demanda real', icon: '🟡' }
+  ];
+  if (planoAtual === 'pro') {
+    links.push(
+      { nome: '1688', url: 'https://s.1688.com/selloffer/offer_search.htm?keywords=' + busca, desc: '⭐ PRO — Atacado chinês direto, preço de fábrica', icon: '🇨🇳' },
+      { nome: 'Shopee Atacado', url: 'https://shopee.com.br/search?keyword=' + busca + '%20atacado', desc: '⭐ PRO — Atacado nacional na Shopee', icon: '📦' },
+      { nome: 'ML Atacado', url: 'https://lista.mercadolivre.com.br/' + busca + '-atacado', desc: '⭐ PRO — Atacado direto no ML', icon: '🟡' },
+      { nome: 'Magalu', url: 'https://www.magazineluiza.com.br/busca/' + busca + '/', desc: '⭐ PRO — Magazine Luiza para comparar preços', icon: '🛒' }
+    );
+  }
+  return links;
+}
+
+function getBadgeClass(tipo, valor) {
+  if (!valor) return 'badge-media';
+  const v = valor.toLowerCase();
+  if (tipo === 'concorrencia') { if (v.includes('baixa')) return 'badge-alta'; if (v.includes('alta')) return 'badge-baixa'; return 'badge-media'; }
+  if (v.includes('alta') || v.includes('alto')) return 'badge-alta';
+  if (v.includes('baixa') || v.includes('baixo')) return 'badge-baixa';
+  return 'badge-media';
+}
+function getTendenciaClass(t) { if (!t) return 'badge-tendencia-estavel'; const v = t.toLowerCase(); if (v.includes('crescendo')) return 'badge-tendencia-up'; if (v.includes('caindo')) return 'badge-tendencia-down'; return 'badge-tendencia-estavel'; }
+function getTendenciaEmoji(t) { if (!t) return '→'; const v = t.toLowerCase(); if (v.includes('crescendo')) return '↑'; if (v.includes('caindo')) return '↓'; return '→'; }
+
+// ABA 1
+async function analisar() {
+  const categoria = document.getElementById('categoria').value.trim();
+  if (!categoria) { document.getElementById('erro').textContent = 'Digite uma categoria de produto.'; document.getElementById('erro').style.display = 'block'; return; }
+  document.getElementById('resultado-container').style.display = 'none';
+  document.getElementById('favoritos-section').style.display = 'none';
+
+  const prompt = 'Você é um especialista em e-commerce brasileiro e Mercado Livre.\n\nAnalise a categoria "' + categoria + '" e sugira 4 produtos com alta demanda e boa margem de lucro para revender no Mercado Livre.\n\nConsidere:\n- Capital disponível: ' + document.getElementById('capital').value + '\n- Modelo: ' + document.getElementById('modelo').value + '\n- Meta de vendas por mês: ' + document.getElementById('meta').value + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois, neste formato exato:\n{\n  "produtos": [\n    {\n      "nome": "Nome do produto",\n      "demanda": "Alta",\n      "concorrencia": "Média",\n      "tendencia": "Crescendo",\n      "margem": "30-50%",\n      "descricao": "Por que esse produto é uma boa oportunidade em 2 frases.",\n      "dica": "Dica prática para se destacar na venda desse produto.",\n      "onde_pesquisar": "Dica rápida de como pesquisar o melhor preço nos fornecedores."\n    }\n  ]\n}\n\nValores válidos para tendencia: "Crescendo", "Estável", "Caindo"';
+
+  const r = await chamarAPI(prompt, 'loading', 'erro', 'btn-analisar');
+  if (!r) return;
+  if (!r.produtos) { document.getElementById('erro').textContent = 'Resposta inválida. Tente novamente.'; document.getElementById('erro').style.display = 'block'; return; }
+  mostrarResultados(r.produtos);
+  carregarPlano();
+}
+
+function toggleFavorito(nome, btnEl, cardEl) {
+  const idx = favoritos.indexOf(nome);
+  if (idx === -1) { favoritos.push(nome); btnEl.classList.add('ativo'); cardEl.classList.add('favoritado'); }
+  else { favoritos.splice(idx, 1); btnEl.classList.remove('ativo'); cardEl.classList.remove('favoritado'); }
+  atualizarFavoritos();
+}
+function removerFavorito(nome) {
+  favoritos = favoritos.filter(function(f) { return f !== nome; });
+  document.querySelectorAll('.btn-fav').forEach(function(btn) { if (btn.dataset.nome === nome) { btn.classList.remove('ativo'); btn.closest('.produto-card').classList.remove('favoritado'); } });
+  atualizarFavoritos();
+}
+function atualizarFavoritos() {
+  const section = document.getElementById('favoritos-section');
+  if (favoritos.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  document.getElementById('fav-count').textContent = favoritos.length + ' produto(s)';
+  document.getElementById('favoritos-lista').innerHTML = favoritos.map(function(nome) { return '<span class="fav-tag">' + nome + ' <button onclick="removerFavorito(\'' + nome + '\')" title="Remover">×</button></span>'; }).join('');
+}
+
+function mostrarResultados(produtos) {
+  const container = document.getElementById('resultado-container');
+  container.innerHTML = '';
+  produtos.forEach(function(p, i) {
+    const div = document.createElement('div');
+    div.className = 'produto-card'; div.id = 'produto-card-' + i;
+    const links = gerarLinks(p.nome);
+    const linksHtml = links.map(function(l) { return '<a href="' + l.url + '" target="_blank" class="fornecedor-link"><div class="fornecedor-icon">' + l.icon + '</div><div class="fornecedor-info"><div class="fornecedor-nome">' + l.nome + '</div><div class="fornecedor-desc">' + l.desc + '</div></div><div class="fornecedor-arrow">↗</div></a>'; }).join('');
+    div.innerHTML = '<div class="produto-top"><div><div class="produto-nome">' + p.nome + '</div><div class="badges" style="margin-top:6px;"><span class="badge-tag ' + getBadgeClass('demanda', p.demanda) + '">Demanda: ' + p.demanda + '</span><span class="badge-tag ' + getBadgeClass('concorrencia', p.concorrencia) + '">Concorrência: ' + p.concorrencia + '</span><span class="badge-tag ' + getTendenciaClass(p.tendencia) + '">' + getTendenciaEmoji(p.tendencia) + ' ' + (p.tendencia||'Estável') + '</span></div></div><button class="btn-fav" data-nome="' + p.nome + '" onclick="toggleFavorito(\'' + p.nome + '\', this, document.getElementById(\'produto-card-' + i + '\'))" title="Favoritar">⭐</button></div><div class="stats-grid"><div class="stat"><div class="stat-label">Margem estimada</div><div class="stat-valor">' + p.margem + '</div></div><div class="stat"><div class="stat-label">Tendência</div><div class="stat-valor" style="font-size:13px;">' + getTendenciaEmoji(p.tendencia) + ' ' + (p.tendencia||'Estável') + '</div></div></div><div class="secoes"><div class="secao"><div class="secao-titulo">💡 Por que vender?</div><div class="secao-conteudo">' + p.descricao + '</div></div><div class="secao"><div class="secao-titulo">🎯 Dica para se destacar</div><div class="secao-conteudo">' + p.dica + '</div></div><div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🏭 Pesquise o preço real</div><div class="fornecedor-links">' + linksHtml + '</div><div style="margin-top:8px;font-size:12px;color:#555570;">💡 ' + (p.onde_pesquisar||'') + '</div></div></div>';
+    container.appendChild(div);
+  });
+  const aviso = document.createElement('div'); aviso.className = 'aviso'; aviso.textContent = '⚠ Análise gerada por IA. Use os links acima para pesquisar os preços reais antes de investir.'; container.appendChild(aviso);
+  container.style.display = 'block';
+}
+
+// ABA 2
+async function analisarEspecifico() {
+  const produto = document.getElementById('produto-especifico').value.trim();
+  if (!produto) { document.getElementById('erro-especifico').textContent = 'Digite o nome de um produto.'; document.getElementById('erro-especifico').style.display = 'block'; return; }
+  document.getElementById('resultado-especifico').style.display = 'none';
+
+  const prompt = 'Você é um especialista em e-commerce brasileiro e Mercado Livre.\n\nIMPORTANTE: Responda SOMENTE o JSON abaixo, sem explicações, sem markdown, sem texto adicional.\n\nAnalise o produto específico "' + produto + '" para revenda no Mercado Livre Brasil e responda APENAS este JSON:\n{\n  "nome": "Nome completo do produto",\n  "custo_fornecedor": "R$ XX a R$ XX",\n  "preco_ml": "R$ XX a R$ XX",\n  "margem": "XX% a XX%",\n  "lucro_unitario": "R$ XX a R$ XX",\n  "volume_vendas": "XXX a XXX unidades/mês no ML",\n  "concorrencia": "Alta",\n  "tendencia": "Crescendo",\n  "veredito": "sim",\n  "veredito_titulo": "Vale a pena vender!",\n  "veredito_motivo": "Explicação em 2 frases.",\n  "ponto_forte": "Principal vantagem.",\n  "ponto_fraco": "Principal risco.",\n  "dica_destaque": "Como se destacar."\n}\n\nValores válidos para veredito: "sim" ou "nao"\nValores válidos para concorrencia: "Baixa", "Média", "Alta"\nValores válidos para tendencia: "Crescendo", "Estável", "Caindo"';
+
+  const r = await chamarAPI(prompt, 'loading-especifico', 'erro-especifico', 'btn-analisar-especifico');
+  if (!r || !r.custo_fornecedor) { if (r) { document.getElementById('erro-especifico').textContent = 'Resposta inválida. Tente novamente.'; document.getElementById('erro-especifico').style.display = 'block'; } return; }
+  mostrarResultadoEspecifico(r);
+  carregarPlano();
+}
+
+function mostrarResultadoEspecifico(r) {
+  const container = document.getElementById('resultado-especifico');
+  const links = gerarLinks(r.nome);
+  const linksHtml = links.map(function(l) { return '<a href="' + l.url + '" target="_blank" class="fornecedor-link"><div class="fornecedor-icon">' + l.icon + '</div><div class="fornecedor-info"><div class="fornecedor-nome">' + l.nome + '</div><div class="fornecedor-desc">' + l.desc + '</div></div><div class="fornecedor-arrow">↗</div></a>'; }).join('');
+  const veredito = r.veredito === 'sim';
+  const tendEmoji = r.tendencia === 'Crescendo' ? '↑' : r.tendencia === 'Caindo' ? '↓' : '→';
+  const concClass = r.concorrencia === 'Baixa' ? 'badge-alta' : r.concorrencia === 'Alta' ? 'badge-baixa' : 'badge-media';
+  const tendClass = r.tendencia === 'Crescendo' ? 'badge-tendencia-up' : r.tendencia === 'Caindo' ? 'badge-tendencia-down' : 'badge-tendencia-estavel';
+  container.innerHTML = '<div class="' + (veredito?'veredito-sim':'veredito-nao') + '"><div class="veredito-emoji">' + (veredito?'✅':'❌') + '</div><div><div class="veredito-titulo">' + r.veredito_titulo + '</div><div class="veredito-desc">' + r.veredito_motivo + '</div></div></div><div class="produto-card"><div class="produto-nome" style="margin-bottom:12px;">' + r.nome + '</div><div class="badges" style="margin-bottom:14px;"><span class="badge-tag ' + concClass + '">Concorrência: ' + r.concorrencia + '</span><span class="badge-tag ' + tendClass + '">' + tendEmoji + ' ' + r.tendencia + '</span></div><div class="stats-grid-4"><div class="stat"><div class="stat-label">💰 Custo</div><div class="stat-valor" style="font-size:12px;">' + r.custo_fornecedor + '</div></div><div class="stat"><div class="stat-label">💵 Preço ML</div><div class="stat-valor" style="font-size:12px;">' + r.preco_ml + '</div></div><div class="stat"><div class="stat-label">📊 Margem</div><div class="stat-valor">' + r.margem + '</div></div><div class="stat"><div class="stat-label">💸 Lucro unit.</div><div class="stat-valor" style="font-size:12px;">' + r.lucro_unitario + '</div></div></div><div class="stat" style="margin-bottom:14px;"><div class="stat-label">📦 Volume de vendas estimado no ML</div><div class="stat-valor" style="font-size:13px;margin-top:4px;">' + r.volume_vendas + '</div></div><div class="secoes"><div class="secao"><div class="secao-titulo">💪 Ponto forte</div><div class="secao-conteudo">' + r.ponto_forte + '</div></div><div class="secao"><div class="secao-titulo">⚠️ Ponto fraco</div><div class="secao-conteudo">' + r.ponto_fraco + '</div></div><div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🎯 Como se destacar</div><div class="secao-conteudo">' + r.dica_destaque + '</div></div><div class="secao" style="grid-column:1/-1;"><div class="secao-titulo">🏭 Pesquise o preço real</div><div class="fornecedor-links">' + linksHtml + '</div></div></div></div><div class="aviso">⚠ Estimativas geradas por IA. Pesquise os preços reais nos links acima antes de investir.</div>';
+  container.style.display = 'block';
+}
+
+// CALCULADORA
+function fmt(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
+function atualizarTaxa() { document.getElementById('taxa-valor').textContent = document.getElementById('calc-taxa').value + '%'; }
+function atualizarMeta() { document.getElementById('meta-valor').textContent = document.getElementById('calc-meta').value + ' vendas'; }
+function calcular() {
+  const preco = parseFloat(document.getElementById('calc-preco').value) || 0;
+  const custo = parseFloat(document.getElementById('calc-custo').value) || 0;
+  const frete = parseFloat(document.getElementById('calc-frete').value) || 0;
+  const embalagem = parseFloat(document.getElementById('calc-embalagem').value) || 0;
+  const taxa = parseFloat(document.getElementById('calc-taxa').value) || 16;
+  const meta = parseInt(document.getElementById('calc-meta').value) || 30;
+  if (preco === 0) return;
+  const taxaValor = preco * (taxa / 100);
+  const lucro = preco - custo - taxaValor - frete - embalagem;
+  const margem = preco > 0 ? (lucro / preco) * 100 : 0;
+  const mensal = lucro * meta;
+  document.getElementById('calc-resultado').style.display = 'block';
+  document.getElementById('res-taxa-valor').textContent = fmt(taxaValor);
+  document.getElementById('res-lucro').textContent = fmt(lucro);
+  document.getElementById('res-margem').textContent = margem.toFixed(1) + '%';
+  document.getElementById('res-mensal').textContent = fmt(mensal);
+  document.getElementById('bd-preco').textContent = '+ ' + fmt(preco);
+  document.getElementById('bd-custo').textContent = '- ' + fmt(custo);
+  document.getElementById('bd-taxa').textContent = '- ' + fmt(taxaValor);
+  document.getElementById('bd-frete').textContent = '- ' + fmt(frete);
+  document.getElementById('bd-embalagem').textContent = '- ' + fmt(embalagem);
+  document.getElementById('bd-lucro').textContent = fmt(lucro);
+  if (lucro > 0) { document.getElementById('res-lucro').className = 'calc-valor-verde'; document.getElementById('res-lucro-card').className = 'calc-stat-positivo'; document.getElementById('bd-lucro').className = 'calc-linha-valor verde'; }
+  else { document.getElementById('res-lucro').className = 'calc-valor-vermelho'; document.getElementById('res-lucro-card').className = 'calc-stat-negativo'; document.getElementById('bd-lucro').className = 'calc-linha-valor vermelho'; }
+  if (margem >= 20) { document.getElementById('res-margem').className = 'calc-valor-verde'; document.getElementById('res-margem-card').className = 'calc-stat-positivo'; }
+  else if (margem >= 10) { document.getElementById('res-margem').className = 'calc-valor-amarelo'; document.getElementById('res-margem-card').className = 'calc-stat-neutro'; }
+  else { document.getElementById('res-margem').className = 'calc-valor-vermelho'; document.getElementById('res-margem-card').className = 'calc-stat-negativo'; }
+  let veredito = '';
+  if (lucro <= 0) veredito = '<div class="veredito-nao"><div class="veredito-emoji">❌</div><div><div class="veredito-titulo">Prejuízo!</div><div class="veredito-desc">Com esses números você está perdendo dinheiro por venda.</div></div></div>';
+  else if (margem < 10) veredito = '<div class="veredito-nao"><div class="veredito-emoji">⚠️</div><div><div class="veredito-titulo">Margem muito baixa</div><div class="veredito-desc">Margem abaixo de 10% é arriscada.</div></div></div>';
+  else if (margem < 20) veredito = '<div class="veredito-sim" style="background:rgba(250,204,21,0.08);border-color:rgba(250,204,21,0.25);"><div class="veredito-emoji">🟡</div><div><div class="veredito-titulo" style="color:#facc15;">Margem aceitável</div><div class="veredito-desc">Dá para trabalhar, mas tente negociar melhor com o fornecedor.</div></div></div>';
+  else veredito = '<div class="veredito-sim"><div class="veredito-emoji">✅</div><div><div class="veredito-titulo">Boa margem!</div><div class="veredito-desc">Margem acima de 20% é excelente para revenda no ML.</div></div></div>';
+  document.getElementById('veredito-calc').innerHTML = veredito;
+}
+
+// ABA 4
+async function gerarAnuncio() {
+  const produto = document.getElementById('gen-produto').value.trim();
+  if (!produto) { document.getElementById('erro-gerador').textContent = 'Digite o nome do produto.'; document.getElementById('erro-gerador').style.display = 'block'; return; }
+  document.getElementById('resultado-gerador').style.display = 'none';
+  const prompt = 'Você é um especialista em copywriting para Mercado Livre Brasil.\n\nCrie um anúncio completo para o produto: "' + produto + '"\nPúblico-alvo: ' + (document.getElementById('gen-publico').value.trim() || 'geral') + '\nCaracterísticas: ' + (document.getElementById('gen-features').value.trim() || 'não informadas') + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois:\n{\n  "titulo": "Título otimizado com até 60 caracteres com palavras-chave do ML",\n  "subtitulo": "Subtítulo complementar de até 60 caracteres",\n  "descricao": "Descrição completa do produto com 3 a 5 parágrafos.",\n  "palavras_chave": ["palavra1", "palavra2", "palavra3", "palavra4", "palavra5"],\n  "dica_titulo": "Dica de por que esse título vai ranquear bem no ML."\n}';
+  const r = await chamarAPI(prompt, 'loading-gerador', 'erro-gerador', 'btn-gerar');
+  if (!r || !r.titulo) { if (r) { document.getElementById('erro-gerador').textContent = 'Resposta inválida. Tente novamente.'; document.getElementById('erro-gerador').style.display = 'block'; } return; }
+  const chars = r.titulo.length;
+  const palavras = (r.palavras_chave || []).map(function(p) { return '<span class="fav-tag">' + p + '</span>'; }).join('');
+  document.getElementById('resultado-gerador').innerHTML = '<div class="produto-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div class="secao-titulo">✍️ Título do anúncio</div><button onclick="copiar(\'gen-titulo\', this)" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #1e1e2e;background:transparent;color:#facc15;cursor:pointer;">📋 Copiar</button></div><div id="gen-titulo" style="font-size:16px;font-weight:600;color:#fff;background:#0d0d14;border:1px solid #1e1e2e;border-radius:10px;padding:14px;margin-bottom:8px;line-height:1.4;">' + r.titulo + '</div><div style="font-size:11px;font-family:JetBrains Mono,monospace;color:' + (chars<=60?'#86efac':'#fca5a5') + ';margin-bottom:16px;">' + chars + '/60 caracteres</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div class="secao-titulo">📝 Subtítulo</div><button onclick="copiar(\'gen-subtitulo\', this)" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #1e1e2e;background:transparent;color:#facc15;cursor:pointer;">📋 Copiar</button></div><div id="gen-subtitulo" style="font-size:14px;color:#c8c8e0;background:#0d0d14;border:1px solid #1e1e2e;border-radius:10px;padding:14px;margin-bottom:16px;">' + (r.subtitulo||'') + '</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div class="secao-titulo">📄 Descrição completa</div><button onclick="copiar(\'gen-descricao\', this)" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #1e1e2e;background:transparent;color:#facc15;cursor:pointer;">📋 Copiar</button></div><div id="gen-descricao" style="font-size:13px;color:#c8c8e0;background:#0d0d14;border:1px solid #1e1e2e;border-radius:10px;padding:14px;margin-bottom:16px;line-height:1.8;white-space:pre-wrap;">' + (r.descricao||'') + '</div><div class="secao-titulo" style="margin-bottom:10px;">🔑 Palavras-chave</div><div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">' + palavras + '</div><div class="secao" style="background:#0d0d14;"><div class="secao-titulo">💡 Por que esse título vai ranquear</div><div class="secao-conteudo">' + (r.dica_titulo||'') + '</div></div></div>';
+  document.getElementById('resultado-gerador').style.display = 'block';
+  carregarPlano();
 }
 
 function copiar(id, btn) {
-  const texto = document.getElementById(id).textContent;
-  navigator.clipboard.writeText(texto).then(function() {
-    btn.textContent = '✅ Copiado!';
-    setTimeout(function() { btn.textContent = '📋 Copiar'; }, 2000);
-  });
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(function() { btn.textContent = '✅ Copiado!'; setTimeout(function() { btn.textContent = '📋 Copiar'; }, 2000); });
 }
 
-function mostrarResultadoGerador(r) {
-  const container = document.getElementById('resultado-gerador');
-  const chars = r.titulo ? r.titulo.length : 0;
-  const charsColor = chars <= 60 ? '#86efac' : '#fca5a5';
-  const palavras = (r.palavras_chave || []).map(function(p) { return '<span class="fav-tag">' + p + '</span>'; }).join('');
-
-  container.innerHTML =
-    '<div class="produto-card">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
-        '<div class="secao-titulo">✍️ Título do anúncio</div>' +
-        '<button onclick="copiar(\'gen-titulo\', this)" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #1e1e2e;background:transparent;color:#facc15;cursor:pointer;font-family:Space Grotesk,sans-serif;">📋 Copiar</button>' +
-      '</div>' +
-      '<div id="gen-titulo" style="font-size:16px;font-weight:600;color:#fff;background:#0d0d14;border:1px solid #1e1e2e;border-radius:10px;padding:14px;margin-bottom:8px;line-height:1.4;">' + (r.titulo || '') + '</div>' +
-      '<div style="font-size:11px;font-family:JetBrains Mono,monospace;color:' + charsColor + ';margin-bottom:16px;">' + chars + '/60 caracteres</div>' +
-
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
-        '<div class="secao-titulo">📝 Subtítulo</div>' +
-        '<button onclick="copiar(\'gen-subtitulo\', this)" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #1e1e2e;background:transparent;color:#facc15;cursor:pointer;font-family:Space Grotesk,sans-serif;">📋 Copiar</button>' +
-      '</div>' +
-      '<div id="gen-subtitulo" style="font-size:14px;color:#c8c8e0;background:#0d0d14;border:1px solid #1e1e2e;border-radius:10px;padding:14px;margin-bottom:16px;">' + (r.subtitulo || '') + '</div>' +
-
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
-        '<div class="secao-titulo">📄 Descrição completa</div>' +
-        '<button onclick="copiar(\'gen-descricao\', this)" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #1e1e2e;background:transparent;color:#facc15;cursor:pointer;font-family:Space Grotesk,sans-serif;">📋 Copiar</button>' +
-      '</div>' +
-      '<div id="gen-descricao" style="font-size:13px;color:#c8c8e0;background:#0d0d14;border:1px solid #1e1e2e;border-radius:10px;padding:14px;margin-bottom:16px;line-height:1.8;white-space:pre-wrap;">' + (r.descricao || '') + '</div>' +
-
-      '<div class="secao-titulo" style="margin-bottom:10px;">🔑 Palavras-chave para usar nas tags</div>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">' + palavras + '</div>' +
-
-      '<div class="secao" style="background:#0d0d14;">' +
-        '<div class="secao-titulo">💡 Por que esse título vai ranquear</div>' +
-        '<div class="secao-conteudo">' + (r.dica_titulo || '') + '</div>' +
-      '</div>' +
-    '</div>';
-
-  container.style.display = 'block';
-}
-
-// ABA 5 — GERADOR DE RESPOSTA PARA RECLAMAÇÃO
+// ABA 5
 async function gerarResposta() {
   const texto = document.getElementById('rec-texto').value.trim();
-  const tom = document.getElementById('rec-tom').value;
-  const tipo = document.getElementById('rec-tipo').value;
-  if (!texto) { mostrarErro('erro-reclamacao', 'Cole a reclamação do cliente.'); return; }
-
-  document.getElementById('loading-reclamacao').style.display = 'block';
+  if (!texto) { document.getElementById('erro-reclamacao').textContent = 'Cole a reclamação do cliente.'; document.getElementById('erro-reclamacao').style.display = 'block'; return; }
   document.getElementById('resultado-reclamacao').style.display = 'none';
-  document.getElementById('erro-reclamacao').style.display = 'none';
-  document.getElementById('btn-responder').disabled = true;
-
-  const prompt = 'Você é um especialista em atendimento ao cliente para vendedores do Mercado Livre Brasil.\n\nGere uma resposta profissional para a seguinte reclamação de cliente:\n\nReclamação: "' + texto + '"\nTipo de problema: ' + tipo + '\nTom desejado: ' + tom + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois:\n{\n  "resposta": "Resposta completa e profissional para o cliente. Deve ser empática, resolver o problema e manter a reputação do vendedor.",\n  "acao": "Ação prática que o vendedor deve tomar além de responder (ex: enviar novo produto, reembolsar, etc)",\n  "dica": "Dica para evitar esse tipo de reclamação no futuro."\n}';
-
-  try {
-    let tentativas = 0;
-    let response, data;
-    while (tentativas < 3) {
-      try {
-        response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }, body: JSON.stringify({ prompt })
-        });
-        if (response.status === 403) {
-          const erro = await response.json();
-          if (erro.limite) { document.getElementById('banner-limite').style.display = 'block'; document.getElementById('btn-responder').disabled = true; document.getElementById('contador-analises').textContent = '0 restantes hoje'; return; }
-        }
-        data = await response.json();
-        if (data.choices) break;
-        tentativas++;
-      } catch(e) { tentativas++; }
-    }
-    if (!data || !data.choices) { mostrarErro('erro-reclamacao', 'Erro na API. Tente novamente.'); return; }
-    const texto2 = data.choices[0].message.content;
-    const textoLimpo2 = texto2.replace(/```json|```/g, '').trim();
-    let r;
-    try { r = JSON.parse(textoLimpo2); } catch(e) {
-      const jsonMatch = textoLimpo2.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) { mostrarErro('erro-reclamacao', 'Erro ao processar resposta. Tente novamente.'); return; }
-      try { r = JSON.parse(jsonMatch[0]); } catch(e2) { mostrarErro('erro-reclamacao', 'Erro ao processar resposta. Tente novamente.'); return; }
-    }
-    if (!r || !r.resposta) { mostrarErro('erro-reclamacao', 'Resposta inválida. Tente novamente.'); return; }
-    mostrarResultadoReclamacao(r);
-    carregarPlano(); 
-  } catch (e) { mostrarErro('erro-reclamacao', 'Erro de conexão. Tente novamente.'); }
-  finally { document.getElementById('loading-reclamacao').style.display = 'none'; document.getElementById('btn-responder').disabled = false; }
+  const prompt = 'Você é um especialista em atendimento ao cliente para vendedores do Mercado Livre Brasil.\n\nGere uma resposta profissional para a seguinte reclamação:\n\nReclamação: "' + texto + '"\nTipo de problema: ' + document.getElementById('rec-tipo').value + '\nTom desejado: ' + document.getElementById('rec-tom').value + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois:\n{\n  "resposta": "Resposta completa e profissional para o cliente.",\n  "acao": "Ação prática que o vendedor deve tomar além de responder.",\n  "dica": "Dica para evitar esse tipo de reclamação no futuro."\n}';
+  const r = await chamarAPI(prompt, 'loading-reclamacao', 'erro-reclamacao', 'btn-responder');
+  if (!r || !r.resposta) { if (r) { document.getElementById('erro-reclamacao').textContent = 'Resposta inválida. Tente novamente.'; document.getElementById('erro-reclamacao').style.display = 'block'; } return; }
+  document.getElementById('resultado-reclamacao').innerHTML = '<div class="produto-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div class="secao-titulo">💬 Resposta gerada</div><button onclick="copiar(\'rec-resposta\', this)" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #1e1e2e;background:transparent;color:#facc15;cursor:pointer;">📋 Copiar</button></div><div id="rec-resposta" style="font-size:14px;color:#c8c8e0;background:#0d0d14;border:1px solid #1e1e2e;border-radius:10px;padding:14px;margin-bottom:16px;line-height:1.8;white-space:pre-wrap;">' + r.resposta + '</div><div class="secoes"><div class="secao"><div class="secao-titulo">⚡ Ação recomendada</div><div class="secao-conteudo">' + r.acao + '</div></div><div class="secao"><div class="secao-titulo">🛡️ Como evitar no futuro</div><div class="secao-conteudo">' + r.dica + '</div></div></div></div>';
+  document.getElementById('resultado-reclamacao').style.display = 'block';
+  carregarPlano();
 }
 
-function mostrarResultadoReclamacao(r) {
-  const container = document.getElementById('resultado-reclamacao');
-  container.innerHTML =
-    '<div class="produto-card">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">' +
-        '<div class="secao-titulo">💬 Resposta gerada</div>' +
-        '<button onclick="copiar(\'rec-resposta\', this)" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid #1e1e2e;background:transparent;color:#facc15;cursor:pointer;font-family:Space Grotesk,sans-serif;">📋 Copiar</button>' +
-      '</div>' +
-      '<div id="rec-resposta" style="font-size:14px;color:#c8c8e0;background:#0d0d14;border:1px solid #1e1e2e;border-radius:10px;padding:14px;margin-bottom:16px;line-height:1.8;white-space:pre-wrap;">' + (r.resposta || '') + '</div>' +
-      '<div class="secoes">' +
-        '<div class="secao">' +
-          '<div class="secao-titulo">⚡ Ação recomendada</div>' +
-          '<div class="secao-conteudo">' + (r.acao || '') + '</div>' +
-        '</div>' +
-        '<div class="secao">' +
-          '<div class="secao-titulo">🛡️ Como evitar no futuro</div>' +
-          '<div class="secao-conteudo">' + (r.dica || '') + '</div>' +
-        '</div>' +
-      '</div>' +
-    '</div>';
-  container.style.display = 'block';
-}
-
-// ABA 6 — GERADOR DE PALAVRAS-CHAVE
+// ABA 6
 async function gerarPalavras() {
   const produto = document.getElementById('pw-produto').value.trim();
-  const nicho = document.getElementById('pw-nicho').value.trim();
-  if (!produto) { mostrarErro('erro-palavras', 'Digite o nome do produto.'); return; }
-
-  document.getElementById('loading-palavras').style.display = 'block';
+  if (!produto) { document.getElementById('erro-palavras').textContent = 'Digite o nome do produto.'; document.getElementById('erro-palavras').style.display = 'block'; return; }
   document.getElementById('resultado-palavras').style.display = 'none';
-  document.getElementById('erro-palavras').style.display = 'none';
-  document.getElementById('btn-palavras').disabled = true;
-
-  const prompt = 'Você é um especialista em SEO para Mercado Livre Brasil.\n\nGere palavras-chave otimizadas para o produto: "' + produto + '"\nNicho/Categoria: ' + (nicho || 'geral') + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois:\n{\n  "principais": ["palavra1", "palavra2", "palavra3", "palavra4", "palavra5"],\n  "secundarias": ["palavra1", "palavra2", "palavra3", "palavra4", "palavra5", "palavra6", "palavra7"],\n  "long_tail": ["frase de busca longa 1", "frase de busca longa 2", "frase de busca longa 3"],\n  "evitar": ["palavra1", "palavra2", "palavra3"],\n  "dica_seo": "Dica principal de como usar essas palavras-chave no título e descrição para ranquear melhor no ML."\n}';
-
-  try {
-    let tentativas = 0;
-    let response, data;
-    while (tentativas < 3) {
-      try {
-        response = await fetch('https://ferramentas-ia-production.up.railway.app/analisar', {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }, body: JSON.stringify({ prompt })
-        });
-        if (response.status === 403) {
-          const erro = await response.json();
-          if (erro.limite) { document.getElementById('banner-limite').style.display = 'block'; document.getElementById('btn-palavras').disabled = true; document.getElementById('contador-analises').textContent = '0 restantes hoje'; return; }
-        }
-        data = await response.json();
-        if (data.choices) break;
-        tentativas++;
-      } catch(e) { tentativas++; }
-    }
-    if (!data || !data.choices) { mostrarErro('erro-palavras', 'Erro na API. Tente novamente.'); return; }
-    const texto = data.choices[0].message.content;
-    const textoLimpo = texto.replace(/```json|```/g, '').trim();
-    let r;
-    try { r = JSON.parse(textoLimpo); } catch(e) {
-      const jsonMatch = textoLimpo.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) { mostrarErro('erro-palavras', 'Erro ao processar resposta. Tente novamente.'); return; }
-      try { r = JSON.parse(jsonMatch[0]); } catch(e2) { mostrarErro('erro-palavras', 'Erro ao processar resposta. Tente novamente.'); return; }
-    }
-    if (!r || !r.principais) { mostrarErro('erro-palavras', 'Resposta inválida. Tente novamente.'); return; }
-    mostrarResultadoPalavras(r);
-    carregarPlano();
-  } catch (e) { mostrarErro('erro-palavras', 'Erro de conexão. Tente novamente.'); }
-  finally { document.getElementById('loading-palavras').style.display = 'none'; document.getElementById('btn-palavras').disabled = false; }
+  const prompt = 'Você é um especialista em SEO para Mercado Livre Brasil.\n\nGere palavras-chave otimizadas para o produto: "' + produto + '"\nNicho/Categoria: ' + (document.getElementById('pw-nicho').value.trim() || 'geral') + '\n\nResponda APENAS em JSON válido, sem texto antes ou depois:\n{\n  "principais": ["palavra1", "palavra2", "palavra3", "palavra4", "palavra5"],\n  "secundarias": ["palavra1", "palavra2", "palavra3", "palavra4", "palavra5", "palavra6", "palavra7"],\n  "long_tail": ["frase de busca longa 1", "frase de busca longa 2", "frase de busca longa 3"],\n  "evitar": ["palavra1", "palavra2", "palavra3"],\n  "dica_seo": "Dica principal de como usar essas palavras-chave no título e descrição para ranquear melhor no ML."\n}';
+  const r = await chamarAPI(prompt, 'loading-palavras', 'erro-palavras', 'btn-palavras');
+  if (!r || !r.principais) { if (r) { document.getElementById('erro-palavras').textContent = 'Resposta inválida. Tente novamente.'; document.getElementById('erro-palavras').style.display = 'block'; } return; }
+  function tagsHtml(lista, cor) { return (lista||[]).map(function(p) { return '<span style="display:inline-flex;align-items:center;background:' + cor + ';border-radius:100px;padding:4px 12px;font-size:12px;color:#e8e8f0;margin:3px;">' + p + '</span>'; }).join(''); }
+  document.getElementById('resultado-palavras').innerHTML = '<div class="produto-card"><div class="secao-titulo" style="margin-bottom:10px;">🏆 Palavras-chave principais</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;">' + tagsHtml(r.principais,'rgba(250,204,21,0.15)') + '</div><div class="secao-titulo" style="margin-bottom:10px;">📋 Palavras-chave secundárias</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;">' + tagsHtml(r.secundarias,'rgba(34,197,94,0.1)') + '</div><div class="secao-titulo" style="margin-bottom:10px;">🔍 Frases de busca (long tail)</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;">' + tagsHtml(r.long_tail,'rgba(99,102,241,0.15)') + '</div><div class="secao-titulo" style="margin-bottom:10px;">🚫 Palavras para evitar</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;">' + tagsHtml(r.evitar,'rgba(239,68,68,0.1)') + '</div><div class="secao"><div class="secao-titulo">💡 Dica de SEO</div><div class="secao-conteudo">' + (r.dica_seo||'') + '</div></div></div>';
+  document.getElementById('resultado-palavras').style.display = 'block';
+  carregarPlano();
 }
 
-function mostrarResultadoPalavras(r) {
-  const container = document.getElementById('resultado-palavras');
-
-  function tagsHtml(lista, cor) {
-    return (lista || []).map(function(p) {
-      return '<span style="display:inline-flex;align-items:center;background:' + cor + ';border-radius:100px;padding:4px 12px;font-size:12px;color:#e8e8f0;margin:3px;">' + p + '</span>';
-    }).join('');
-  }
-
-  container.innerHTML =
-    '<div class="produto-card">' +
-      '<div class="secao-titulo" style="margin-bottom:10px;">🏆 Palavras-chave principais</div>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;">' + tagsHtml(r.principais, 'rgba(250,204,21,0.15)') + '</div>' +
-
-      '<div class="secao-titulo" style="margin-bottom:10px;">📋 Palavras-chave secundárias</div>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;">' + tagsHtml(r.secundarias, 'rgba(34,197,94,0.1)') + '</div>' +
-
-      '<div class="secao-titulo" style="margin-bottom:10px;">🔍 Frases de busca (long tail)</div>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;">' + tagsHtml(r.long_tail, 'rgba(99,102,241,0.15)') + '</div>' +
-
-      '<div class="secao-titulo" style="margin-bottom:10px;">🚫 Palavras para evitar</div>' +
-      '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:16px;">' + tagsHtml(r.evitar, 'rgba(239,68,68,0.1)') + '</div>' +
-
-      '<div class="secao">' +
-        '<div class="secao-titulo">💡 Dica de SEO</div>' +
-        '<div class="secao-conteudo">' + (r.dica_seo || '') + '</div>' +
-      '</div>' +
-    '</div>';
-
-  container.style.display = 'block';
-}
-  function mostrarErro(id, msg) {
-    const el = document.getElementById(id); el.textContent = msg; el.style.display = 'block';
-    document.getElementById('loading').style.display = 'none'; document.getElementById('loading-especifico').style.display = 'none';
-    document.getElementById('btn-analisar').disabled = false; document.getElementById('btn-analisar-especifico').disabled = false;
-  }
+// ✅ Inicia
+verificarAcesso();
+setTimeout(carregarPlano, 600);
 </script>
-
-<script>
-  // Limpa plano do localStorage para forçar busca do servidor
-  localStorage.removeItem('plano');
-  const token = localStorage.getItem('token');
-  if (!token) window.location.href = 'login.html';
-
-  async function verificarAcesso() {
-    try {
-      const response = await fetch('https://ferramentas-ia-production.up.railway.app/ferramenta', { headers: { 'authorization': token } });
-      const data = await response.json();
-      if (!data.sucesso) { localStorage.removeItem('token'); window.location.href = 'login.html'; return; }
-      document.getElementById('navbar-user').textContent = data.mensagem;
-      localStorage.setItem('userEmail', data.email || '');
-    } catch (e) { console.log('Erro ao verificar acesso'); }
-  }
-
-  async function carregarPlano() {
-    try {
-      const res = await fetch('https://ferramentas-ia-production.up.railway.app/meu-plano', { headers: { 'authorization': token } });
-      const dados = await res.json();
-      planoAtual = dados.plano;
-      // Atualiza card de boas-vindas
-      const bvNome = document.getElementById('bv-nome');
-      const bvPlanoTexto = document.getElementById('bv-plano-texto');
-      const bvUpgrade = document.getElementById('bv-upgrade');
-      const cardBv = document.getElementById('card-boasvindas');
-      if (bvNome) {
-        const nomeUsuario = document.getElementById('navbar-user').textContent.replace('Olá ', '').replace('! Você tem acesso à ferramenta.', '');
-        bvNome.textContent = nomeUsuario;
-        if (dados.plano === 'pro') {
-        bvPlanoTexto.innerHTML = '— você está no plano <strong style="color:#facc15;">⭐ Pro</strong> — análises ilimitadas!';
-        bvUpgrade.style.display = 'none';
-      } else {
-        bvPlanoTexto.innerHTML = '— você está no plano <strong style="color:#555570;">Gratuito</strong> — ' + dados.restantes + ' análise' + (dados.restantes === 1 ? '' : 's') + ' restante' + (dados.restantes === 1 ? '' : 's') + ' hoje.';
-        bvUpgrade.style.display = 'block';
-      }
-      cardBv.style.display = 'flex';
-    }
-      localStorage.setItem('plano', dados.plano);
-      const badge = document.getElementById('badge-plano');
-      const contador = document.getElementById('contador-analises');
-      const btnAnalisar = document.getElementById('btn-analisar');
-      const btnAnalisarEsp = document.getElementById('btn-analisar-especifico');
-      const bannerLimite = document.getElementById('banner-limite');
-      if (dados.plano === 'pro') {
-        badge.textContent = '⭐ Pro'; badge.className = 'badge-plano pro';
-        contador.textContent = ''; btnAnalisar.disabled = false; btnAnalisarEsp.disabled = false; bannerLimite.style.display = 'none';
-      } else {
-        badge.textContent = 'Gratuito'; badge.className = 'badge-plano gratuito';
-        if (dados.restantes === 0) {
-          contador.textContent = '0 restantes hoje'; btnAnalisar.disabled = true; btnAnalisarEsp.disabled = true; bannerLimite.style.display = 'block';
-        } else {
-          contador.textContent = dados.restantes + ' análise' + (dados.restantes === 1 ? '' : 's') + ' restante' + (dados.restantes === 1 ? '' : 's') + ' hoje';
-          btnAnalisar.disabled = false; btnAnalisarEsp.disabled = false; bannerLimite.style.display = 'none';
-        }
-      }
-    } catch (e) { console.log('Erro ao carregar plano', e.name, e.message); }
-  }
-
-  function sair() { localStorage.removeItem('token'); localStorage.removeItem('plano'); window.location.href = 'login.html'; }
-
-  verificarAcesso();
-  setTimeout(carregarPlano, 500);
-</script>
-
 </body>
 </html>

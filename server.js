@@ -1,4 +1,4 @@
-const { MercadoPagoConfig, Preference } = require('mercadopago');
+const { MercadoPagoConfig } = require('mercadopago');
 const https = require('https');
 const express = require('express');
 const { Pool } = require('pg');
@@ -8,7 +8,6 @@ const app = express();
 app.use(express.json());
 app.use(express.static('.'));
 
-// ✅ JWT_SECRET agora vem de variável de ambiente
 const SEGREDO = process.env.JWT_SECRET || 'minha-chave-secreta-123';
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
@@ -94,27 +93,32 @@ app.post('/login', async (req, res) => {
   const usuario = result.rows[0];
   if (usuario) {
     const token = jwt.sign({ id: usuario.id, nome: usuario.nome, ativo: usuario.ativo }, SEGREDO, { expiresIn: '7d' });
-    res.json({ sucesso: true, token, ativo: usuario.ativo === 1, mensagem: `Bem vindo, ${usuario.nome}!` });
+    res.json({ sucesso: true, token, ativo: usuario.ativo === 1, nome: usuario.nome, mensagem: `Bem vindo, ${usuario.nome}!` });
   } else {
     res.json({ sucesso: false, mensagem: 'Email ou senha incorretos.' });
   }
 });
 
-// --- ROTA DE ANÁLISE (O MOTOR DO SITE) ---
+// ✅ Rota para verificar token e retornar dados do usuário
+app.get('/me', verificarAcesso, async (req, res) => {
+  const { rows } = await pool.query('SELECT nome, email, plano FROM usuarios WHERE id = $1', [req.usuario.id]);
+  const usuario = rows[0];
+  res.json({ sucesso: true, nome: usuario.nome, email: usuario.email, plano: usuario.plano });
+});
 
-// ✅ Função com retry automático (3 tentativas com delay crescente)
+// --- CHAMADA IA COM RETRY ---
+
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const fazerChamadaIA = (modelo, prompt, tentativa = 1) => {
-  return new Promise(async (resolve, reject) => {
-    const body = JSON.stringify({
-    model: modelo,
-    messages: [{ role: 'user', content: prompt }],
-    stream: false
-  });
+async function fazerChamadaIA(prompt, tentativa = 1) {
+  const APP_URL = process.env.APP_URL || 'https://ferramentas-ia-production.up.railway.app';
 
-    // ✅ HTTP-Referer corrigido para a URL real do app
-    const APP_URL = process.env.APP_URL || 'https://ferramentas-ia-production.up.railway.app';
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({
+      model: 'meta-llama/llama-3.1-8b-instruct',
+      messages: [{ role: 'user', content: prompt }],
+      stream: false
+    });
 
     const options = {
       hostname: 'openrouter.ai',
@@ -122,116 +126,103 @@ const fazerChamadaIA = (modelo, prompt, tentativa = 1) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
         'HTTP-Referer': APP_URL,
         'X-Title': 'Revenda IA'
-      },
-      timeout: 45000
+      }
     };
 
-    const request = https.request(options, (response) => {
-    let data = '';
-    console.log("STATUS HTTP OPENROUTER:", response.statusCode);
-    response.on('data', chunk => data += chunk);
-    response.on('end', async () => {
-    try {
-      console.log("RESPOSTA BRUTA OPENROUTER:", data);
-      const json = typeof data === 'string' ? JSON.parse(data) : data;
+    const req = https.request(options, (response) => {
+      let data = '';
+      response.on('data', chunk => data += chunk);
+      response.on('end', async () => {
+        console.log(`STATUS: ${response.statusCode} | TAMANHO: ${data.length} bytes`);
+        try {
+          const json = JSON.parse(data);
 
-          // ✅ Verifica erros específicos da API (sem saldo, modelo inválido, etc.)
           if (json.error) {
-            const codigoErro = json.error.code || json.error.status;
             const msgErro = json.error.message || 'Erro desconhecido';
             console.error(`ERRO OPENROUTER (tentativa ${tentativa}):`, msgErro);
-
-            // Sem saldo — não adianta tentar de novo
-            if (codigoErro === 402 || msgErro.toLowerCase().includes('credit') || msgErro.toLowerCase().includes('balance')) {
-              return reject({ tipo: 'sem_saldo', mensagem: 'Saldo insuficiente na conta OpenRouter.' });
+            if (json.error.code === 402 || msgErro.toLowerCase().includes('credit') || msgErro.toLowerCase().includes('balance')) {
+              return reject({ tipo: 'sem_saldo' });
             }
-
-            // Outros erros — tenta de novo se ainda tiver tentativas
             if (tentativa < 3) {
-              console.log(`Tentando novamente em ${tentativa * 2}s...`);
               await sleep(tentativa * 2000);
-              return fazerChamadaIA(modelo, prompt, tentativa + 1).then(resolve).catch(reject);
+              return fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject);
             }
-
-            return reject({ tipo: 'erro_api', mensagem: `Erro da IA após 3 tentativas: ${msgErro}` });
+            return reject({ tipo: 'erro_api' });
           }
 
-          if (json.choices && json.choices[0]) {
-            resolve(json.choices[0].message.content);
-          } else {
-            console.error("RESPOSTA INESPERADA OPENROUTER:", data);
-
-            if (tentativa < 3) {
-              console.log(`Tentando novamente em ${tentativa * 2}s...`);
-              await sleep(tentativa * 2000);
-              return fazerChamadaIA(modelo, prompt, tentativa + 1).then(resolve).catch(reject);
-            }
-
-            reject({ tipo: 'erro_resposta', mensagem: 'Resposta inválida da IA após 3 tentativas.' });
+          if (json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content) {
+            return resolve(json.choices[0].message.content);
           }
-        } catch (e) {
+
+          console.error('RESPOSTA INESPERADA:', JSON.stringify(json).substring(0, 300));
           if (tentativa < 3) {
             await sleep(tentativa * 2000);
-            return fazerChamadaIA(modelo, prompt, tentativa + 1).then(resolve).catch(reject);
+            return fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject);
           }
-          reject({ tipo: 'erro_parse', mensagem: 'Erro ao processar resposta da IA.' });
+          reject({ tipo: 'erro_resposta' });
+
+        } catch (e) {
+          console.error('ERRO PARSE:', e.message, '| DATA:', data.substring(0, 200));
+          if (tentativa < 3) {
+            await sleep(tentativa * 2000);
+            return fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject);
+          }
+          reject({ tipo: 'erro_parse' });
         }
       });
     });
 
-    request.on('timeout', async () => {
-      request.destroy();
-      console.warn(`Timeout na tentativa ${tentativa}`);
-      if (tentativa < 3) {
-        await sleep(tentativa * 2000);
-        return fazerChamadaIA(modelo, prompt, tentativa + 1).then(resolve).catch(reject);
-      }
-      reject({ tipo: 'timeout', mensagem: 'A IA demorou demais para responder. Tente novamente.' });
-    });
-
-    request.on('error', async (e) => {
+    req.on('error', async (e) => {
       console.error(`Erro de rede (tentativa ${tentativa}):`, e.message);
       if (tentativa < 3) {
         await sleep(tentativa * 2000);
-        return fazerChamadaIA(modelo, prompt, tentativa + 1).then(resolve).catch(reject);
+        return fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject);
       }
-      reject({ tipo: 'erro_rede', mensagem: 'Erro de conexão com a IA.' });
+      reject({ tipo: 'erro_rede' });
     });
 
-    request.write(body);
-    request.end();
+    req.setTimeout(60000, () => {
+      req.destroy();
+      console.warn(`Timeout na tentativa ${tentativa}`);
+      if (tentativa < 3) {
+        sleep(tentativa * 2000).then(() => fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject));
+      } else {
+        reject({ tipo: 'timeout' });
+      }
+    });
+
+    req.write(body);
+    req.end();
   });
-};
+}
 
 app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
   const { prompt } = req.body;
-  console.log("=== SOLICITAÇÃO DE ANÁLISE RECEBIDA ===");
+  console.log("=== ANÁLISE RECEBIDA ===");
 
   try {
-    const resposta = await fazerChamadaIA('meta-llama/llama-3.1-8b-instruct', prompt);
-    res.json({ sucesso: true, analise: resposta });
+    const analise = await fazerChamadaIA(prompt);
+    res.json({ sucesso: true, analise });
   } catch (error) {
     console.error("FALHA NA ANÁLISE:", error);
-
-    // ✅ Mensagens de erro específicas para o usuário
     const mensagens = {
       sem_saldo: 'Serviço temporariamente indisponível. Contate o suporte.',
-      timeout: 'A IA demorou para responder. Tente novamente em alguns instantes.',
+      timeout: 'A IA demorou para responder. Tente novamente.',
       erro_rede: 'Erro de conexão. Tente novamente.',
       erro_api: 'Erro no serviço de IA. Tente novamente mais tarde.',
       erro_resposta: 'Resposta inválida da IA. Tente novamente.',
       erro_parse: 'Erro ao processar resposta. Tente novamente.'
     };
-
     const msg = (error.tipo && mensagens[error.tipo]) ? mensagens[error.tipo] : 'Erro inesperado. Tente novamente.';
     res.status(500).json({ sucesso: false, mensagem: msg });
   }
 });
 
-// --- RESTANTE DAS ROTAS (ADM, PAGAMENTO, ETC) ---
+// --- ROTAS DE PLANO E ADMIN ---
 
 app.get('/meu-plano', verificarAcesso, async (req, res) => {
   const { rows } = await pool.query('SELECT plano, analises_hoje, ultima_analise FROM usuarios WHERE id = $1', [req.usuario.id]);
