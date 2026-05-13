@@ -169,7 +169,7 @@
     <div class="preco-card destaque">
       <div class="preco-badge">Mais popular</div>
       <div class="preco-nome">Pro</div>
-      <div class="preco-valor">R$ 29<span>/mês</span></div>
+      <div class="preco-valor">R$ 19<span>,90/mês</span></div>
       <div class="preco-desc">Para vendedores sérios</div>
       <ul class="preco-lista">
         <li>Análises ilimitadas</li>
@@ -180,7 +180,7 @@
         <li>Resposta para reclamações</li>
         <li>Atualizações gratuitas</li>
       </ul>
-      <a href="login.html?plano=pro" class="btn-preco btn-preco-primary">Assinar agora →</a>
+      <button onclick="assinarPro()" class="btn-preco btn-preco-primary">Assinar agora →</button>
     </div>
   </div>
 </div>
@@ -250,6 +250,18 @@
         '<a href="ferramenta.html" class="btn-hero nav-cta" style="padding:7px 16px;font-size:13px;">Acessar →</a>';
     }).catch(function() {});
   }
+
+  async function assinarPro() {
+  const token = localStorage.getItem('token');
+  if (!token) { window.location.href = 'login.html?plano=pro'; return; }
+  try {
+    const res = await fetch('https://ferramentas-ia-production.up.railway.app/criar-pagamento', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }
+    });
+    const data = await res.json();
+    if (data.sucesso) window.location.href = data.url;
+  } catch(e) { alert('Erro ao iniciar pagamento. Tente novamente.'); }
+}
 </script>
 </body>
 </html>
