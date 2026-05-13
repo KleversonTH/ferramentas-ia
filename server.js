@@ -1,4 +1,4 @@
-const { MercadoPagoConfig } = require('mercadopago');
+const { MercadoPagoConfig, Preference } = require('mercadopago');
 const https = require('https');
 const express = require('express');
 const { Pool } = require('pg');
@@ -9,6 +9,7 @@ app.use(express.json());
 app.use(express.static('.'));
 
 const SEGREDO = process.env.JWT_SECRET || 'minha-chave-secreta-123';
+const BASE_URL = process.env.APP_URL || 'https://ferramentas-ia-production.up.railway.app';
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
 const pool = new Pool({
@@ -122,8 +123,6 @@ app.get('/me', verificarAcesso, async (req, res) => {
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function fazerChamadaIA(prompt, tentativa = 1) {
-  const APP_URL = process.env.APP_URL || 'https://ferramentas-ia-production.up.railway.app';
-
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
       model: 'meta-llama/llama-3.3-70b-instruct',
@@ -139,7 +138,7 @@ async function fazerChamadaIA(prompt, tentativa = 1) {
         'Content-Type': 'application/json',
         'Content-Length': Buffer.byteLength(body),
         'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'HTTP-Referer': APP_URL,
+        'HTTP-Referer': BASE_URL,
         'X-Title': 'Revenda IA'
       }
     };
@@ -151,59 +150,36 @@ async function fazerChamadaIA(prompt, tentativa = 1) {
         console.log(`STATUS: ${response.statusCode} | TAMANHO: ${data.length} bytes`);
         try {
           const json = JSON.parse(data);
-
           if (json.error) {
             const msgErro = json.error.message || 'Erro desconhecido';
             console.error(`ERRO OPENROUTER (tentativa ${tentativa}):`, msgErro);
             if (json.error.code === 402 || msgErro.toLowerCase().includes('credit') || msgErro.toLowerCase().includes('balance')) {
               return reject({ tipo: 'sem_saldo' });
             }
-            if (tentativa < 3) {
-              await sleep(tentativa * 2000);
-              return fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject);
-            }
+            if (tentativa < 3) { await sleep(tentativa * 2000); return fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject); }
             return reject({ tipo: 'erro_api' });
           }
-
           if (json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content) {
             return resolve(json.choices[0].message.content);
           }
-
-          console.error('RESPOSTA INESPERADA:', JSON.stringify(json).substring(0, 300));
-          if (tentativa < 3) {
-            await sleep(tentativa * 2000);
-            return fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject);
-          }
+          if (tentativa < 3) { await sleep(tentativa * 2000); return fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject); }
           reject({ tipo: 'erro_resposta' });
-
         } catch (e) {
-          console.error('ERRO PARSE:', e.message, '| DATA:', data.substring(0, 200));
-          if (tentativa < 3) {
-            await sleep(tentativa * 2000);
-            return fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject);
-          }
+          if (tentativa < 3) { await sleep(tentativa * 2000); return fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject); }
           reject({ tipo: 'erro_parse' });
         }
       });
     });
 
     req.on('error', async (e) => {
-      console.error(`Erro de rede (tentativa ${tentativa}):`, e.message);
-      if (tentativa < 3) {
-        await sleep(tentativa * 2000);
-        return fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject);
-      }
+      if (tentativa < 3) { await sleep(tentativa * 2000); return fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject); }
       reject({ tipo: 'erro_rede' });
     });
 
     req.setTimeout(60000, () => {
       req.destroy();
-      console.warn(`Timeout na tentativa ${tentativa}`);
-      if (tentativa < 3) {
-        sleep(tentativa * 2000).then(() => fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject));
-      } else {
-        reject({ tipo: 'timeout' });
-      }
+      if (tentativa < 3) { sleep(tentativa * 2000).then(() => fazerChamadaIA(prompt, tentativa + 1).then(resolve).catch(reject)); }
+      else reject({ tipo: 'timeout' });
     });
 
     req.write(body);
@@ -242,8 +218,71 @@ app.get('/meu-plano', verificarAcesso, async (req, res) => {
   res.json({ plano: usuario.plano, analisesHoje, restantes: usuario.plano === 'pro' ? 'ilimitado' : Math.max(0, 3 - analisesHoje) });
 });
 
-app.post('/criar-pagamento', async (req, res) => {
-  res.json({ sucesso: true, url: 'https://mpago.la/2D6c6S4' });
+// ✅ CHECKOUT PRO — Cria preferência de pagamento no MP
+app.post('/criar-pagamento', verificarAcesso, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT nome, email FROM usuarios WHERE id = $1', [req.usuario.id]);
+    const usuario = rows[0];
+
+    const preference = new Preference(mp);
+    const resultado = await preference.create({
+      body: {
+        items: [{
+          title: 'Revenda IA — Plano Pro',
+          description: 'Acesso ilimitado a todas as ferramentas de IA para Mercado Livre',
+          quantity: 1,
+          currency_id: 'BRL',
+          unit_price: 19.90
+        }],
+        payer: {
+          name: usuario.nome,
+          email: usuario.email
+        },
+        back_urls: {
+          success: `${BASE_URL}/pagamento-sucesso.html`,
+          failure: `${BASE_URL}/login.html`,
+          pending: `${BASE_URL}/pagamento-pendente.html`
+        },
+        auto_return: 'approved',
+        notification_url: `${BASE_URL}/webhook-mp`,
+        external_reference: String(req.usuario.id),
+        statement_descriptor: 'REVENDA IA PRO'
+      }
+    });
+
+    res.json({ sucesso: true, url: resultado.init_point });
+  } catch (e) {
+    console.error('ERRO CRIAR PAGAMENTO:', e);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro ao criar pagamento.' });
+  }
+});
+
+// ✅ WEBHOOK — MP notifica quando pagamento é aprovado
+app.post('/webhook-mp', async (req, res) => {
+  try {
+    const { type, data } = req.body;
+    console.log('WEBHOOK MP:', type, data);
+
+    if (type === 'payment' && data && data.id) {
+      // Busca os detalhes do pagamento
+      const pagamento = await fetch(`https://api.mercadopago.com/v1/payments/${data.id}`, {
+        headers: { 'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}` }
+      }).then(r => r.json());
+
+      console.log('PAGAMENTO STATUS:', pagamento.status, '| USER:', pagamento.external_reference);
+
+      if (pagamento.status === 'approved' && pagamento.external_reference) {
+        const userId = parseInt(pagamento.external_reference);
+        await pool.query('UPDATE usuarios SET plano = $1, ativo = 1 WHERE id = $2', ['pro', userId]);
+        console.log(`✅ Usuário ${userId} ativado como Pro!`);
+      }
+    }
+
+    res.sendStatus(200);
+  } catch (e) {
+    console.error('ERRO WEBHOOK:', e);
+    res.sendStatus(200); // sempre retorna 200 pro MP
+  }
 });
 
 // --- ROTAS ADMIN (protegidas) ---
