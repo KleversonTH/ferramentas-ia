@@ -219,8 +219,26 @@ app.get('/meu-plano', verificarAcesso, async (req, res) => {
 });
 
 // ✅ CHECKOUT PRO — Cria preferência de pagamento no MP
-  app.post('/criar-pagamento', verificarAcesso, async (req, res) => {
-  res.json({ sucesso: true, url: 'https://mpago.la/2D6c6S4' });
+app.post('/criar-pagamento', verificarAcesso, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT nome, email FROM usuarios WHERE id = $1', [req.usuario.id]);
+    const usuario = rows[0];
+    const preference = new Preference(mp);
+    const resultado = await preference.create({
+      body: {
+        items: [{ title: 'Revenda IA — Plano Pro', quantity: 1, currency_id: 'BRL', unit_price: 19.90 }],
+        payer: { name: usuario.nome, email: usuario.email },
+        back_urls: { success: `${BASE_URL}/pagamento-sucesso.html`, failure: `${BASE_URL}/login.html`, pending: `${BASE_URL}/pagamento-pendente.html` },
+        auto_return: 'approved',
+        notification_url: `${BASE_URL}/webhook-mp`,
+        external_reference: String(req.usuario.id)
+      }
+    });
+    res.json({ sucesso: true, url: resultado.init_point });
+  } catch (e) {
+    console.error('ERRO CRIAR PAGAMENTO:', e);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro ao criar pagamento.' });
+  }
 });
 
 // ✅ WEBHOOK — MP notifica quando pagamento é aprovado
