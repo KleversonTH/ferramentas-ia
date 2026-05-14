@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /ferramenta.html
+Disallow: /admin.html
+Disallow: /pagamento-sucesso.html
+Disallow: /pagamento-pendente.html
+
+Sitemap: https://www.revendaia.com.br/sitemap.xml

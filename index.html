@@ -4,14 +4,55 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Revenda IA — Analisador de Produtos ML</title>
+
+  <!-- ✅ SEO META TAGS -->
+  <title>Revenda IA — Encontre Produtos para Vender no Mercado Livre com IA</title>
+  <meta name="description" content="Descubra produtos com alta demanda e margem de lucro para revender no Mercado Livre. Analise nichos, gere anúncios e encontre fornecedores com Inteligência Artificial. Grátis para começar." />
+  <meta name="keywords" content="mercado livre, produtos para revender, nicho mercado livre, analisar produto ML, ferramentas mercado livre, revenda online, dropshipping brasil, fornecedores mercado livre" />
+  <meta name="author" content="Revenda IA" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.revendaia.com.br/" />
+
+  <!-- ✅ OPEN GRAPH (WhatsApp, Facebook, LinkedIn) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.revendaia.com.br/" />
+  <meta property="og:title" content="Revenda IA — Encontre Produtos para Vender no Mercado Livre com IA" />
+  <meta property="og:description" content="Descubra produtos com alta demanda e margem de lucro para revender no Mercado Livre. Analise nichos, gere anúncios e encontre fornecedores com IA." />
+  <meta property="og:image" content="https://ferramentas-ia-production.up.railway.app/og-image.png" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:site_name" content="Revenda IA" />
+
+  <!-- ✅ TWITTER CARD -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Revenda IA — Ferramentas de IA para Mercado Livre" />
+  <meta name="twitter:description" content="Encontre produtos lucrativos para vender no Mercado Livre com Inteligência Artificial." />
+  <meta name="twitter:image" content="https://ferramentas-ia-production.up.railway.app/og-image.png" />
+
+  <!-- ✅ SCHEMA.ORG (dados estruturados para Google) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Revenda IA",
+    "description": "Ferramentas de Inteligência Artificial para vendedores do Mercado Livre. Analise produtos, nichos, gere anúncios e encontre fornecedores.",
+    "url": "https://www.revendaia.com.br",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "BRL",
+      "description": "Plano gratuito disponível"
+    },
+    "inLanguage": "pt-BR"
+  }
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0f; color: #e8e8f0; }
-
-    /* NAVBAR */
     nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,15,0.9); border-bottom: 1px solid #1e1e2e; padding: 14px 2rem; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
     .nav-logo { font-size: 16px; font-weight: 600; color: #fff; }
     .nav-logo span { background: linear-gradient(135deg, #facc15, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
@@ -21,8 +62,6 @@
     .nav-login:hover { border-color: #555570; color: #c8c8e0; }
     .nav-cta { background: linear-gradient(135deg, #facc15, #f97316); color: #0a0a0f !important; font-weight: 600; }
     .nav-cta:hover { opacity: 0.9; }
-
-    /* HERO */
     .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 6rem 1rem 4rem; position: relative; overflow: hidden; }
     .hero-glow { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 800px; height: 500px; background: radial-gradient(ellipse, rgba(250,204,21,0.08) 0%, transparent 70%); pointer-events: none; }
     .hero-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.2); border-radius: 100px; padding: 6px 16px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: #fde68a; margin-bottom: 1.5rem; letter-spacing: 0.04em; }
@@ -37,8 +76,6 @@
     .btn-hero-primary:hover { opacity: 0.9; transform: translateY(-1px); }
     .btn-hero-secondary { background: transparent; color: #c8c8e0; border: 1px solid #1e1e2e; }
     .btn-hero-secondary:hover { border-color: #555570; }
-
-    /* FEATURES */
     .section { padding: 5rem 1rem; max-width: 1000px; margin: 0 auto; }
     .section-label { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: #facc15; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; text-align: center; }
     .section-title { font-size: clamp(24px, 4vw, 36px); font-weight: 600; color: #fff; text-align: center; margin-bottom: 1rem; letter-spacing: -0.02em; }
@@ -49,8 +86,6 @@
     .feature-icon { font-size: 28px; margin-bottom: 12px; }
     .feature-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 6px; }
     .feature-desc { font-size: 13px; color: #666680; line-height: 1.6; }
-
-    /* PREÇOS */
     .precos-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; max-width: 800px; margin: 0 auto; }
     .preco-card { background: #13131a; border: 1px solid #1e1e2e; border-radius: 16px; padding: 2rem; position: relative; }
     .preco-card.destaque { border-color: rgba(250,204,21,0.4); background: linear-gradient(135deg, rgba(250,204,21,0.05), rgba(249,115,22,0.05)); }
@@ -67,8 +102,6 @@
     .btn-preco-primary:hover { opacity: 0.9; }
     .btn-preco-secondary { background: transparent; color: #c8c8e0; border: 1px solid #1e1e2e; }
     .btn-preco-secondary:hover { border-color: #555570; }
-
-    /* FAQ */
     .faq-lista { max-width: 640px; margin: 0 auto; }
     .faq-item { border-bottom: 1px solid #1e1e2e; padding: 1.25rem 0; cursor: pointer; }
     .faq-pergunta { font-size: 15px; font-weight: 500; color: #c8c8e0; display: flex; justify-content: space-between; align-items: center; }
@@ -76,19 +109,14 @@
     .faq-resposta { font-size: 14px; color: #666680; line-height: 1.7; margin-top: 10px; display: none; }
     .faq-item.aberto .faq-resposta { display: block; }
     .faq-item.aberto .faq-pergunta span { transform: rotate(45deg); }
-
-    /* CTA FINAL */
     .cta-final { text-align: center; padding: 5rem 1rem; background: linear-gradient(135deg, rgba(250,204,21,0.05), rgba(249,115,22,0.03)); border-top: 1px solid #1e1e2e; border-bottom: 1px solid #1e1e2e; }
     .cta-final h2 { font-size: clamp(24px, 4vw, 36px); font-weight: 600; color: #fff; margin-bottom: 12px; letter-spacing: -0.02em; }
     .cta-final p { font-size: 15px; color: #666680; margin-bottom: 2rem; }
-
-    /* FOOTER */
     footer { text-align: center; padding: 2rem 1rem; font-size: 12px; color: #2a2a40; font-family: 'JetBrains Mono', monospace; }
   </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav>
   <div class="nav-logo">Revenda <span>IA</span></div>
   <div class="nav-links">
@@ -97,7 +125,6 @@
   </div>
 </nav>
 
-<!-- HERO -->
 <section class="hero">
   <div class="hero-glow"></div>
   <div class="hero-badge">IA ativa — resultados em segundos</div>
@@ -109,15 +136,14 @@
   </div>
 </section>
 
-<!-- FEATURES -->
 <div class="section">
   <p class="section-label">Funcionalidades</p>
-  <h2 class="section-title">Tudo que você precisa para vender mais</h2>
+  <h2 class="section-title">Tudo que você precisa para vender mais no Mercado Livre</h2>
   <p class="section-sub">Nossa IA analisa o mercado e te dá insights práticos para tomar decisões melhores</p>
   <div class="features-grid">
     <div class="feature-card">
       <div class="feature-icon">📊</div>
-      <div class="feature-title">Análise de demanda</div>
+      <div class="feature-title">Análise de demanda no ML</div>
       <div class="feature-desc">Veja quais produtos têm alta demanda e baixa concorrência no Mercado Livre agora.</div>
     </div>
     <div class="feature-card">
@@ -131,14 +157,14 @@
       <div class="feature-desc">Acesse AliExpress, Shopee, Alibaba e Mercado Livre com um clique para pesquisar preços reais.</div>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">⭐</div>
-      <div class="feature-title">Salvar favoritos</div>
-      <div class="feature-desc">Favorite os produtos que mais gostou e compare antes de tomar sua decisão.</div>
+      <div class="feature-icon">✍️</div>
+      <div class="feature-title">Gerador de anúncios</div>
+      <div class="feature-desc">Crie títulos e descrições otimizados para ranquear melhor no Mercado Livre automaticamente.</div>
     </div>
     <div class="feature-card">
-      <div class="feature-icon">🎯</div>
-      <div class="feature-title">Dicas práticas</div>
-      <div class="feature-desc">Receba dicas personalizadas de como se destacar na venda de cada produto.</div>
+      <div class="feature-icon">🔑</div>
+      <div class="feature-title">Palavras-chave para ML</div>
+      <div class="feature-desc">Descubra as melhores palavras-chave para seus anúncios aparecerem nas buscas do ML.</div>
     </div>
     <div class="feature-card">
       <div class="feature-icon">⚡</div>
@@ -148,7 +174,6 @@
   </div>
 </div>
 
-<!-- PREÇOS -->
 <div class="section" id="precos">
   <p class="section-label">Planos</p>
   <h2 class="section-title">Simples e sem surpresas</h2>
@@ -170,7 +195,7 @@
       <div class="preco-badge">Mais popular</div>
       <div class="preco-nome">Pro</div>
       <div class="preco-valor">R$ 19<span>,90/mês</span></div>
-      <div class="preco-desc">Para vendedores sérios</div>
+      <div class="preco-desc">Para vendedores sérios no Mercado Livre</div>
       <ul class="preco-lista">
         <li>Análises ilimitadas</li>
         <li>6 ferramentas completas</li>
@@ -185,7 +210,6 @@
   </div>
 </div>
 
-<!-- FAQ -->
 <div class="section">
   <p class="section-label">Dúvidas</p>
   <h2 class="section-title">Perguntas frequentes</h2>
@@ -204,25 +228,28 @@
       <div class="faq-resposta">Sim! Não há fidelidade. Você pode cancelar a qualquer momento e não será cobrado no mês seguinte.</div>
     </div>
     <div class="faq-item" onclick="toggleFaq(this)">
-      <div class="faq-pergunta">Funciona para qualquer categoria? <span>+</span></div>
+      <div class="faq-pergunta">Funciona para qualquer categoria do Mercado Livre? <span>+</span></div>
       <div class="faq-resposta">Sim! Você pode analisar qualquer categoria — eletrônicos, beleza, casa, fitness, pet, infantil e muito mais.</div>
     </div>
     <div class="faq-item" onclick="toggleFaq(this)">
       <div class="faq-pergunta">Preciso ter experiência para usar? <span>+</span></div>
       <div class="faq-resposta">Não! A ferramenta foi criada para ser simples. Qualquer pessoa consegue usar sem conhecimento técnico.</div>
     </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-pergunta">Como a IA encontra produtos para revender? <span>+</span></div>
+      <div class="faq-resposta">Nossa IA analisa tendências de mercado, demanda de busca e concorrência para sugerir os produtos com maior potencial de lucro para revenda no Mercado Livre.</div>
+    </div>
   </div>
 </div>
 
-<!-- CTA FINAL -->
 <div class="cta-final">
   <h2>Pronto para vender mais no Mercado Livre?</h2>
-  <p>Comece gratuitamente hoje e descubra produtos lucrativos em segundos.</p>
+  <p>Comece gratuitamente hoje e descubra produtos lucrativos em segundos com IA.</p>
   <a href="login.html" class="btn-hero btn-hero-primary">Criar minha conta grátis →</a>
 </div>
 
 <footer>
-  Revenda IA — powered by Node.js + OpenRouter
+  Revenda IA — Ferramentas de IA para vendedores do Mercado Livre
 </footer>
 
 <script>
@@ -236,12 +263,7 @@
       headers: { 'authorization': token }
     }).then(function(r) { return r.json(); }).then(function(data) {
       if (!data.sucesso) return;
-
-      if (!params.get('bypass')) {
-        window.location.href = 'ferramenta.html';
-        return;
-      }
-
+      if (!params.get('bypass')) { window.location.href = 'ferramenta.html'; return; }
       const planoColor = data.plano === 'pro' ? '#facc15' : '#555570';
       const planoTexto = data.plano === 'pro' ? '⭐ Pro' : 'Gratuito';
       document.querySelector('.nav-links').innerHTML =
@@ -252,16 +274,16 @@
   }
 
   async function assinarPro() {
-  const token = localStorage.getItem('token');
-  if (!token) { window.location.href = 'login.html?plano=pro'; return; }
-  try {
-    const res = await fetch('https://ferramentas-ia-production.up.railway.app/criar-pagamento', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }
-    });
-    const data = await res.json();
-    if (data.sucesso) window.location.href = data.url;
-  } catch(e) { alert('Erro ao iniciar pagamento. Tente novamente.'); }
-}
+    const token = localStorage.getItem('token');
+    if (!token) { window.location.href = 'login.html?plano=pro'; return; }
+    try {
+      const res = await fetch('https://ferramentas-ia-production.up.railway.app/criar-pagamento', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }
+      });
+      const data = await res.json();
+      if (data.sucesso) window.location.href = data.url;
+    } catch(e) { alert('Erro ao iniciar pagamento. Tente novamente.'); }
+  }
 </script>
 </body>
 </html>
