@@ -3,6 +3,7 @@ const https = require('https');
 const express = require('express');
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 
 const app = express();
 app.use(express.json());
@@ -16,6 +17,36 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
+
+// ✅ RATE LIMITING — controle de tentativas por IP (em memória)
+const tentativasLogin = new Map();
+const tentativasCadastro = new Map();
+
+function limparTentativasAntigas(mapa, janela) {
+  const agora = Date.now();
+  for (const [ip, dados] of mapa.entries()) {
+    if (agora - dados.inicio > janela) mapa.delete(ip);
+  }
+}
+
+function verificarRateLimit(mapa, ip, maxTentativas, janela, res, mensagem) {
+  limparTentativasAntigas(mapa, janela);
+  const agora = Date.now();
+  const dados = mapa.get(ip) || { tentativas: 0, inicio: agora };
+  if (agora - dados.inicio > janela) { dados.tentativas = 0; dados.inicio = agora; }
+  dados.tentativas++;
+  mapa.set(ip, dados);
+  if (dados.tentativas > maxTentativas) {
+    const restante = Math.ceil((janela - (agora - dados.inicio)) / 1000);
+    res.status(429).json({ sucesso: false, mensagem: `${mensagem} Tente novamente em ${restante} segundos.` });
+    return false;
+  }
+  return true;
+}
+
+function getIP(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || 'unknown';
+}
 
 async function initDB() {
   await pool.query(`
@@ -91,9 +122,19 @@ async function verificarLimite(req, res, next) {
 // --- ROTAS DE AUTENTICAÇÃO ---
 
 app.post('/cadastro', async (req, res) => {
+  const ip = getIP(req);
+
+  // ✅ Rate limit: máx 5 cadastros por IP por hora
+  if (!verificarRateLimit(tentativasCadastro, ip, 5, 60 * 60 * 1000, res, 'Muitos cadastros deste IP.')) return;
+
   const { nome, email, senha } = req.body;
+  if (!nome || !email || !senha) return res.json({ sucesso: false, mensagem: 'Preencha todos os campos.' });
+  if (senha.length < 6) return res.json({ sucesso: false, mensagem: 'A senha deve ter pelo menos 6 caracteres.' });
+  if (!email.includes('@')) return res.json({ sucesso: false, mensagem: 'Email inválido.' });
+
   try {
-    await pool.query('INSERT INTO usuarios (nome, email, senha, ativo) VALUES ($1, $2, $3, 0)', [nome, email, senha]);
+    const senhaHash = await bcrypt.hash(senha, 10);
+    await pool.query('INSERT INTO usuarios (nome, email, senha, ativo) VALUES ($1, $2, $3, 0)', [nome, email, senhaHash]);
     res.json({ sucesso: true, mensagem: 'Cadastro realizado! Aguarde a ativação.' });
   } catch (e) {
     res.json({ sucesso: false, mensagem: 'Email já cadastrado.' });
@@ -101,14 +142,41 @@ app.post('/cadastro', async (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
+  const ip = getIP(req);
+
+  // ✅ Rate limit: máx 10 tentativas por IP a cada 15 minutos
+  if (!verificarRateLimit(tentativasLogin, ip, 10, 15 * 60 * 1000, res, 'Muitas tentativas de login.')) return;
+
   const { email, senha } = req.body;
-  const result = await pool.query('SELECT * FROM usuarios WHERE email = $1 AND senha = $2', [email, senha]);
-  const usuario = result.rows[0];
-  if (usuario) {
+  if (!email || !senha) return res.json({ sucesso: false, mensagem: 'Preencha todos os campos.' });
+
+  try {
+    const result = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+    const usuario = result.rows[0];
+    if (!usuario) return res.json({ sucesso: false, mensagem: 'Email ou senha incorretos.' });
+
+    let senhaCorreta = false;
+    if (usuario.senha.startsWith('$2b$') || usuario.senha.startsWith('$2a$')) {
+      senhaCorreta = await bcrypt.compare(senha, usuario.senha);
+    } else {
+      senhaCorreta = (senha === usuario.senha);
+      if (senhaCorreta) {
+        const senhaHash = await bcrypt.hash(senha, 10);
+        await pool.query('UPDATE usuarios SET senha = $1 WHERE id = $2', [senhaHash, usuario.id]);
+        console.log(`Senha migrada para bcrypt: ${usuario.email}`);
+      }
+    }
+
+    if (!senhaCorreta) return res.json({ sucesso: false, mensagem: 'Email ou senha incorretos.' });
+
+    // ✅ Login bem sucedido — reseta tentativas do IP
+    tentativasLogin.delete(ip);
+
     const token = jwt.sign({ id: usuario.id, nome: usuario.nome, ativo: usuario.ativo }, SEGREDO, { expiresIn: '7d' });
     res.json({ sucesso: true, token, ativo: usuario.ativo === 1, nome: usuario.nome, mensagem: `Bem vindo, ${usuario.nome}!` });
-  } else {
-    res.json({ sucesso: false, mensagem: 'Email ou senha incorretos.' });
+  } catch (e) {
+    console.error('ERRO LOGIN:', e);
+    res.json({ sucesso: false, mensagem: 'Erro ao fazer login. Tente novamente.' });
   }
 });
 
@@ -218,7 +286,6 @@ app.get('/meu-plano', verificarAcesso, async (req, res) => {
   res.json({ plano: usuario.plano, analisesHoje, restantes: usuario.plano === 'pro' ? 'ilimitado' : Math.max(0, 3 - analisesHoje) });
 });
 
-// ✅ CHECKOUT PRO — Cria preferência de pagamento no MP
 app.post('/criar-pagamento', verificarAcesso, async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT nome, email FROM usuarios WHERE id = $1', [req.usuario.id]);
@@ -241,39 +308,39 @@ app.post('/criar-pagamento', verificarAcesso, async (req, res) => {
   }
 });
 
-// ✅ WEBHOOK — MP notifica quando pagamento é aprovado
 app.post('/webhook-mp', async (req, res) => {
   try {
     const { type, data } = req.body;
     console.log('WEBHOOK MP:', type, data);
-
     if (type === 'payment' && data && data.id) {
-      // Busca os detalhes do pagamento
       const pagamento = await fetch(`https://api.mercadopago.com/v1/payments/${data.id}`, {
         headers: { 'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}` }
       }).then(r => r.json());
-
       console.log('PAGAMENTO STATUS:', pagamento.status, '| USER:', pagamento.external_reference);
-
       if (pagamento.status === 'approved' && pagamento.external_reference) {
         const userId = parseInt(pagamento.external_reference);
         await pool.query('UPDATE usuarios SET plano = $1, ativo = 1 WHERE id = $2', ['pro', userId]);
         console.log(`✅ Usuário ${userId} ativado como Pro!`);
       }
     }
-
     res.sendStatus(200);
   } catch (e) {
     console.error('ERRO WEBHOOK:', e);
-    res.sendStatus(200); // sempre retorna 200 pro MP
+    res.sendStatus(200);
   }
 });
 
 // --- ROTAS ADMIN (protegidas) ---
 
 app.post('/admin/login', async (req, res) => {
+  const ip = getIP(req);
+
+  // ✅ Rate limit admin: máx 5 tentativas por IP a cada 30 minutos
+  if (!verificarRateLimit(tentativasLogin, ip + '_admin', 5, 30 * 60 * 1000, res, 'Muitas tentativas no admin.')) return;
+
   const { email, senha } = req.body;
   if (email === process.env.ADMIN_EMAIL && senha === process.env.ADMIN_SENHA) {
+    tentativasLogin.delete(ip + '_admin');
     const token = jwt.sign({ admin: true }, SEGREDO, { expiresIn: '8h' });
     res.json({ sucesso: true, token });
   } else {
