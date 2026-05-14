@@ -12,7 +12,9 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.9.0",
+    "cors": "^2.8.6",
     "express": "^5.2.1",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "mercadopago": "^2.12.0",
     "node-fetch": "^2.7.0",

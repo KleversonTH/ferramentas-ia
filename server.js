@@ -4,9 +4,37 @@ const express = require('express');
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const helmet = require('helmet');
+const cors = require('cors');
 
 const app = express();
-app.use(express.json());
+
+// ✅ HELMET — headers de segurança HTTP
+app.use(helmet({
+  contentSecurityPolicy: false, // desativado para não quebrar os scripts inline do frontend
+  crossOriginEmbedderPolicy: false
+}));
+
+// ✅ CORS — só aceita requisições dos domínios autorizados
+const dominiosPermitidos = [
+  'https://ferramentas-ia-production.up.railway.app',
+  'https://www.revendaia.com.br',
+  'http://localhost:3000',
+  'http://localhost:8080'
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    // Permite requisições sem origin (ex: Railway, Postman, webhooks do MP)
+    if (!origin) return callback(null, true);
+    if (dominiosPermitidos.includes(origin)) return callback(null, true);
+    callback(new Error('Origem não permitida pelo CORS'));
+  },
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'authorization']
+}));
+
+app.use(express.json({ limit: '10kb' })); // ✅ Limita tamanho do body para evitar ataques
 app.use(express.static('.'));
 
 const SEGREDO = process.env.JWT_SECRET || 'minha-chave-secreta-123';
@@ -123,14 +151,13 @@ async function verificarLimite(req, res, next) {
 
 app.post('/cadastro', async (req, res) => {
   const ip = getIP(req);
-
-  // ✅ Rate limit: máx 5 cadastros por IP por hora
   if (!verificarRateLimit(tentativasCadastro, ip, 5, 60 * 60 * 1000, res, 'Muitos cadastros deste IP.')) return;
 
   const { nome, email, senha } = req.body;
   if (!nome || !email || !senha) return res.json({ sucesso: false, mensagem: 'Preencha todos os campos.' });
   if (senha.length < 6) return res.json({ sucesso: false, mensagem: 'A senha deve ter pelo menos 6 caracteres.' });
   if (!email.includes('@')) return res.json({ sucesso: false, mensagem: 'Email inválido.' });
+  if (nome.length > 100 || email.length > 200) return res.json({ sucesso: false, mensagem: 'Dados inválidos.' });
 
   try {
     const senhaHash = await bcrypt.hash(senha, 10);
@@ -143,8 +170,6 @@ app.post('/cadastro', async (req, res) => {
 
 app.post('/login', async (req, res) => {
   const ip = getIP(req);
-
-  // ✅ Rate limit: máx 10 tentativas por IP a cada 15 minutos
   if (!verificarRateLimit(tentativasLogin, ip, 10, 15 * 60 * 1000, res, 'Muitas tentativas de login.')) return;
 
   const { email, senha } = req.body;
@@ -169,9 +194,7 @@ app.post('/login', async (req, res) => {
 
     if (!senhaCorreta) return res.json({ sucesso: false, mensagem: 'Email ou senha incorretos.' });
 
-    // ✅ Login bem sucedido — reseta tentativas do IP
     tentativasLogin.delete(ip);
-
     const token = jwt.sign({ id: usuario.id, nome: usuario.nome, ativo: usuario.ativo }, SEGREDO, { expiresIn: '7d' });
     res.json({ sucesso: true, token, ativo: usuario.ativo === 1, nome: usuario.nome, mensagem: `Bem vindo, ${usuario.nome}!` });
   } catch (e) {
@@ -257,6 +280,7 @@ async function fazerChamadaIA(prompt, tentativa = 1) {
 
 app.post('/analisar', verificarAcesso, verificarLimite, async (req, res) => {
   const { prompt } = req.body;
+  if (!prompt || prompt.length > 5000) return res.status(400).json({ sucesso: false, mensagem: 'Prompt inválido.' });
   console.log("=== ANÁLISE RECEBIDA ===");
   try {
     const analise = await fazerChamadaIA(prompt);
@@ -334,8 +358,6 @@ app.post('/webhook-mp', async (req, res) => {
 
 app.post('/admin/login', async (req, res) => {
   const ip = getIP(req);
-
-  // ✅ Rate limit admin: máx 5 tentativas por IP a cada 30 minutos
   if (!verificarRateLimit(tentativasLogin, ip + '_admin', 5, 30 * 60 * 1000, res, 'Muitas tentativas no admin.')) return;
 
   const { email, senha } = req.body;
