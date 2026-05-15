@@ -52,7 +52,8 @@
 </div>
 
 <script>
-  const BASE_URL = 'https://ferramentas-ia-production.up.railway.app';
+  // ✅ URL atualizada para o domínio próprio
+  const BASE_URL = 'https://revendaia.com.br';
   let modo = 'login';
 
   function alternarModo() {
@@ -91,18 +92,17 @@
 
       if (modo === 'login') {
         if (!data.ativo) {
-        mostrarErro('Conta não ativada. Aguarde a ativação após o pagamento.');
-        return;
-}
+          mostrarErro('Conta não ativada. Aguarde a ativação após o pagamento.');
+          return;
+        }
         localStorage.setItem('token', data.token);
         localStorage.setItem('userEmail', email);
         const params = new URLSearchParams(window.location.search);
         if (params.get('plano') === 'pro') {
           mostrarSucesso('Login realizado! Redirecionando para pagamento...');
-          const resp = await fetch('https://ferramentas-ia-production.up.railway.app/criar-pagamento', {
+          const resp = await fetch(`${BASE_URL}/criar-pagamento`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
+            headers: { 'Content-Type': 'application/json', 'authorization': data.token }
           });
           const pagamento = await resp.json();
           if (pagamento.sucesso) {
@@ -117,7 +117,7 @@
       }
 
     } catch (e) {
-      mostrarErro('Erro de conexão. Verifique se o servidor está rodando.');
+      mostrarErro('Erro de conexão. Tente novamente.');
     }
   }
 
@@ -132,33 +132,27 @@
     document.getElementById('sucesso').style.display = 'block';
     document.getElementById('erro').style.display = 'none';
   }
-</script>
-<script>
-  // Redireciona para ferramenta se já estiver logado
+
+  // ✅ Redireciona para ferramenta se já estiver logado
   const tokenExistente = localStorage.getItem('token');
-if (tokenExistente) {
-  const paramsAtual = new URLSearchParams(window.location.search);
-  fetch('https://ferramentas-ia-production.up.railway.app/ferramenta', {
-    headers: { 'authorization': tokenExistente }
-  }).then(function(r) { return r.json(); }).then(function(data) {
-    if (!data.sucesso) return;
-    if (paramsAtual.get('plano') === 'pro') {
-      // Já logado mas quer assinar Pro — vai direto para pagamento
-      const email = paramsAtual.get('email') || '';
-      fetch('https://ferramentas-ia-production.up.railway.app/criar-pagamento', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: localStorage.getItem('userEmail') || '' })
-      }).then(function(r) { return r.json(); }).then(function(pagamento) {
-        console.log('pagamento:', JSON.stringify(pagamento));
-        if (pagamento.sucesso) window.location.href = pagamento.url;
-        else console.log('erro pagamento:', pagamento);
-      });
-    } else {
-      window.location.href = 'ferramenta.html';
-    }
-  }).catch(function() {});
-}
+  if (tokenExistente) {
+    const paramsAtual = new URLSearchParams(window.location.search);
+    fetch(`${BASE_URL}/me`, {
+      headers: { 'authorization': tokenExistente }
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (!data.sucesso) return;
+      if (paramsAtual.get('plano') === 'pro') {
+        fetch(`${BASE_URL}/criar-pagamento`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'authorization': tokenExistente }
+        }).then(function(r) { return r.json(); }).then(function(pagamento) {
+          if (pagamento.sucesso) window.location.href = pagamento.url;
+        });
+      } else {
+        window.location.href = 'ferramenta.html';
+      }
+    }).catch(function() {});
+  }
 </script>
 </body>
 </html>
