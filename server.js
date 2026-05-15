@@ -19,6 +19,7 @@ app.use(helmet({
 const dominiosPermitidos = [
   'https://ferramentas-ia-production.up.railway.app',
   'https://www.revendaia.com.br',
+  'https://revendaia.com.br',
   'http://localhost:3000',
   'http://localhost:8080'
 ];
