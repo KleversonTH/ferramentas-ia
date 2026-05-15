@@ -19,7 +19,7 @@
   <meta property="og:url" content="https://www.revendaia.com.br/" />
   <meta property="og:title" content="Revenda IA — Encontre Produtos para Vender no Mercado Livre com IA" />
   <meta property="og:description" content="Descubra produtos com alta demanda e margem de lucro para revender no Mercado Livre. Analise nichos, gere anúncios e encontre fornecedores com IA." />
-  <meta property="og:image" content="https://ferramentas-ia-production.up.railway.app/og-image.png" />
+  <meta property="og:image" content="https://revendaia.com.br/og-image.png" />
   <meta property="og:locale" content="pt_BR" />
   <meta property="og:site_name" content="Revenda IA" />
 
@@ -27,7 +27,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Revenda IA — Ferramentas de IA para Mercado Livre" />
   <meta name="twitter:description" content="Encontre produtos lucrativos para vender no Mercado Livre com Inteligência Artificial." />
-  <meta name="twitter:image" content="https://ferramentas-ia-production.up.railway.app/og-image.png" />
+  <meta name="twitter:image" content="https://revendaia.com.br/og-image.png" />
 
   <!-- ✅ SCHEMA.ORG (dados estruturados para Google) -->
   <script type="application/ld+json">
@@ -260,7 +260,7 @@
   const token = localStorage.getItem('token');
 
   if (token) {
-    fetch('https://ferramentas-ia-production.up.railway.app/me', {
+    fetch('https://revendaia.com.br/me', {
       headers: { 'authorization': token }
     }).then(function(r) { return r.json(); }).then(function(data) {
       if (!data.sucesso) return;
@@ -278,7 +278,7 @@
     const token = localStorage.getItem('token');
     if (!token) { window.location.href = 'login.html?plano=pro'; return; }
     try {
-      const res = await fetch('https://ferramentas-ia-production.up.railway.app/criar-pagamento', {
+      const res = await fetch('https://revendaia.com.br/criar-pagamento', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'authorization': token }
       });
       const data = await res.json();
