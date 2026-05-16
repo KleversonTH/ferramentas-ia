@@ -308,7 +308,7 @@ app.get('/meu-plano', verificarAcesso, async (req, res) => {
   const usuario = rows[0];
   const hoje = new Date().toISOString().split('T')[0];
   const analisesHoje = (usuario.ultima_analise && new Date(usuario.ultima_analise).toISOString().split('T')[0] === hoje) ? usuario.analises_hoje : 0;
-  res.json({ plano: usuario.plano, analisesHoje, restantes: usuario.plano === 'pro' ? 'ilimitado' : Math.max(0, 3 - analisesHoje) });
+  res.json({ plano: usuario.plano, analisesHoje, restantes: usuario.plano === 'pro' ? 'ilimitado' : Math.max(0, 1 - analisesHoje) });
 });
 
 app.post('/criar-pagamento', verificarAcesso, async (req, res) => {
