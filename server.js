@@ -400,6 +400,50 @@ app.post('/admin/excluir', verificarAdmin, async (req, res) => {
   res.json({ sucesso: true, mensagem: `${email} excluído!` });
 });
 
+// Redireciona o usuário para login do ML
+app.get('/conectar-ml', verificarAcesso, (req, res) => {
+  const clientId = '1649778785646920';
+  const redirectUri = 'https://www.revendaia.com.br/callback-ml';
+  const url = `https://auth.mercadolibre.com.br/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+  res.json({ sucesso: true, url });
+});
+
+// Recebe o code do ML e troca pelo token
+app.get('/callback-ml', async (req, res) => {
+  const { code } = req.query;
+  if (!code) return res.status(400).send('Código não encontrado.');
+
+  try {
+    const response = await fetch('https://api.mercadolibre.com/oauth/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: '1649778785646920',
+        client_secret: process.env.ML_SECRET,
+        code,
+        redirect_uri: 'https://www.revendaia.com.br/callback-ml'
+      })
+    });
+
+    const data = await response.json();
+    if (data.access_token) {
+      res.redirect(`/perfil.html?ml=conectado`);
+    } else {
+      res.redirect('/perfil.html?ml=erro');
+    }
+  } catch (e) {
+    console.error('ERRO CALLBACK ML:', e);
+    res.redirect('/perfil.html?ml=erro');
+  }
+});
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, async () => {
+  await initDB();
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, async () => {
   await initDB();
