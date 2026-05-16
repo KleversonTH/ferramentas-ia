@@ -426,7 +426,7 @@ app.get('/callback-ml', async (req, res) => {
   if (!code || !state) return res.status(400).send('Parâmetros inválidos.');
 
   try {
-    const response = await fetch('https://api.mercadolivre.com.br/oauth/token', {
+    const response = await fetch('https://api.mercadolibre.com/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
@@ -471,13 +471,13 @@ app.get('/ml-metricas', verificarAcesso, async (req, res) => {
 
     // Busca dados em paralelo
     const [userRes, ordersRes, itemsRes] = await Promise.all([
-      fetch(`https://api.mercadolivre.com.br/users/${userId}`, {
+      fetch(`https://api.mercadolibre.com/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       }).then(r => r.json()),
-      fetch(`https://api.mercadolivre.com.br/orders/search/recent?seller=${userId}`, {
+      fetch(`https://api.mercadolibre.com.br/orders/search?seller=${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       }).then(r => r.json()),
-      fetch(`https://api.mercadolivre.com.br/users/${userId}/items/search`, {
+      fetch(`https://api.mercadolibre.com/users/${userId}/items/search`, {
         headers: { Authorization: `Bearer ${token}` }
       }).then(r => r.json())
     ]);
