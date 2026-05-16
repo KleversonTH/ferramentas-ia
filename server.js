@@ -136,7 +136,7 @@ async function verificarLimite(req, res, next) {
       usuarioData.analises_hoje = 0;
     }
 
-    if (usuarioData.analises_hoje >= 3) {
+    if (usuarioData.analises_hoje >= 1) {
       return res.status(403).json({ erro: 'Limite diário atingido. Faça upgrade para o plano Pro.', limite: true });
     }
 
