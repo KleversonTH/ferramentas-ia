@@ -90,6 +90,11 @@ async function initDB() {
       ultima_analise DATE
     )
   `);
+  await pool.query(`
+    ALTER TABLE usuarios 
+    ADD COLUMN IF NOT EXISTS ml_access_token TEXT,
+    ADD COLUMN IF NOT EXISTS ml_user_id TEXT
+  `);
 }
 
 // --- MIDDLEWARES ---
@@ -414,7 +419,7 @@ app.get('/callback-ml', async (req, res) => {
   if (!code) return res.status(400).send('Código não encontrado.');
 
   try {
-    const response = await fetch('https://api.mercadolibre.com/oauth/token', {
+    const response = await fetch('https://api.mercadolivre.com.br/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
@@ -427,14 +432,66 @@ app.get('/callback-ml', async (req, res) => {
     });
 
     const data = await response.json();
+    console.log('ML TOKEN RESPONSE:', data);
+
     if (data.access_token) {
-      res.redirect(`/perfil.html?ml=conectado`);
+      // Pega o token do usuário logado no site
+      const authHeader = req.headers['authorization'] || req.query.state;
+      
+      // Salva o token ML e o user_id no banco
+      if (data.user_id) {
+        // Busca usuário pelo token JWT — usamos o user_id do ML como referência
+        await pool.query(
+          'UPDATE usuarios SET ml_access_token = $1, ml_user_id = $2 WHERE id = (SELECT id FROM usuarios ORDER BY id DESC LIMIT 1)',
+          [data.access_token, String(data.user_id)]
+        );
+      }
+      res.redirect('/perfil.html?ml=conectado');
     } else {
+      console.error('ML erro:', data);
       res.redirect('/perfil.html?ml=erro');
     }
   } catch (e) {
     console.error('ERRO CALLBACK ML:', e);
     res.redirect('/perfil.html?ml=erro');
+  }
+});
+
+app.get('/ml-metricas', verificarAcesso, async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT ml_access_token, ml_user_id FROM usuarios WHERE id = $1', [req.usuario.id]);
+    const usuario = rows[0];
+
+    if (!usuario.ml_access_token) {
+      return res.json({ sucesso: false, mensagem: 'Conta ML não conectada.' });
+    }
+
+    const token = usuario.ml_access_token;
+    const userId = usuario.ml_user_id;
+
+    // Busca dados em paralelo
+    const [userRes, ordersRes, itemsRes] = await Promise.all([
+      fetch(`https://api.mercadolivre.com.br/users/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(r => r.json()),
+      fetch(`https://api.mercadolivre.com.br/orders/search/recent?seller=${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(r => r.json()),
+      fetch(`https://api.mercadolivre.com.br/users/${userId}/items/search`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(r => r.json())
+    ]);
+
+    res.json({
+      sucesso: true,
+      nome_ml: userRes.nickname || '',
+      reputacao: userRes.seller_reputation?.level_id || 'N/A',
+      vendas: ordersRes.paging?.total || 0,
+      anuncios: itemsRes.paging?.total || 0
+    });
+  } catch (e) {
+    console.error('ERRO ML METRICAS:', e);
+    res.status(500).json({ sucesso: false, mensagem: 'Erro ao buscar métricas.' });
   }
 });
 
