@@ -36,6 +36,12 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '10kb' })); // ✅ Limita tamanho do body para evitar ataques
+app.use((req, res, next) => {
+  if (req.headers['x-forwarded-proto'] === 'http') {
+    return res.redirect(301, 'https://' + req.headers.host + req.url);
+  }
+  next();
+});
 app.use(express.static('.'));
 
 const SEGREDO = process.env.JWT_SECRET || 'minha-chave-secreta-123';
@@ -447,7 +453,7 @@ app.get('/callback-ml', async (req, res) => {
     }
   } catch (e) {
     console.error('ERRO CALLBACK ML:', e);
-    res.redirect('/perfil.html?ml=erro');
+    res.redirect('https://www.revendaia.com.br/perfil.html?ml=erro');
   }
 });
 
