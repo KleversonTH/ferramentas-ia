@@ -443,9 +443,3 @@ app.listen(PORT, async () => {
   await initDB();
   console.log(`Servidor rodando na porta ${PORT}`);
 });
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, async () => {
-  await initDB();
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
