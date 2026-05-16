@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meu Perfil — Revenda IA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Space Grotesk', sans-serif; background: #0a0a0f; color: #e8e8f0; min-height: 100vh; }
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,10,15,0.9); border-bottom: 1px solid #1e1e2e; padding: 14px 2rem; display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
+    .nav-logo { font-size: 16px; font-weight: 600; color: #fff; text-decoration: none; }
+    .nav-logo span { background: linear-gradient(135deg, #facc15, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-links { display: flex; gap: 8px; align-items: center; }
+    .nav-links a { font-size: 13px; padding: 7px 16px; border-radius: 8px; text-decoration: none; transition: all 0.2s; color: #888899; border: 1px solid #1e1e2e; }
+    .nav-links a:hover { border-color: #555570; color: #c8c8e0; }
+    .nav-cta { background: linear-gradient(135deg, #facc15, #f97316) !important; color: #0a0a0f !important; font-weight: 600 !important; border: none !important; }
+
+    .page { padding: 6rem 1rem 4rem; max-width: 860px; margin: 0 auto; }
+
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .page-header p { font-size: 14px; color: #666680; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 24px; }
+
+    .card { background: #13131a; border: 1px solid #1e1e2e; border-radius: 16px; padding: 1.5rem; }
+    .card-label { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #555570; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .card-value { font-size: 26px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+    .card-value.pro { background: linear-gradient(135deg, #facc15, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .card-sub { font-size: 12px; color: #555570; margin-top: 4px; }
+
+    .section-card { background: #13131a; border: 1px solid #1e1e2e; border-radius: 16px; padding: 1.5rem; margin-bottom: 16px; }
+    .section-card-title { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .section-card-desc { font-size: 13px; color: #666680; margin-bottom: 1.25rem; line-height: 1.6; }
+
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; font-family: 'Space Grotesk', sans-serif; border: none; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, #facc15, #f97316); color: #0a0a0f; }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-secondary { background: transparent; color: #c8c8e0; border: 1px solid #1e1e2e; }
+    .btn-secondary:hover { border-color: #555570; }
+    .btn-danger { background: transparent; color: #f87171; border: 1px solid #2a1a1a; }
+    .btn-danger:hover { border-color: #f87171; }
+    .btn-ml { background: #fff200; color: #333; }
+    .btn-ml:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .conectado-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 100px; padding: 5px 14px; font-size: 12px; font-family: 'JetBrains Mono', monospace; color: #4ade80; margin-bottom: 1rem; }
+    .conectado-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #4ade80; }
+
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #0d0d14; }
+    .info-row:last-child { border-bottom: none; }
+    .info-key { font-size: 13px; color: #555570; font-family: 'JetBrains Mono', monospace; }
+    .info-val { font-size: 13px; color: #c8c8e0; }
+
+    .ml-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 1rem; }
+    .ml-metric { background: #0d0d14; border-radius: 10px; padding: 1rem; text-align: center; }
+    .ml-metric-val { font-size: 22px; font-weight: 700; color: #fff; }
+    .ml-metric-label { font-size: 11px; color: #555570; font-family: 'JetBrains Mono', monospace; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .hidden { display: none; }
+    #msg-ml-conectado { display: none; }
+
+    .logout-area { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #1e1e2e; display: flex; justify-content: flex-end; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="ferramenta.html" class="nav-logo">Revenda <span>IA</span></a>
+  <div class="nav-links">
+    <a href="ferramenta.html">← Ferramentas</a>
+    <a href="#" onclick="logout()" class="nav-cta">Sair</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <div class="page-header">
+    <h1>Meu Perfil</h1>
+    <p>Gerencie sua conta e conecte suas integrações</p>
+  </div>
+
+  <!-- Cards de métricas -->
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-label">Plano atual</div>
+      <div class="card-value" id="card-plano">—</div>
+      <div class="card-sub" id="card-plano-sub">Carregando...</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Análises hoje</div>
+      <div class="card-value" id="card-analises">—</div>
+      <div class="card-sub" id="card-restantes">Carregando...</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Mercado Livre</div>
+      <div class="card-value" id="card-ml-status" style="font-size:16px;color:#555570;">Não conectado</div>
+      <div class="card-sub" id="card-ml-sub">Conecte para ver suas métricas</div>
+    </div>
+  </div>
+
+  <!-- Dados da conta -->
+  <div class="section-card">
+    <div class="section-card-title">Dados da conta</div>
+    <div class="section-card-desc">Suas informações de cadastro</div>
+    <div class="info-row"><span class="info-key">nome</span><span class="info-val" id="info-nome">—</span></div>
+    <div class="info-row"><span class="info-key">email</span><span class="info-val" id="info-email">—</span></div>
+    <div class="info-row"><span class="info-key">plano</span><span class="info-val" id="info-plano">—</span></div>
+  </div>
+
+  <!-- Conectar Mercado Livre -->
+  <div class="section-card">
+    <div class="section-card-title">Integração Mercado Livre</div>
+    <div class="section-card-desc">Conecte sua conta do Mercado Livre para visualizar suas métricas de vendas, anúncios e reputação diretamente aqui.</div>
+
+    <div id="msg-ml-conectado" class="conectado-badge">Conta conectada</div>
+
+    <div id="ml-metricas" class="hidden">
+      <div class="ml-metrics">
+        <div class="ml-metric"><div class="ml-metric-val" id="ml-vendas">—</div><div class="ml-metric-label">Vendas</div></div>
+        <div class="ml-metric"><div class="ml-metric-val" id="ml-anuncios">—</div><div class="ml-metric-label">Anúncios</div></div>
+        <div class="ml-metric"><div class="ml-metric-val" id="ml-reputacao">—</div><div class="ml-metric-label">Reputação</div></div>
+      </div>
+    </div>
+
+    <div id="btn-conectar-ml">
+      <button class="btn btn-ml" onclick="conectarML()">🛒 Conectar com Mercado Livre</button>
+    </div>
+  </div>
+
+  <!-- Upgrade plano -->
+  <div class="section-card" id="card-upgrade" style="display:none;">
+    <div class="section-card-title">Fazer upgrade para Pro</div>
+    <div class="section-card-desc">Tenha análises ilimitadas, 6 ferramentas completas e acesso a todas as funcionalidades da plataforma.</div>
+    <button class="btn btn-primary" onclick="assinarPro()">⭐ Assinar Pro por R$ 19,90/mês →</button>
+  </div>
+
+  <div class="logout-area">
+    <button class="btn btn-danger" onclick="logout()">Sair da conta</button>
+  </div>
+
+</div>
+
+<script>
+  const token = localStorage.getItem('token');
+  if (!token) window.location.href = 'login.html';
+
+  async function carregarPerfil() {
+    try {
+      const [meRes, planoRes] = await Promise.all([
+        fetch('https://revendaia.com.br/me', { headers: { authorization: token } }),
+        fetch('https://revendaia.com.br/meu-plano', { headers: { authorization: token } })
+      ]);
+      const me = await meRes.json();
+      const plano = await planoRes.json();
+
+      if (!me.sucesso) { logout(); return; }
+
+      document.getElementById('info-nome').textContent = me.nome;
+      document.getElementById('info-email').textContent = me.email;
+      document.getElementById('info-plano').textContent = me.plano === 'pro' ? '⭐ Pro' : 'Gratuito';
+
+      const cardPlano = document.getElementById('card-plano');
+      cardPlano.textContent = me.plano === 'pro' ? '⭐ Pro' : 'Gratuito';
+      if (me.plano === 'pro') cardPlano.classList.add('pro');
+
+      document.getElementById('card-plano-sub').textContent = me.plano === 'pro' ? 'Análises ilimitadas' : 'Upgrade disponível';
+      document.getElementById('card-analises').textContent = plano.analisesHoje;
+      document.getElementById('card-restantes').textContent = plano.restantes === 'ilimitado' ? 'Ilimitadas disponíveis' : `${plano.restantes} restante(s) hoje`;
+
+      if (me.plano !== 'pro') document.getElementById('card-upgrade').style.display = 'block';
+    } catch(e) {
+      console.error('Erro ao carregar perfil:', e);
+    }
+  }
+
+  async function conectarML() {
+    try {
+      const res = await fetch('https://revendaia.com.br/conectar-ml', { headers: { authorization: token } });
+      const data = await res.json();
+      if (data.sucesso) window.location.href = data.url;
+    } catch(e) {
+      alert('Erro ao conectar com Mercado Livre. Tente novamente.');
+    }
+  }
+
+  async function assinarPro() {
+    try {
+      const res = await fetch('https://revendaia.com.br/criar-pagamento', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', authorization: token }
+      });
+      const data = await res.json();
+      if (data.sucesso) window.location.href = data.url;
+    } catch(e) {
+      alert('Erro ao iniciar pagamento. Tente novamente.');
+    }
+  }
+
+  function logout() {
+    localStorage.removeItem('token');
+    window.location.href = 'login.html';
+  }
+
+  // Verifica se voltou do callback do ML
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('ml') === 'conectado') {
+    document.getElementById('msg-ml-conectado').style.display = 'inline-flex';
+    document.getElementById('btn-conectar-ml').style.display = 'none';
+    document.getElementById('card-ml-status').textContent = '✓ Conectado';
+    document.getElementById('card-ml-status').style.color = '#4ade80';
+    document.getElementById('card-ml-sub').textContent = 'Conta do ML vinculada';
+  }
+
+  carregarPerfil();
+</script>
+</body>
+</html>
