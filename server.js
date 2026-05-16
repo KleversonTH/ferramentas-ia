@@ -440,7 +440,7 @@ app.get('/callback-ml', async (req, res) => {
         'UPDATE usuarios SET ml_access_token = $1, ml_user_id = $2 WHERE id = $3',
         [data.access_token, String(data.user_id), parseInt(state)]
       );
-      res.redirect('/perfil.html?ml=conectado');
+      res.redirect('https://www.revendaia.com.br/perfil.html?ml=conectado');
     } else {
       console.error('ML erro:', data);
       res.redirect('/perfil.html?ml=erro');
