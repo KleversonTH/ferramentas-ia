@@ -202,6 +202,24 @@
     window.location.href = 'login.html';
   }
 
+  async function carregarMetricasML() {
+    try {
+      const res = await fetch('https://revendaia.com.br/ml-metricas', {
+        headers: { authorization: token }
+      });
+      const data = await res.json();
+      if (!data.sucesso) return;
+
+      document.getElementById('ml-metricas').classList.remove('hidden');
+      document.getElementById('ml-vendas').textContent = data.vendas;
+      document.getElementById('ml-anuncios').textContent = data.anuncios;
+      document.getElementById('ml-reputacao').textContent = data.reputacao;
+      document.getElementById('card-ml-status').textContent = data.nome_ml || '✓ Conectado';
+    } catch(e) {
+      console.error('Erro ao carregar métricas ML:', e);
+    }
+  }
+
   // Verifica se voltou do callback do ML
   const params = new URLSearchParams(window.location.search);
   if (params.get('ml') === 'conectado') {
@@ -210,6 +228,7 @@
     document.getElementById('card-ml-status').textContent = '✓ Conectado';
     document.getElementById('card-ml-status').style.color = '#4ade80';
     document.getElementById('card-ml-sub').textContent = 'Conta do ML vinculada';
+    carregarMetricasML();
   }
 
   carregarPerfil();
