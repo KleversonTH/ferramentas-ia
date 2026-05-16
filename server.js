@@ -474,7 +474,7 @@ app.get('/ml-metricas', verificarAcesso, async (req, res) => {
       fetch(`https://api.mercadolibre.com/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       }).then(r => r.json()),
-      fetch(`https://api.mercadolibre.com.br/orders/search?seller=${userId}`, {
+      fetch(`https://api.mercadolibre.com/orders/search?seller=${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       }).then(r => r.json()),
       fetch(`https://api.mercadolibre.com/users/${userId}/items/search`, {
