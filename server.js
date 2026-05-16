@@ -434,7 +434,7 @@ app.get('/callback-ml', async (req, res) => {
         client_id: '1649778785646920',
         client_secret: process.env.ML_SECRET,
         code,
-        redirect_uri: 'https://www.revendaia.com.br/callback-ml'
+        redirect_uri: 'https://revendaia.com.br/callback-ml'
       })
     });
 
