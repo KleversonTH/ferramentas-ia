@@ -439,7 +439,7 @@ app.get('/callback-ml', async (req, res) => {
     });
 
     const data = await response.json();
-    console.log('ML TOKEN RESPONSE:', data);
+    console.log('ML TOKEN RESPONSE:', JSON.stringify(data));
 
     if (data.access_token) {
       await pool.query(
