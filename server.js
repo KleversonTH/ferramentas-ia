@@ -414,7 +414,7 @@ app.post('/admin/excluir', verificarAdmin, async (req, res) => {
 // Redireciona o usuário para login do ML
 app.get('/conectar-ml', verificarAcesso, (req, res) => {
   const clientId = '1649778785646920';
-  const redirectUri = 'https://www.revendaia.com.br/callback-ml';
+  const redirectUri = 'https://revendaia.com.br/callback-ml';
   const state = req.usuario.id; // ← passa o ID do usuário
   const url = `https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
   res.json({ sucesso: true, url });
