@@ -409,14 +409,15 @@ app.post('/admin/excluir', verificarAdmin, async (req, res) => {
 app.get('/conectar-ml', verificarAcesso, (req, res) => {
   const clientId = '1649778785646920';
   const redirectUri = 'https://www.revendaia.com.br/callback-ml';
-  const url = `https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+  const state = req.usuario.id; // ← passa o ID do usuário
+  const url = `https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
   res.json({ sucesso: true, url });
 });
 
 // Recebe o code do ML e troca pelo token
 app.get('/callback-ml', async (req, res) => {
-  const { code } = req.query;
-  if (!code) return res.status(400).send('Código não encontrado.');
+  const { code, state } = req.query;
+  if (!code || !state) return res.status(400).send('Parâmetros inválidos.');
 
   try {
     const response = await fetch('https://api.mercadolivre.com.br/oauth/token', {
@@ -435,17 +436,10 @@ app.get('/callback-ml', async (req, res) => {
     console.log('ML TOKEN RESPONSE:', data);
 
     if (data.access_token) {
-      // Pega o token do usuário logado no site
-      const authHeader = req.headers['authorization'] || req.query.state;
-      
-      // Salva o token ML e o user_id no banco
-      if (data.user_id) {
-        // Busca usuário pelo token JWT — usamos o user_id do ML como referência
-        await pool.query(
-          'UPDATE usuarios SET ml_access_token = $1, ml_user_id = $2 WHERE id = (SELECT id FROM usuarios ORDER BY id DESC LIMIT 1)',
-          [data.access_token, String(data.user_id)]
-        );
-      }
+      await pool.query(
+        'UPDATE usuarios SET ml_access_token = $1, ml_user_id = $2 WHERE id = $3',
+        [data.access_token, String(data.user_id), parseInt(state)]
+      );
       res.redirect('/perfil.html?ml=conectado');
     } else {
       console.error('ML erro:', data);
