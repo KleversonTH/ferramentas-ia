@@ -124,6 +124,15 @@ const BASE_URL = 'https://ferramentas-ia-production.up.railway.app';
 let usuarios = [];
 let adminToken = localStorage.getItem('adminToken');
 
+function escapeHtml(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // Verifica se já tem token salvo
 if (adminToken) {
   mostrarPainel();
@@ -208,24 +217,25 @@ function filtrar() {
 function renderizar(lista) {
   const tabela = document.getElementById('tabela');
   if (lista.length === 0) { tabela.innerHTML = '<tr><td colspan="6" class="vazio">Nenhum usuário encontrado</td></tr>'; return; }
+  // ✅ Usa escapeHtml em todos os dados de usuário e data-attributes nos botões para evitar XSS
   tabela.innerHTML = lista.map(u => `
     <tr>
-      <td style="color:#555570;font-family:monospace;">${u.id}</td>
-      <td>${u.nome}</td>
-      <td style="color:#888899;">${u.email}</td>
+      <td style="color:#555570;font-family:monospace;">${escapeHtml(u.id)}</td>
+      <td>${escapeHtml(u.nome)}</td>
+      <td style="color:#888899;">${escapeHtml(u.email)}</td>
       <td>${u.ativo == 1 ? '<span class="status-ativo">Ativo</span>' : '<span class="status-inativo">Inativo</span>'}</td>
       <td>${u.plano === 'pro' ? '<span class="plano-pro">⭐ Pro</span>' : '<span class="plano-gratuito">Gratuito</span>'}</td>
       <td>
         <div class="acoes">
           ${u.ativo == 0
-            ? `<button class="btn-ativar" onclick="ativar('${u.email}')">Ativar</button>`
-            : `<button class="btn-desativar" onclick="desativar('${u.email}')">Desativar</button>`
+            ? `<button class="btn-ativar" data-email="${escapeHtml(u.email)}" onclick="ativar(this.dataset.email)">Ativar</button>`
+            : `<button class="btn-desativar" data-email="${escapeHtml(u.email)}" onclick="desativar(this.dataset.email)">Desativar</button>`
           }
           ${u.plano !== 'pro'
-            ? `<button class="btn-pro" onclick="tornarPro('${u.email}')">⭐ Pro</button>`
-            : `<button class="btn-gratuito" onclick="tornarGratuito('${u.email}')">Gratuito</button>`
+            ? `<button class="btn-pro" data-email="${escapeHtml(u.email)}" onclick="tornarPro(this.dataset.email)">⭐ Pro</button>`
+            : `<button class="btn-gratuito" data-email="${escapeHtml(u.email)}" onclick="tornarGratuito(this.dataset.email)">Gratuito</button>`
           }
-          <button class="btn-excluir" onclick="excluir('${u.email}')">Excluir</button>
+          <button class="btn-excluir" data-email="${escapeHtml(u.email)}" onclick="excluir(this.dataset.email)">Excluir</button>
         </div>
       </td>
     </tr>

@@ -1,5 +1,6 @@
 const { MercadoPagoConfig, Preference } = require('mercadopago');
 const https = require('https');
+const crypto = require('crypto');
 const express = require('express');
 const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
@@ -42,9 +43,24 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// ✅ Bloqueia acesso a arquivos sensíveis que não devem ser servidos publicamente
+const arquivosBloqueados = new Set([
+  '/server.js', '/banco.db', '/package.json', '/package-lock.json',
+  '/.gitignore', '/script_fix.js', '/readme.md'
+]);
+app.use((req, res, next) => {
+  if (arquivosBloqueados.has(req.path.toLowerCase())) return res.status(403).end();
+  next();
+});
+
 app.use(express.static('.'));
 
-const SEGREDO = process.env.JWT_SECRET || 'minha-chave-secreta-123';
+if (!process.env.JWT_SECRET) {
+  // Em produção isso é crítico — tokens podem ser forjados com a chave padrão
+  console.error('⚠️  AVISO SEGURANÇA: JWT_SECRET não configurado! Configure a variável de ambiente.');
+}
+const SEGREDO = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex');
 const BASE_URL = process.env.APP_URL || 'https://ferramentas-ia-production.up.railway.app';
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN });
 
@@ -56,6 +72,15 @@ const pool = new Pool({
 // ✅ RATE LIMITING — controle de tentativas por IP (em memória)
 const tentativasLogin = new Map();
 const tentativasCadastro = new Map();
+
+// ✅ OAuth state store — protege o fluxo do ML contra CSRF
+const oauthStateMap = new Map(); // token -> { userId, expiry }
+setInterval(() => {
+  const agora = Date.now();
+  for (const [token, dados] of oauthStateMap.entries()) {
+    if (agora > dados.expiry) oauthStateMap.delete(token);
+  }
+}, 5 * 60 * 1000);
 
 function limparTentativasAntigas(mapa, janela) {
   const agora = Date.now();
@@ -344,17 +369,62 @@ app.post('/criar-pagamento', verificarAcesso, async (req, res) => {
   }
 });
 
+function verificarAssinaturaWebhookMP(req) {
+  const webhookSecret = process.env.MP_WEBHOOK_SECRET;
+  // Se o secret não estiver configurado, bloqueia por segurança
+  if (!webhookSecret) {
+    console.warn('AVISO: MP_WEBHOOK_SECRET não configurado — rejeitar webhook.');
+    return false;
+  }
+  const signature = req.headers['x-signature'];
+  const requestId = req.headers['x-request-id'];
+  if (!signature || !requestId) return false;
+
+  const partes = {};
+  signature.split(',').forEach(part => {
+    const [k, v] = part.split('=');
+    if (k && v) partes[k.trim()] = v.trim();
+  });
+  const { ts, v1 } = partes;
+  if (!ts || !v1) return false;
+
+  const dataId = req.body?.data?.id;
+  const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
+  const expected = crypto.createHmac('sha256', webhookSecret).update(manifest).digest('hex');
+
+  try {
+    return crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(v1, 'hex'));
+  } catch {
+    return false;
+  }
+}
+
 app.post('/webhook-mp', async (req, res) => {
+  // ✅ Verifica assinatura do Mercado Pago para evitar webhooks forjados
+  if (!verificarAssinaturaWebhookMP(req)) {
+    console.warn('WEBHOOK MP rejeitado: assinatura inválida ou ausente');
+    return res.sendStatus(401);
+  }
+
   try {
     const { type, data } = req.body;
     console.log('WEBHOOK MP:', type, data);
     if (type === 'payment' && data && data.id) {
-      const pagamento = await fetch(`https://api.mercadopago.com/v1/payments/${data.id}`, {
+      const pagamentoId = parseInt(data.id);
+      if (!pagamentoId || isNaN(pagamentoId)) return res.sendStatus(200);
+
+      const pagamento = await fetch(`https://api.mercadopago.com/v1/payments/${pagamentoId}`, {
         headers: { 'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}` }
       }).then(r => r.json());
+
       console.log('PAGAMENTO STATUS:', pagamento.status, '| USER:', pagamento.external_reference);
+
       if (pagamento.status === 'approved' && pagamento.external_reference) {
         const userId = parseInt(pagamento.external_reference);
+        if (!userId || isNaN(userId)) return res.sendStatus(200);
+        // Confirma que o usuário existe antes de ativar
+        const { rows } = await pool.query('SELECT id FROM usuarios WHERE id = $1', [userId]);
+        if (rows.length === 0) { console.warn(`WEBHOOK: usuário ${userId} não encontrado.`); return res.sendStatus(200); }
         await pool.query('UPDATE usuarios SET plano = $1, ativo = 1 WHERE id = $2', ['pro', userId]);
         console.log(`✅ Usuário ${userId} ativado como Pro!`);
       }
@@ -401,6 +471,10 @@ app.post('/admin/desativar', verificarAdmin, async (req, res) => {
 
 app.post('/admin/plano', verificarAdmin, async (req, res) => {
   const { email, plano } = req.body;
+  // ✅ Whitelist de planos válidos — evita inserção de valores arbitrários
+  if (!['gratuito', 'pro'].includes(plano)) {
+    return res.status(400).json({ sucesso: false, mensagem: 'Plano inválido.' });
+  }
   await pool.query('UPDATE usuarios SET plano = $1 WHERE email = $2', [plano, email]);
   res.json({ sucesso: true, mensagem: `${email} agora é ${plano}!` });
 });
@@ -415,7 +489,9 @@ app.post('/admin/excluir', verificarAdmin, async (req, res) => {
 app.get('/conectar-ml', verificarAcesso, (req, res) => {
   const clientId = '1649778785646920';
   const redirectUri = 'https://revendaia.com.br/callback-ml';
-  const state = req.usuario.id; // ← passa o ID do usuário
+  // ✅ Usa nonce aleatório como state em vez do user ID (previne CSRF)
+  const state = crypto.randomBytes(20).toString('hex');
+  oauthStateMap.set(state, { userId: req.usuario.id, expiry: Date.now() + 10 * 60 * 1000 });
   const url = `https://auth.mercadolivre.com.br/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
   res.json({ sucesso: true, url });
 });
@@ -424,6 +500,14 @@ app.get('/conectar-ml', verificarAcesso, (req, res) => {
 app.get('/callback-ml', async (req, res) => {
   const { code, state } = req.query;
   if (!code || !state) return res.status(400).send('Parâmetros inválidos.');
+
+  // ✅ Valida o state como nonce — protege contra CSRF
+  const stateData = oauthStateMap.get(state);
+  if (!stateData || Date.now() > stateData.expiry) {
+    return res.status(400).send('Estado inválido ou expirado. Inicie novamente a conexão com o ML.');
+  }
+  oauthStateMap.delete(state); // uso único
+  const userId = stateData.userId;
 
   try {
     const response = await fetch('https://api.mercadolibre.com/oauth/token', {
@@ -444,7 +528,7 @@ app.get('/callback-ml', async (req, res) => {
     if (data.access_token) {
       await pool.query(
         'UPDATE usuarios SET ml_access_token = $1, ml_user_id = $2 WHERE id = $3',
-        [data.access_token, String(data.user_id), parseInt(state)]
+        [data.access_token, String(data.user_id), userId]
       );
       res.redirect('https://revendaia.com.br/perfil.html?ml=conectado');
     } else {
