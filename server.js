@@ -580,7 +580,14 @@ app.get('/ml-metricas', verificarAcesso, async (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, async () => {
-  await initDB();
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+
+initDB()
+  .then(() => {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Servidor rodando na porta ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('Falha ao inicializar banco:', err);
+    process.exit(1);
+  });
